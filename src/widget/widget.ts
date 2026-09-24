@@ -67,6 +67,13 @@ declare global {
   const TELEPHONE = reglage("telephone") ?? "02 47 53 00 26";
   const CLE = "duhalle-chatbot";
   const LONGUEUR_MAX = 500;
+  /** Vitesse d'écriture du conseiller, en caractères par seconde… */
+  const VITESSE_FRAPPE = 60;
+  /** …sans qu'une longue réponse mette plus de ce temps à s'écrire (ms). */
+  const DUREE_FRAPPE_MAX = 7000;
+  /** Les points « le conseiller écrit » restent visibles au moins ce temps (ms). */
+  const ATTENTE_MIN = 450;
+  const MOUVEMENT_REDUIT = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
   // ─── État, gardé pendant la visite ─────────────────────────────────────────
 
@@ -184,6 +191,10 @@ declare global {
     .attente span { width: 7px; height: 7px; border-radius: 50%; background: var(--dh-liege); animation: dh-rebond 1s infinite ease-in-out; }
     .attente span:nth-child(2) { animation-delay: .15s; } .attente span:nth-child(3) { animation-delay: .3s; }
     @keyframes dh-rebond { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+    .msg.frappe { cursor: pointer; }
+    .msg.frappe .ecrit::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -2px; background: var(--dh-liege); animation: dh-curseur .8s steps(1) infinite; }
+    @keyframes dh-curseur { 50% { opacity: 0; } }
+    .annonce { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     @media (prefers-reduced-motion: reduce) { .bulle, .attente span { transition: none; animation: none; } }
     @media (max-width: 480px) {
       .fenetre { inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
@@ -213,7 +224,8 @@ declare global {
         </div>
         <button class="fermer" type="button" aria-label="Fermer la discussion">${ICONE_FERMER}</button>
       </header>
-      <div class="fil" role="log" aria-live="polite" aria-relevant="additions"></div>
+      <div class="fil" role="log" aria-live="off"></div>
+      <p class="annonce" role="status" aria-live="polite"></p>
       <div class="suggestions" aria-label="Questions suggérées"></div>
       <form class="saisie">
         <label for="dh-question" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>
@@ -230,6 +242,7 @@ declare global {
   const fenetre = $<HTMLElement>(".fenetre");
   const fil = $<HTMLDivElement>(".fil");
   const zoneSuggestions = $<HTMLDivElement>(".suggestions");
+  const annonce = $<HTMLParagraphElement>(".annonce");
   const formulaire = $<HTMLFormElement>(".saisie");
   const champ = $<HTMLTextAreaElement>("textarea");
   const envoyer = $<HTMLButtonElement>(".saisie button");
@@ -286,34 +299,139 @@ declare global {
     }
   }
 
-  function afficher(message: Message) {
+  function creerLiens(liens: Lien[] | undefined): HTMLElement | null {
+    const valides = (liens ?? []).filter((l) => /^https:\/\//.test(l.url));
+    if (!valides.length) return null;
+    const zone = document.createElement("div");
+    zone.className = "liens";
+    for (const lien of valides) {
+      const a = document.createElement("a");
+      a.href = lien.url;
+      a.textContent = lien.libelle;
+      // Une page du site s'ouvre dans l'onglet : la discussion suit le client.
+      if (new URL(lien.url).hostname !== location.hostname) {
+        a.target = "_blank";
+        a.rel = "noopener";
+      }
+      zone.append(a);
+    }
+    return zone;
+  }
+
+  /** Cale le fil sur un message : sa fin si elle tient à l'écran, sinon son début. */
+  function caler(bloc: HTMLElement) {
+    fil.scrollTop = Math.min(Math.max(0, bloc.offsetTop - 12), fil.scrollHeight - fil.clientHeight);
+  }
+
+  /**
+   * Affiche un message. Une réponse du conseiller peut s'écrire lettre à
+   * lettre (`ecrire`) ; `fin` est appelé quand elle est entièrement affichée.
+   */
+  function afficher(message: Message, ecrire = false, fin?: () => void) {
     const bloc = document.createElement("div");
     bloc.className = `msg ${message.de}`;
+    fil.append(bloc);
     if (message.de === "client") {
       bloc.textContent = message.texte;
-    } else {
-      mettreEnForme(bloc, message.texte);
-      const liens = (message.liens ?? []).filter((l) => /^https:\/\//.test(l.url));
-      if (liens.length) {
-        const zone = document.createElement("div");
-        zone.className = "liens";
-        for (const lien of liens) {
-          const a = document.createElement("a");
-          a.href = lien.url;
-          a.textContent = lien.libelle;
-          // Une page du site s'ouvre dans l'onglet : la discussion suit le client.
-          if (new URL(lien.url).hostname !== location.hostname) {
-            a.target = "_blank";
-            a.rel = "noopener";
-          }
-          zone.append(a);
-        }
-        bloc.append(zone);
-      }
+      fil.scrollTop = fil.scrollHeight;
+      fin?.();
+      return;
     }
-    fil.append(bloc);
-    // Une longue réponse se lit depuis son début : on cale le fil sur elle.
-    fil.scrollTop = message.de === "assistant" ? Math.max(0, bloc.offsetTop - 12) : fil.scrollHeight;
+    const contenu = document.createElement("div");
+    contenu.className = "contenu";
+    mettreEnForme(contenu, message.texte);
+    bloc.append(contenu);
+    const liens = creerLiens(message.liens);
+    const terminer = () => {
+      if (liens) bloc.append(liens);
+      caler(bloc);
+      fin?.();
+    };
+    if (ecrire && !MOUVEMENT_REDUIT) taper(bloc, contenu, terminer);
+    else terminer();
+  }
+
+  // ─── L'écriture lettre à lettre ────────────────────────────────────────────
+
+  /** Termine immédiatement l'écriture en cours, s'il y en a une. */
+  let finirFrappe: (() => void) | null = null;
+
+  function taper(bloc: HTMLElement, contenu: HTMLElement, fin: () => void) {
+    finirFrappe?.();
+    // Le texte est déjà mis en forme ; on vide chaque nœud texte et on le
+    // remplit peu à peu. Les paragraphes et puces n'apparaissent qu'au moment
+    // où leur texte commence, pour ne pas montrer de puces vides.
+    const morceaux: Array<{ noeud: Text; texte: string }> = [];
+    const parcours = document.createTreeWalker(contenu, NodeFilter.SHOW_TEXT);
+    for (let n = parcours.nextNode(); n; n = parcours.nextNode()) {
+      const noeud = n as Text;
+      morceaux.push({ noeud, texte: noeud.data });
+      noeud.data = "";
+    }
+    const blocs = Array.from(contenu.querySelectorAll<HTMLElement>("p, ul, ol, li"));
+    blocs.forEach((b) => (b.hidden = true));
+    // Le curseur clignotant suit le paragraphe ou la puce en cours d'écriture.
+    let ligne: Element | null = null;
+    const reveler = (noeud: Node) => {
+      for (let el = noeud.parentElement; el && el !== contenu; el = el.parentElement) el.hidden = false;
+      const courante = noeud.parentElement?.closest("p, li") ?? null;
+      if (courante !== ligne) {
+        ligne?.classList.remove("ecrit");
+        courante?.classList.add("ecrit");
+        ligne = courante;
+      }
+    };
+
+    const total = morceaux.reduce((n, m) => n + m.texte.length, 0);
+    const parMs = Math.max(VITESSE_FRAPPE / 1000, total / DUREE_FRAPPE_MAX);
+    const debut = performance.now();
+    let suivre = true;
+    let indice = 0;
+    let ecrits = 0;
+    bloc.classList.add("frappe");
+    bloc.setAttribute("aria-hidden", "true");
+
+    const arreterDeSuivre = () => (suivre = false);
+    fil.addEventListener("wheel", arreterDeSuivre, { passive: true });
+    fil.addEventListener("touchmove", arreterDeSuivre, { passive: true });
+
+    let image = 0;
+    const terminer = () => {
+      cancelAnimationFrame(image);
+      for (; indice < morceaux.length; indice++) {
+        reveler(morceaux[indice]!.noeud);
+        morceaux[indice]!.noeud.data = morceaux[indice]!.texte;
+      }
+      blocs.forEach((b) => (b.hidden = false));
+      ligne?.classList.remove("ecrit");
+      bloc.classList.remove("frappe");
+      bloc.removeAttribute("aria-hidden");
+      bloc.removeEventListener("click", terminer);
+      fil.removeEventListener("wheel", arreterDeSuivre);
+      fil.removeEventListener("touchmove", arreterDeSuivre);
+      finirFrappe = null;
+      fin();
+    };
+
+    const avancer = (maintenant: number) => {
+      const cible = Math.min(total, Math.floor((maintenant - debut) * parMs));
+      while (ecrits < cible && indice < morceaux.length) {
+        const { noeud, texte } = morceaux[indice]!;
+        reveler(noeud);
+        const ajout = Math.min(cible - ecrits, texte.length - noeud.data.length);
+        noeud.data = texte.slice(0, noeud.data.length + ajout);
+        ecrits += ajout;
+        if (noeud.data.length >= texte.length) indice++;
+      }
+      if (suivre) caler(bloc);
+      if (ecrits >= total) terminer();
+      else image = requestAnimationFrame(avancer);
+    };
+
+    // Un clic sur le message l'affiche en entier.
+    bloc.addEventListener("click", terminer);
+    finirFrappe = terminer;
+    image = requestAnimationFrame(avancer);
   }
 
   function afficherSuggestions(suggestions: string[]) {
@@ -367,9 +485,10 @@ declare global {
     etat.messages.push(message);
     etat.suggestions = reponse.suggestions ?? [];
     if (reponse.nature !== "erreur") etat.contexte = reponse.contexte;
-    afficher(message);
-    afficherSuggestions(etat.suggestions);
     sauver();
+    // Les lecteurs d'écran reçoivent la réponse entière, sans attendre l'écriture.
+    annonce.textContent = message.texte.replace(/\*\*/g, "");
+    afficher(message, true, () => afficherSuggestions(etat.suggestions));
   }
 
   let enCours = false;
@@ -380,6 +499,8 @@ declare global {
     // Une question posée directement (encart, suggestion) ouvre la discussion
     // sans le message d'accueil, qui arriverait après elle.
     ouvrir(false);
+    // Une nouvelle question interrompt la réponse en cours d'écriture : on l'affiche en entier.
+    finirFrappe?.();
     enCours = true;
     envoyer.disabled = true;
     const message: Message = { de: "client", texte };
@@ -388,7 +509,11 @@ declare global {
     afficherSuggestions([]);
     sauver();
     const attente = afficherAttente();
+    const debut = Date.now();
     const reponse = await appeler("/api/chat", { message: texte, contexte: etat.contexte });
+    // Le conseiller « réfléchit » un court instant, même quand la réponse est immédiate.
+    const reste = MOUVEMENT_REDUIT ? 0 : ATTENTE_MIN - (Date.now() - debut);
+    if (reste > 0) await new Promise((fini) => setTimeout(fini, reste));
     attente.remove();
     recevoir(reponse);
     enCours = false;
@@ -446,7 +571,7 @@ declare global {
   });
 
   // Reprise de la conversation en changeant de page.
-  etat.messages.forEach(afficher);
+  etat.messages.forEach((m) => afficher(m));
   afficherSuggestions(etat.suggestions);
 
   function demarrer() {

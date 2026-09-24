@@ -1,0 +1,22 @@
+{
+  "name": "chatbot-duhalle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chatbot Duhallé : assistant conseil (bouchage, mise en bouteille, cidre, cave, conserves) hébergé sur Cloudflare Workers",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-widget.mjs",
+    "dev": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p src/widget",
+    "test": "vitest run",
+    "cf-typegen": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260924.1",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1",
+    "wrangler": "^4.137.0"
+  }
+}

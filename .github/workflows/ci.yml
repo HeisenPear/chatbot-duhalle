@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Types
+        run: npm run typecheck
+      - name: Tests (base, banc de questions, jeu inédit, Worker)
+        run: npm test
+      - name: Le widget compilé est à jour
+        run: |
+          npm run build
+          git diff --exit-code public/widget.js || (echo "public/widget.js n'est pas à jour : lancez npm run build et commitez le fichier." && exit 1)
+      - name: Le Worker se construit comme sur Cloudflare
+        run: npx wrangler deploy --dry-run --outdir dist
+        env:
+          WRANGLER_SEND_METRICS: "false"

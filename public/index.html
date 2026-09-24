@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Chatbot Duhallé – démonstration</title>
+  <style>
+    :root { --bordeaux: #6B2737; --creme: #F5EFE6; --texte: #2B2B2B; --liege: #B5835A; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--creme); color: var(--texte); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 16px 120px; }
+    h1 { font: 600 clamp(28px, 5vw, 38px)/1.15 Georgia, "Times New Roman", serif; color: var(--bordeaux); margin: 0 0 12px; }
+    h2 { font: 600 22px/1.3 Georgia, "Times New Roman", serif; color: var(--bordeaux); margin: 32px 0 8px; }
+    .carte { background: #fff; border: 1px solid #E4D9C8; border-radius: 10px; padding: 20px; margin-top: 24px; }
+    code { background: var(--creme); border-radius: 4px; padding: 2px 6px; font-size: 14px; }
+    ul { padding-left: 20px; }
+    button.essai { min-height: 44px; margin: 6px 6px 0 0; padding: 8px 16px; border: 1px solid var(--bordeaux); border-radius: 22px; background: #fff; color: var(--bordeaux); font: inherit; cursor: pointer; }
+    button.essai:hover { background: var(--bordeaux); color: #fff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Chatbot Duhallé</h1>
+    <p>Page de démonstration du chatbot. Cliquez sur la bulle <strong>« Une question ? »</strong> en bas à droite, ou essayez une question ci-dessous.</p>
+
+    <div class="carte">
+      <h2 style="margin-top:0">Questions d'essai</h2>
+      <button class="essai" type="button">Quel bouchon pour un vin de garde ?</button>
+      <button class="essai" type="button">Comment mettre mon vin en bouteille ?</button>
+      <button class="essai" type="button">Cire dure ou souple ?</button>
+      <button class="essai" type="button">Combien de temps pour faire du vinaigre ?</button>
+      <button class="essai" type="button">Quels sont les frais de livraison ?</button>
+    </div>
+
+    <div class="carte">
+      <h2 style="margin-top:0">Comment ça marche</h2>
+      <ul>
+        <li>Aucun modèle de langage : les réponses viennent uniquement de la base de connaissances Duhallé.</li>
+        <li>Le moteur lit le <em>type</em> de la question (comment, combien, lequel, où…) et les <em>concepts</em> cités (bouchon, cire, cidre…), puis assemble les faits correspondants.</li>
+        <li>Contrôle de santé : <code>/api/sante</code>.</li>
+      </ul>
+    </div>
+  </main>
+
+  <!-- Le même code que dans le back-office Oxatis (voir oxatis/1-script-chatbot.html). -->
+  <script src="widget.js" defer></script>
+  <script>
+    document.querySelectorAll("button.essai").forEach(function (b) {
+      b.addEventListener("click", function () { window.DuhalleChat && window.DuhalleChat.poser(b.textContent); });
+    });
+  </script>
+</body>
+</html>

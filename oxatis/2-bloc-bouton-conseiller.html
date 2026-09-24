@@ -1,0 +1,66 @@
+<!-- DH BLOCK: chatcta — encart « Une question ? Notre conseiller vous répond », à coller dans un élément
+     « Code HTML » d'une page (contact, FAQ, conseils, fiche produit…). Il ouvre le chatbot ; si le
+     script du chatbot n'est pas chargé, le bouton mène à la page Contact. -->
+<div class="dh-chatcta">
+  <div class="dh-chatcta__texte">
+    <p class="dh-chatcta__titre">Une question sur le bouchage ou la mise en bouteille ?</p>
+    <p class="dh-chatcta__accroche">Notre conseiller en ligne vous répond immédiatement, à partir de près de 40 ans de savoir-faire Duhallé.</p>
+  </div>
+  <a class="dh-chatcta__bouton" href="https://www.duhalle-boutique.fr/contact" data-dh-ouvrir>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+    Poser ma question
+  </a>
+  <ul class="dh-chatcta__questions" aria-label="Questions fréquentes">
+    <li><a href="https://www.duhalle-boutique.fr/contact" data-dh-question="Quel bouchon choisir pour mon vin ?">Quel bouchon choisir pour mon vin ?</a></li>
+    <li><a href="https://www.duhalle-boutique.fr/contact" data-dh-question="Comment mettre mon vin en bouteille ?">Comment mettre mon vin en bouteille ?</a></li>
+    <li><a href="https://www.duhalle-boutique.fr/contact" data-dh-question="Cire dure ou souple ?">Cire dure ou souple ?</a></li>
+  </ul>
+</div>
+<style>
+  .dh-chatcta {
+    --dh-bordeaux: #6B2737; --dh-bordeaux-fonce: #521C2A; --dh-liege: #B5835A; --dh-creme: #F5EFE6;
+    --dh-vert: #3E4E3A; --dh-texte: #2B2B2B;
+    box-sizing: border-box; display: grid; grid-template-columns: 1fr auto; gap: 16px 24px; align-items: center;
+    max-width: 1100px; margin: 24px auto; padding: clamp(20px, 4vw, 32px);
+    background: var(--dh-creme); border: 1px solid #E4D9C8; border-radius: 10px;
+    color: var(--dh-texte); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .dh-chatcta * { box-sizing: border-box; }
+  .dh-chatcta .dh-chatcta__titre { margin: 0 0 6px; font: 600 clamp(20px, 2.6vw, 26px)/1.25 Georgia, "Times New Roman", serif; color: var(--dh-bordeaux); }
+  .dh-chatcta .dh-chatcta__accroche { margin: 0; font-size: 16px; line-height: 1.5; }
+  .dh-chatcta .dh-chatcta__bouton {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 12px 22px;
+    border-radius: 8px; background: var(--dh-bordeaux); color: #fff; font-weight: 600; font-size: 16px;
+    text-decoration: none; white-space: nowrap; transition: background .15s ease;
+  }
+  .dh-chatcta .dh-chatcta__bouton:hover { background: var(--dh-bordeaux-fonce); color: #fff; }
+  .dh-chatcta .dh-chatcta__bouton svg { width: 22px; height: 22px; }
+  .dh-chatcta .dh-chatcta__questions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .dh-chatcta .dh-chatcta__questions a {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; border-radius: 22px;
+    border: 1px solid var(--dh-bordeaux); background: #fff; color: var(--dh-bordeaux); font-size: 15px; text-decoration: none;
+  }
+  .dh-chatcta .dh-chatcta__questions a:hover { background: var(--dh-bordeaux); color: #fff; }
+  .dh-chatcta a:focus-visible { outline: 3px solid var(--dh-liege); outline-offset: 2px; }
+  @media (max-width: 640px) {
+    .dh-chatcta { grid-template-columns: 1fr; }
+    .dh-chatcta .dh-chatcta__bouton { justify-content: center; width: 100%; }
+  }
+</style>
+<script>
+  (function () {
+    var bloc = document.currentScript && document.currentScript.previousElementSibling;
+    while (bloc && !(bloc.classList && bloc.classList.contains("dh-chatcta"))) bloc = bloc.previousElementSibling;
+    if (!bloc) return;
+    bloc.addEventListener("click", function (e) {
+      var lien = e.target.closest && e.target.closest("[data-dh-ouvrir], [data-dh-question]");
+      // Sans chatbot chargé, le lien garde son comportement : la page Contact.
+      if (!lien || !window.DuhalleChat) return;
+      e.preventDefault();
+      var question = lien.getAttribute("data-dh-question");
+      if (question) window.DuhalleChat.poser(question);
+      else window.DuhalleChat.ouvrir();
+    });
+  })();
+</script>
+<!-- /DH BLOCK -->

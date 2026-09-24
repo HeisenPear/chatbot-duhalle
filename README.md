@@ -73,10 +73,10 @@ test/                   base, banc, jeu inédit, Worker
 Le déploiement passe par **Workers Builds** : Cloudflare se branche sur ce dépôt GitHub et redéploie à chaque modification de `main`.
 
 1. Dans le tableau de bord Cloudflare, allez dans **Workers & Pages**, puis **Create**, puis **Import a repository**.
-2. Choisissez ce dépôt GitHub. Le nom du Worker doit être **`chatbot-duhalle`** : c'est celui du fichier `wrangler.jsonc`.
+2. Choisissez ce dépôt GitHub. Le nom du Worker dans Cloudflare doit être identique au champ `name` du fichier `wrangler.jsonc` : aujourd'hui **`saint-valentin`**. Pour le renommer, changez les deux.
 3. Gardez les réglages proposés : *Build command* vide, *Deploy command* `npx wrangler deploy`. Le widget compilé est déjà dans le dépôt.
-4. Lancez le déploiement. L'adresse du Worker s'affiche : `https://chatbot-duhalle.<votre-sous-domaine>.workers.dev`.
-5. Vérifiez : `https://chatbot-duhalle.<votre-sous-domaine>.workers.dev/` affiche la page de démonstration, et `/api/sante` renvoie `{"ok":true,…}`.
+4. Lancez le déploiement. L'adresse du Worker s'affiche : `https://saint-valentin.<votre-sous-domaine>.workers.dev`.
+5. Vérifiez : `https://saint-valentin.<votre-sous-domaine>.workers.dev/` affiche la page de démonstration, et `/api/sante` renvoie `{"ok":true,…}`.
 
 Aucune clé secrète n'est nécessaire. Le plan gratuit de Cloudflare Workers (100 000 requêtes par jour) suffit largement.
 

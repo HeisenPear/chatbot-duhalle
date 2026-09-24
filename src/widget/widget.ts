@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // LE WIDGET DU CHATBOT DUHALLÉ — le script chargé par le site Oxatis.
 //
-//   <script src="https://…workers.dev/widget.js" defer></script>
+//   <script src="https://…workers.dev/widget.js" integrity="sha384-…" crossorigin="anonymous" defer></script>
 //
 // Il affiche une bulle en bas de page ; au clic, une fenêtre de discussion.
 // Tout le visuel vit dans un Shadow DOM : le thème du site ne le déforme pas,
@@ -9,13 +9,19 @@
 // visite (sessionStorage), pour suivre le client de page en page.
 //
 // Réglages facultatifs, en attributs de la balise <script> :
-//   data-titre      titre de la fenêtre         (défaut : « Conseiller Duhallé »)
-//   data-couleur    couleur principale          (défaut : bordeaux #6B2737)
-//   data-position   « droite » ou « gauche »    (défaut : droite)
+//   data-titre      titre de la fenêtre            (défaut : « Conseiller Duhallé »)
+//   data-couleur    couleur principale             (défaut : vert Duhallé #20342C)
+//   data-position   « droite » ou « gauche »       (défaut : droite)
+//   data-decalage   distance au bas de l'écran, en pixels (défaut : 84, au-dessus
+//                   de la pastille des cookies)
 //   data-telephone  numéro affiché en cas de panne
 //
 // Il expose aussi window.DuhalleChat.ouvrir(), .fermer() et .poser("question"),
 // utilisés par le bloc « bouton conseiller » à placer dans les pages.
+//
+// Sécurité : rien de ce qui vient du réseau ou du stockage n'est inséré comme
+// HTML. Les textes passent par textContent, les liens ne mènent qu'au site
+// Duhallé en https, et tout ce qui est relu est vérifié avant usage.
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface Lien {
@@ -23,17 +29,13 @@ interface Lien {
   url: string;
 }
 
-interface Contexte {
-  concepts: string[];
-  type: string | null;
-}
-
 interface ReponseApi {
   nature: string;
   texte: string;
   liens: Lien[];
   suggestions: string[];
-  contexte: Contexte;
+  /** Renvoyé tel quel avec la question suivante ; le Worker le vérifie. */
+  contexte: unknown;
 }
 
 interface Message {
@@ -45,7 +47,7 @@ interface Message {
 interface Etat {
   messages: Message[];
   suggestions: string[];
-  contexte: Contexte | null;
+  contexte: unknown;
   ouvert: boolean;
 }
 
@@ -61,12 +63,18 @@ declare global {
   const script = document.currentScript as HTMLScriptElement | null;
   const reglage = (nom: string) => script?.getAttribute(`data-${nom}`) ?? undefined;
   const API = script?.src ? new URL(script.src).origin : "";
-  const TITRE = reglage("titre") ?? "Conseiller Duhallé";
-  const COULEUR = /^#[0-9a-f]{3,8}$/i.test(reglage("couleur") ?? "") ? reglage("couleur")! : "#6B2737";
-  const A_GAUCHE = reglage("position") === "gauche";
-  const TELEPHONE = reglage("telephone") ?? "02 47 53 00 26";
+  const TITRE = (reglage("titre") ?? "Conseiller Duhallé").slice(0, 60);
+  const COULEUR = /^#[0-9a-f]{3,8}$/i.test(reglage("couleur") ?? "") ? reglage("couleur")! : "#20342C";
+  const COTE = reglage("position") === "gauche" ? "left" : "right";
+  /** Distance au bas de l'écran : la pastille des cookies occupe le coin. */
+  const BAS = /^\d{1,3}$/.test(reglage("decalage") ?? "") ? Math.min(Number(reglage("decalage")), 400) : 84;
+  const TELEPHONE = (reglage("telephone") ?? "02 47 53 00 26").slice(0, 30);
   const CLE = "duhalle-chatbot";
   const LONGUEUR_MAX = 500;
+  /** Au-delà, un texte reçu est coupé : aucune réponse de la base n'approche cette taille. */
+  const TEXTE_MAX = 4000;
+  /** Les seuls sites vers lesquels un lien de réponse peut mener. */
+  const SITES_DES_LIENS = ["www.duhalle-boutique.fr", "duhalle-boutique.fr"];
   /** Vitesse d'écriture du conseiller, en caractères par seconde… */
   const VITESSE_FRAPPE = 60;
   /** …sans qu'une longue réponse mette plus de ce temps à s'écrire (ms). */
@@ -74,18 +82,79 @@ declare global {
   /** Les points « le conseiller écrit » restent visibles au moins ce temps (ms). */
   const ATTENTE_MIN = 450;
   const MOUVEMENT_REDUIT = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  /** Sur mobile, on n'ouvre pas le clavier d'office : il cacherait la réponse. */
+  const ECRAN_TACTILE = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+
+  // ─── Vérification de tout ce qui est relu (réseau, stockage) ───────────────
+
+  function adresseSure(url: string): boolean {
+    try {
+      const u = new URL(url);
+      return u.protocol === "https:" && SITES_DES_LIENS.includes(u.hostname);
+    } catch {
+      return false;
+    }
+  }
+
+  function liensValides(brut: unknown): Lien[] {
+    if (!Array.isArray(brut)) return [];
+    const liens: Lien[] = [];
+    for (const l of brut) {
+      if (!l || typeof l !== "object") continue;
+      const { libelle, url } = l as Record<string, unknown>;
+      if (typeof libelle === "string" && typeof url === "string" && adresseSure(url)) {
+        liens.push({ libelle: libelle.slice(0, 80), url });
+      }
+    }
+    return liens.slice(0, 6);
+  }
+
+  function textesValides(brut: unknown): string[] {
+    if (!Array.isArray(brut)) return [];
+    return brut
+      .filter((t): t is string => typeof t === "string" && t.trim() !== "")
+      .map((t) => t.slice(0, 120))
+      .slice(0, 5);
+  }
+
+  function messageValide(brut: unknown): Message | null {
+    if (!brut || typeof brut !== "object") return null;
+    const { de, texte, liens } = brut as Record<string, unknown>;
+    if ((de !== "client" && de !== "assistant") || typeof texte !== "string") return null;
+    return { de, texte: texte.slice(0, TEXTE_MAX), liens: liensValides(liens) };
+  }
+
+  function reponseValide(brut: unknown): ReponseApi | null {
+    if (!brut || typeof brut !== "object") return null;
+    const r = brut as Record<string, unknown>;
+    if (typeof r.texte !== "string" || !r.texte.trim()) return null;
+    return {
+      nature: typeof r.nature === "string" ? r.nature : "reponse",
+      texte: r.texte.slice(0, TEXTE_MAX),
+      liens: liensValides(r.liens),
+      suggestions: textesValides(r.suggestions),
+      contexte: r.contexte && typeof r.contexte === "object" ? r.contexte : null,
+    };
+  }
 
   // ─── État, gardé pendant la visite ─────────────────────────────────────────
 
   function lireEtat(): Etat {
     try {
-      const brut = sessionStorage.getItem(CLE);
-      if (brut) {
-        const e = JSON.parse(brut) as Etat;
-        if (Array.isArray(e.messages)) return e;
+      const brut = JSON.parse(sessionStorage.getItem(CLE) ?? "null") as Record<string, unknown> | null;
+      if (brut && Array.isArray(brut.messages)) {
+        return {
+          messages: brut.messages
+            .map(messageValide)
+            .filter((m): m is Message => m !== null)
+            .slice(-40),
+          suggestions: textesValides(brut.suggestions),
+          contexte: brut.contexte && typeof brut.contexte === "object" ? brut.contexte : null,
+          ouvert: brut.ouvert === true,
+        };
       }
     } catch {
-      /* stockage indisponible : on repart de zéro */
+      /* stockage indisponible ou illisible : on repart de zéro */
     }
     return { messages: [], suggestions: [], contexte: null, ouvert: false };
   }
@@ -103,103 +172,128 @@ declare global {
 
   // ─── Construction du DOM ───────────────────────────────────────────────────
 
-  const hote = document.createElement("div");
-  hote.id = "duhalle-chatbot";
+  // Une balise à nous plutôt qu'un <div> : les règles du thème qui visent les
+  // <div> de la page ne la touchent pas.
+  const hote = document.createElement("duhalle-chatbot");
   const racine = hote.attachShadow({ mode: "open" });
 
   const style = document.createElement("style");
   style.textContent = `
-    :host { all: initial; }
+    :host { all: initial !important; }
     * { box-sizing: border-box; }
     .dh {
       --dh-couleur: ${COULEUR};
-      --dh-liege: #B5835A;
-      --dh-creme: #F5EFE6;
-      --dh-vert: #3E4E3A;
-      --dh-texte: #2B2B2B;
-      --dh-bord: #E4D9C8;
+      --dh-ocre: #B07420;
+      --dh-creme: #F7F4EE;
+      --dh-texte: #26302B;
+      --dh-doux: #5E6A63;
+      --dh-bord: #E2DDD2;
       font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: var(--dh-texte);
+      text-align: left;
+      -webkit-font-smoothing: antialiased;
     }
+    button, textarea { font: inherit; letter-spacing: normal; text-transform: none; }
     .bulle {
-      position: fixed; bottom: 20px; ${A_GAUCHE ? "left" : "right"}: 20px; z-index: 2147483000;
-      display: flex; align-items: center; gap: 10px;
-      min-height: 56px; padding: 0 20px 0 16px; border: 0; border-radius: 28px;
-      background: var(--dh-couleur); color: #fff; cursor: pointer;
-      font: inherit; font-weight: 600; box-shadow: 0 6px 20px rgba(43, 43, 43, .25);
+      position: fixed; bottom: ${BAS}px; ${COTE}: 20px; z-index: 2147483000;
+      display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px 0 18px;
+      border: 0; border-radius: 28px; background: var(--dh-couleur); color: #fff; cursor: pointer;
+      font-weight: 600; white-space: nowrap; box-shadow: 0 6px 20px rgba(20, 30, 25, .28);
       transition: transform .15s ease, box-shadow .15s ease;
     }
-    .bulle:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(43, 43, 43, .3); }
-    .bulle:focus-visible, button:focus-visible, a:focus-visible, textarea:focus-visible {
-      outline: 3px solid var(--dh-liege); outline-offset: 2px;
+    .bulle:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(20, 30, 25, .32); }
+    .dh.ouvert .bulle { display: none; }
+    .bulle:focus-visible, button:focus-visible, a:focus-visible {
+      outline: 3px solid var(--dh-ocre); outline-offset: 2px;
     }
     .bulle svg { width: 24px; height: 24px; flex: none; }
     .fenetre {
-      position: fixed; bottom: 88px; ${A_GAUCHE ? "left" : "right"}: 20px; z-index: 2147483000;
-      width: 380px; max-width: calc(100vw - 32px); height: 600px; max-height: calc(100vh - 110px);
+      position: fixed; bottom: ${BAS}px; ${COTE}: 20px; z-index: 2147483647;
+      width: 380px; max-width: calc(100vw - 32px);
+      height: 600px; max-height: calc(100vh - ${BAS + 24}px); max-height: calc(100dvh - ${BAS + 24}px);
       display: flex; flex-direction: column; overflow: hidden;
-      background: #fff; border-radius: 12px; box-shadow: 0 12px 40px rgba(43, 43, 43, .28);
+      background: #fff; border-radius: 14px; box-shadow: 0 12px 40px rgba(20, 30, 25, .3);
     }
     .fenetre[hidden] { display: none; }
     .entete {
-      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      flex: none; display: flex; align-items: center; gap: 12px; padding: 14px 10px 14px 18px;
       background: var(--dh-couleur); color: #fff;
     }
-    .entete .titre { margin: 0; font: 600 18px/1.2 Georgia, "Times New Roman", serif; }
-    .entete .sous-titre { margin: 2px 0 0; font-size: 12.5px; opacity: .85; }
     .entete .textes { flex: 1; min-width: 0; }
+    .entete .titre { margin: 0; font: 600 18px/1.25 Georgia, "Times New Roman", serif; }
+    .entete .sous-titre { margin: 2px 0 0; font-size: 12.5px; line-height: 1.35; opacity: .85; }
     .fermer {
-      width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: #fff;
+      flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: #fff;
       cursor: pointer; display: grid; place-items: center;
     }
     .fermer:hover { background: rgba(255, 255, 255, .15); }
     .fermer svg { width: 20px; height: 20px; }
-    .fil { position: relative; flex: 1; overflow-y: auto; padding: 16px; background: var(--dh-creme); }
-    .msg { max-width: 88%; margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; overflow-wrap: anywhere; }
+    .fil {
+      position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+      padding: 16px 14px 6px; background: var(--dh-creme);
+    }
+    .msg {
+      width: fit-content; max-width: 88%; margin: 0 0 10px; padding: 10px 14px;
+      border-radius: 14px; overflow-wrap: anywhere; animation: dh-apparition .18s ease-out;
+    }
     .msg p { margin: 0 0 8px; } .msg p:last-child { margin-bottom: 0; }
-    .msg ul, .msg ol { margin: 4px 0 8px; padding-left: 20px; } .msg li { margin: 2px 0; }
+    .msg ul, .msg ol { margin: 4px 0 8px; padding-left: 22px; } .msg ul:last-child, .msg ol:last-child { margin-bottom: 0; }
+    .msg li { margin: 3px 0; } .msg li::marker { color: var(--dh-doux); }
+    .msg strong { font-weight: 700; }
     .msg.assistant { background: #fff; border: 1px solid var(--dh-bord); border-bottom-left-radius: 4px; }
     .msg.client { margin-left: auto; background: var(--dh-couleur); color: #fff; border-bottom-right-radius: 4px; white-space: pre-wrap; }
     .liens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
     .liens a {
-      display: inline-flex; align-items: center; min-height: 36px; padding: 6px 12px;
-      border-radius: 18px; background: var(--dh-creme); color: var(--dh-couleur);
-      font-size: 13.5px; font-weight: 600; text-decoration: none; border: 1px solid var(--dh-bord);
+      display: inline-flex; align-items: center; min-height: 34px; padding: 6px 12px;
+      border-radius: 17px; background: var(--dh-creme); color: var(--dh-couleur); border: 1px solid var(--dh-bord);
+      font-size: 13.5px; font-weight: 600; line-height: 1.3; text-decoration: none;
     }
     .liens a:hover { background: var(--dh-bord); }
-    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; background: var(--dh-creme); }
-    .suggestions:empty { display: none; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; animation: dh-apparition .18s ease-out; }
     .suggestions button {
-      min-height: 36px; padding: 6px 12px; border-radius: 18px; cursor: pointer;
+      min-height: 36px; padding: 6px 14px; border-radius: 18px; cursor: pointer;
       border: 1px solid var(--dh-couleur); background: #fff; color: var(--dh-couleur);
-      font: inherit; font-size: 13.5px; text-align: left;
+      font-size: 13.5px; line-height: 1.3; text-align: left;
     }
     .suggestions button:hover { background: var(--dh-couleur); color: #fff; }
-    .saisie { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--dh-bord); background: #fff; }
+    .saisie { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 12px; border-top: 1px solid var(--dh-bord); background: #fff; }
     .saisie textarea {
-      flex: 1; min-height: 44px; max-height: 120px; resize: none; padding: 11px 12px;
-      border: 1px solid var(--dh-bord); border-radius: 10px; font: inherit; color: var(--dh-texte); background: #fff;
+      flex: 1; min-width: 0; height: 44px; min-height: 44px; max-height: 120px; resize: none; padding: 10px 12px; margin: 0;
+      border: 1px solid var(--dh-bord); border-radius: 10px; color: var(--dh-texte); background: #fff;
+      font-size: 16px; line-height: 1.4; /* 16 px : sur iPhone, un champ plus petit fait zoomer la page */
     }
+    .saisie textarea:focus { outline: none; border-color: var(--dh-couleur); box-shadow: 0 0 0 1px var(--dh-couleur); }
+    .saisie textarea::placeholder { color: #8A938E; }
     .saisie button {
-      width: 44px; height: 44px; flex: none; align-self: flex-end; border: 0; border-radius: 10px; cursor: pointer;
+      width: 44px; height: 44px; flex: none; border: 0; border-radius: 10px; cursor: pointer;
       background: var(--dh-couleur); color: #fff; display: grid; place-items: center;
     }
     .saisie button:disabled { opacity: .5; cursor: default; }
     .saisie svg { width: 20px; height: 20px; }
-    .mention { margin: 0; padding: 0 12px 10px; font-size: 11.5px; color: #6b6b6b; background: #fff; }
-    .attente { display: inline-flex; gap: 4px; }
-    .attente span { width: 7px; height: 7px; border-radius: 50%; background: var(--dh-liege); animation: dh-rebond 1s infinite ease-in-out; }
+    .mention { flex: none; margin: 0; padding: 0 12px 10px; font-size: 11.5px; line-height: 1.4; color: var(--dh-doux); background: #fff; }
+    .attente { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .attente span { width: 7px; height: 7px; border-radius: 50%; background: var(--dh-ocre); animation: dh-rebond 1s infinite ease-in-out; }
     .attente span:nth-child(2) { animation-delay: .15s; } .attente span:nth-child(3) { animation-delay: .3s; }
-    @keyframes dh-rebond { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
     .msg.frappe { cursor: pointer; }
-    .msg.frappe .ecrit::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -2px; background: var(--dh-liege); animation: dh-curseur .8s steps(1) infinite; }
+    .msg.frappe .ecrit::after {
+      content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -2px;
+      background: var(--dh-ocre); animation: dh-curseur .8s steps(1) infinite;
+    }
+    @keyframes dh-rebond { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
     @keyframes dh-curseur { 50% { opacity: 0; } }
-    .annonce { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-    @media (prefers-reduced-motion: reduce) { .bulle, .attente span { transition: none; animation: none; } }
-    @media (max-width: 480px) {
+    @keyframes dh-apparition { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    @media (prefers-reduced-motion: reduce) {
+      .bulle, .msg, .suggestions, .attente span { transition: none; animation: none; }
+    }
+    @media (max-width: 480px), (max-height: 520px) {
       .fenetre { inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
+      /* À droite, la place de la pastille des cookies, qui reste par-dessus. */
+      .mention { padding-right: 72px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (max-width: 480px) {
+      .bulle { width: 56px; padding: 0; justify-content: center; }
       .bulle .libelle { display: none; }
-      .bulle { padding: 0 16px; }
     }
   `;
 
@@ -210,6 +304,7 @@ declare global {
   const ICONE_ENVOYER =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
+  // Gabarit fixe, sans aucune donnée : titre et téléphone sont posés ensuite en texte.
   const conteneur = document.createElement("div");
   conteneur.className = "dh";
   conteneur.innerHTML = `
@@ -225,14 +320,13 @@ declare global {
         <button class="fermer" type="button" aria-label="Fermer la discussion">${ICONE_FERMER}</button>
       </header>
       <div class="fil" role="log" aria-live="off"></div>
-      <p class="annonce" role="status" aria-live="polite"></p>
-      <div class="suggestions" aria-label="Questions suggérées"></div>
+      <p class="annonce cache" role="status" aria-live="polite"></p>
       <form class="saisie">
-        <label for="dh-question" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>
+        <label class="cache" for="dh-question">Votre question</label>
         <textarea id="dh-question" rows="1" maxlength="${LONGUEUR_MAX}" placeholder="Posez votre question…"></textarea>
         <button type="submit" aria-label="Envoyer la question">${ICONE_ENVOYER}</button>
       </form>
-      <p class="mention">Assistant automatique Duhallé. Pour une question sur votre commande : ${echapper(TELEPHONE)}.</p>
+      <p class="mention"></p>
     </section>
   `;
   racine.append(style, conteneur);
@@ -241,16 +335,12 @@ declare global {
   const bulle = $<HTMLButtonElement>(".bulle");
   const fenetre = $<HTMLElement>(".fenetre");
   const fil = $<HTMLDivElement>(".fil");
-  const zoneSuggestions = $<HTMLDivElement>(".suggestions");
   const annonce = $<HTMLParagraphElement>(".annonce");
   const formulaire = $<HTMLFormElement>(".saisie");
   const champ = $<HTMLTextAreaElement>("textarea");
   const envoyer = $<HTMLButtonElement>(".saisie button");
   $<HTMLParagraphElement>(".titre").textContent = TITRE;
-
-  function echapper(texte: string): string {
-    return texte.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-  }
+  $<HTMLParagraphElement>(".mention").textContent = `Assistant automatique Duhallé. Pour une question sur votre commande : ${TELEPHONE}.`;
 
   // ─── Mise en forme des réponses (sans jamais injecter de HTML reçu) ────────
 
@@ -300,7 +390,7 @@ declare global {
   }
 
   function creerLiens(liens: Lien[] | undefined): HTMLElement | null {
-    const valides = (liens ?? []).filter((l) => /^https:\/\//.test(l.url));
+    const valides = liensValides(liens);
     if (!valides.length) return null;
     const zone = document.createElement("div");
     zone.className = "liens";
@@ -311,12 +401,16 @@ declare global {
       // Une page du site s'ouvre dans l'onglet : la discussion suit le client.
       if (new URL(lien.url).hostname !== location.hostname) {
         a.target = "_blank";
-        a.rel = "noopener";
+        a.rel = "noopener noreferrer";
       }
       zone.append(a);
     }
     return zone;
   }
+
+  const versLeBas = () => {
+    fil.scrollTop = fil.scrollHeight;
+  };
 
   /** Cale le fil sur un message : sa fin si elle tient à l'écran, sinon son début. */
   function caler(bloc: HTMLElement) {
@@ -325,7 +419,8 @@ declare global {
 
   /**
    * Affiche un message. Une réponse du conseiller peut s'écrire lettre à
-   * lettre (`ecrire`) ; `fin` est appelé quand elle est entièrement affichée.
+   * lettre (`ecrire`) ; sinon elle apparaît d'un coup. `fin` est appelé quand
+   * elle est entièrement affichée.
    */
   function afficher(message: Message, ecrire = false, fin?: () => void) {
     const bloc = document.createElement("div");
@@ -333,22 +428,27 @@ declare global {
     fil.append(bloc);
     if (message.de === "client") {
       bloc.textContent = message.texte;
-      fil.scrollTop = fil.scrollHeight;
+      versLeBas();
       fin?.();
       return;
     }
     const contenu = document.createElement("div");
-    contenu.className = "contenu";
     mettreEnForme(contenu, message.texte);
     bloc.append(contenu);
     const liens = creerLiens(message.liens);
     const terminer = () => {
       if (liens) bloc.append(liens);
-      caler(bloc);
       fin?.();
     };
-    if (ecrire && !MOUVEMENT_REDUIT) taper(bloc, contenu, terminer);
-    else terminer();
+    if (ecrire && !MOUVEMENT_REDUIT) {
+      taper(bloc, contenu, (suivre) => {
+        terminer();
+        if (suivre) versLeBas();
+      });
+    } else {
+      terminer();
+      caler(bloc);
+    }
   }
 
   // ─── L'écriture lettre à lettre ────────────────────────────────────────────
@@ -356,8 +456,11 @@ declare global {
   /** Termine immédiatement l'écriture en cours, s'il y en a une. */
   let finirFrappe: (() => void) | null = null;
 
-  function taper(bloc: HTMLElement, contenu: HTMLElement, fin: () => void) {
+  function taper(bloc: HTMLElement, contenu: HTMLElement, fin: (suivre: boolean) => void) {
     finirFrappe?.();
+    // La bulle prend d'emblée sa largeur finale : elle ne s'élargit pas au fil des lettres.
+    const largeur = bloc.getBoundingClientRect().width;
+    if (largeur > 0) bloc.style.width = `${largeur}px`;
     // Le texte est déjà mis en forme ; on vide chaque nœud texte et on le
     // remplit peu à peu. Les paragraphes et puces n'apparaissent qu'au moment
     // où leur texte commence, pour ne pas montrer de puces vides.
@@ -385,15 +488,18 @@ declare global {
     const total = morceaux.reduce((n, m) => n + m.texte.length, 0);
     const parMs = Math.max(VITESSE_FRAPPE / 1000, total / DUREE_FRAPPE_MAX);
     const debut = performance.now();
-    let suivre = true;
     let indice = 0;
     let ecrits = 0;
     bloc.classList.add("frappe");
     bloc.setAttribute("aria-hidden", "true");
 
-    const arreterDeSuivre = () => (suivre = false);
-    fil.addEventListener("wheel", arreterDeSuivre, { passive: true });
-    fil.addEventListener("touchmove", arreterDeSuivre, { passive: true });
+    // Le fil suit l'écriture, sauf si le client remonte lire plus haut ; il
+    // la suit de nouveau s'il redescend en bas.
+    let suivre = true;
+    const surDefilement = () => {
+      suivre = fil.scrollHeight - fil.scrollTop - fil.clientHeight < 40;
+    };
+    fil.addEventListener("scroll", surDefilement, { passive: true });
 
     let image = 0;
     const terminer = () => {
@@ -405,12 +511,12 @@ declare global {
       blocs.forEach((b) => (b.hidden = false));
       ligne?.classList.remove("ecrit");
       bloc.classList.remove("frappe");
+      bloc.style.width = "";
       bloc.removeAttribute("aria-hidden");
       bloc.removeEventListener("click", terminer);
-      fil.removeEventListener("wheel", arreterDeSuivre);
-      fil.removeEventListener("touchmove", arreterDeSuivre);
+      fil.removeEventListener("scroll", surDefilement);
       finirFrappe = null;
-      fin();
+      fin(suivre);
     };
 
     const avancer = (maintenant: number) => {
@@ -423,7 +529,7 @@ declare global {
         ecrits += ajout;
         if (noeud.data.length >= texte.length) indice++;
       }
-      if (suivre) caler(bloc);
+      if (suivre) versLeBas();
       if (ecrits >= total) terminer();
       else image = requestAnimationFrame(avancer);
     };
@@ -434,36 +540,49 @@ declare global {
     image = requestAnimationFrame(avancer);
   }
 
+  /** Les questions suggérées, placées dans le fil juste sous la dernière réponse. */
+  let zoneSuggestions: HTMLElement | null = null;
+
   function afficherSuggestions(suggestions: string[]) {
-    zoneSuggestions.replaceChildren();
-    for (const texte of suggestions.slice(0, 5)) {
+    zoneSuggestions?.remove();
+    zoneSuggestions = null;
+    if (!suggestions.length) return;
+    const zone = document.createElement("div");
+    zone.className = "suggestions";
+    zone.setAttribute("role", "group");
+    zone.setAttribute("aria-label", "Questions suggérées");
+    for (const texte of suggestions) {
       const bouton = document.createElement("button");
       bouton.type = "button";
       bouton.textContent = texte;
-      bouton.addEventListener("click", () => poser(texte));
-      zoneSuggestions.append(bouton);
+      bouton.addEventListener("click", () => void poser(texte));
+      zone.append(bouton);
     }
+    fil.append(zone);
+    zoneSuggestions = zone;
   }
 
   function afficherAttente(): HTMLElement {
     const bloc = document.createElement("div");
     bloc.className = "msg assistant";
+    bloc.setAttribute("role", "img");
     bloc.setAttribute("aria-label", "Le conseiller écrit");
-    bloc.innerHTML = '<span class="attente"><span></span><span></span><span></span></span>';
+    const points = document.createElement("span");
+    points.className = "attente";
+    points.append(document.createElement("span"), document.createElement("span"), document.createElement("span"));
+    bloc.append(points);
     fil.append(bloc);
-    fil.scrollTop = fil.scrollHeight;
+    versLeBas();
     return bloc;
   }
 
   // ─── Échanges avec le Worker ───────────────────────────────────────────────
 
-  const PANNE: ReponseApi = {
-    nature: "erreur",
-    texte: `Le service est momentanément indisponible. Notre équipe vous répond au **${TELEPHONE}**.`,
-    liens: [],
-    suggestions: [],
-    contexte: { concepts: [], type: null },
-  };
+  const erreur = (texte: string): ReponseApi => ({ nature: "erreur", texte, liens: [], suggestions: [], contexte: null });
+  const PANNE = erreur(`Le service est momentanément indisponible. Notre équipe vous répond au **${TELEPHONE}**.`);
+  const TROP_DE_QUESTIONS = erreur(
+    "Vous avez posé beaucoup de questions en peu de temps. Merci de patienter une minute avant la suivante.",
+  );
 
   async function appeler(chemin: string, corps?: unknown): Promise<ReponseApi> {
     try {
@@ -472,41 +591,44 @@ declare global {
         // text/plain : une requête « simple », sans aller-retour préalable CORS.
         headers: corps ? { "Content-Type": "text/plain;charset=UTF-8" } : undefined,
         body: corps ? JSON.stringify(corps) : undefined,
+        credentials: "omit",
+        referrerPolicy: "no-referrer",
       });
+      if (reponse.status === 429) return TROP_DE_QUESTIONS;
       if (!reponse.ok) return PANNE;
-      return (await reponse.json()) as ReponseApi;
+      return reponseValide(await reponse.json()) ?? PANNE;
     } catch {
       return PANNE;
     }
   }
 
-  function recevoir(reponse: ReponseApi) {
+  function recevoir(reponse: ReponseApi, ecrire = true) {
     const message: Message = { de: "assistant", texte: reponse.texte, liens: reponse.liens };
     etat.messages.push(message);
-    etat.suggestions = reponse.suggestions ?? [];
+    etat.suggestions = reponse.suggestions;
     if (reponse.nature !== "erreur") etat.contexte = reponse.contexte;
     sauver();
     // Les lecteurs d'écran reçoivent la réponse entière, sans attendre l'écriture.
     annonce.textContent = message.texte.replace(/\*\*/g, "");
-    afficher(message, true, () => afficherSuggestions(etat.suggestions));
+    afficher(message, ecrire, () => afficherSuggestions(etat.suggestions));
   }
 
   let enCours = false;
 
   async function poser(question: string) {
-    const texte = question.trim().slice(0, LONGUEUR_MAX);
+    const texte = String(question).trim().slice(0, LONGUEUR_MAX);
     if (!texte || enCours) return;
     // Une question posée directement (encart, suggestion) ouvre la discussion
     // sans le message d'accueil, qui arriverait après elle.
-    ouvrir(false);
+    ouvrir({ accueil: false });
     // Une nouvelle question interrompt la réponse en cours d'écriture : on l'affiche en entier.
     finirFrappe?.();
     enCours = true;
     envoyer.disabled = true;
+    afficherSuggestions([]);
     const message: Message = { de: "client", texte };
     etat.messages.push(message);
     afficher(message);
-    afficherSuggestions([]);
     sauver();
     const attente = afficherAttente();
     const debut = Date.now();
@@ -524,29 +646,38 @@ declare global {
 
   let accueilDemande = false;
 
-  function ouvrir(avecAccueil = true) {
+  function ouvrir({ accueil = true, focus = true } = {}) {
     if (!fenetre.hidden) return;
     fenetre.hidden = false;
+    conteneur.classList.add("ouvert");
     bulle.setAttribute("aria-expanded", "true");
     etat.ouvert = true;
     sauver();
-    if (avecAccueil && etat.messages.length === 0 && !accueilDemande) {
+    // Le fil était caché : on le reprend à la fin de la conversation.
+    if (!finirFrappe) versLeBas();
+    if (accueil && etat.messages.length === 0 && !accueilDemande) {
       accueilDemande = true;
-      void appeler("/api/accueil").then(recevoir);
+      void appeler("/api/accueil").then((reponse) => {
+        // Le message d'accueil apparaît d'un coup ; seules les réponses s'écrivent.
+        // Si une question a été posée entre-temps, il n'a plus lieu d'être.
+        if (etat.messages.length === 0) recevoir(reponse, false);
+      });
     }
-    setTimeout(() => champ.focus(), 50);
+    if (focus && !ECRAN_TACTILE) setTimeout(() => champ.focus(), 50);
   }
 
   function fermer() {
     if (fenetre.hidden) return;
+    const avaitLeFocus = racine.activeElement !== null;
     fenetre.hidden = true;
+    conteneur.classList.remove("ouvert");
     bulle.setAttribute("aria-expanded", "false");
     etat.ouvert = false;
     sauver();
-    bulle.focus();
+    if (avaitLeFocus) bulle.focus();
   }
 
-  bulle.addEventListener("click", () => (fenetre.hidden ? ouvrir() : fermer()));
+  bulle.addEventListener("click", () => ouvrir());
   $<HTMLButtonElement>(".fermer").addEventListener("click", fermer);
   conteneur.addEventListener("keydown", (e) => {
     if ((e as KeyboardEvent).key === "Escape") fermer();
@@ -560,28 +691,32 @@ declare global {
   });
   champ.addEventListener("keydown", (e) => {
     // Entrée envoie, Maj + Entrée passe à la ligne.
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
       e.preventDefault();
       formulaire.requestSubmit();
     }
   });
   champ.addEventListener("input", () => {
     champ.style.height = "";
-    champ.style.height = `${Math.min(champ.scrollHeight, 120)}px`;
+    champ.style.height = `${Math.min(champ.scrollHeight + 2, 120)}px`;
   });
 
-  // Reprise de la conversation en changeant de page.
+  // Reprise de la conversation en changeant de page : tout apparaît d'un coup.
   etat.messages.forEach((m) => afficher(m));
   afficherSuggestions(etat.suggestions);
 
   function demarrer() {
     document.body.append(hote);
-    if (etat.ouvert) ouvrir();
+    if (etat.ouvert) ouvrir({ focus: false });
   }
   if (document.body) demarrer();
   else document.addEventListener("DOMContentLoaded", demarrer);
 
-  window.DuhalleChat = { ouvrir: () => ouvrir(), fermer, poser: (q: string) => void poser(q) };
+  window.DuhalleChat = Object.freeze({
+    ouvrir: () => ouvrir(),
+    fermer,
+    poser: (question: string) => void poser(question),
+  });
 })();
 
 export {};

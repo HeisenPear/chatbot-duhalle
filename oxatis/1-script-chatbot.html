@@ -1,13 +1,15 @@
-<!-- DH CHATBOT : script du chatbot Duhallé — à placer UNE fois, sur toutes les pages (pied de page).
+<!-- DH CHATBOT : script du chatbot Duhallé — à placer UNE fois, sur toutes les pages.
      1. Remplacez VOTRE-SOUS-DOMAINE par celui de votre compte Cloudflare
         (Cloudflare > Workers & Pages > chatbot-duhalle : l'adresse *.workers.dev est affichée).
-     2. Réglages facultatifs : data-titre, data-couleur, data-position ("droite" ou "gauche"), data-telephone.
+     2. integrity + crossorigin : l'empreinte du widget. Le navigateur refuse tout
+        widget.js modifié, même si le compte Cloudflare ou GitHub était piraté.
+        Après chaque mise à jour du widget, recopiez ce bloc (l'empreinte change).
+     3. Réglages facultatifs : data-titre, data-couleur, data-position ("droite" ou "gauche"),
+        data-decalage (distance au bas de l'écran en pixels, 84 par défaut), data-telephone.
      Le script affiche lui-même la bulle « Une question ? » et la fenêtre de discussion. -->
 <script
   src="https://chatbot-duhalle.VOTRE-SOUS-DOMAINE.workers.dev/widget.js"
-  data-titre="Conseiller Duhallé"
-  data-couleur="#6B2737"
-  data-position="droite"
-  data-telephone="02 47 53 00 26"
+  integrity="sha384-plAhGOa33Lrw9u0VqSOdIFmKWqMkYXotE1VTqhH5nM+3klV8059mXhIfX6Yy0YFY"
+  crossorigin="anonymous"
   defer></script>
 <!-- /DH CHATBOT -->

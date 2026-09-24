@@ -20,12 +20,12 @@ jobs:
       - run: npm ci
       - name: Types
         run: npm run typecheck
-      - name: Tests (base, banc de questions, jeu inédit, Worker)
+      - name: Tests (base, banc de questions, jeu inédit, Worker, robustesse)
         run: npm test
-      - name: Le widget compilé est à jour
+      - name: Le widget compilé et son empreinte sont à jour
         run: |
           npm run build
-          git diff --exit-code public/widget.js || (echo "public/widget.js n'est pas à jour : lancez npm run build et commitez le fichier." && exit 1)
+          git diff --exit-code public/widget.js oxatis/1-script-chatbot.html || (echo "public/widget.js ou son empreinte ne sont pas à jour : lancez npm run build et commitez les fichiers." && exit 1)
       - name: Le Worker se construit comme sur Cloudflare
         run: npx wrangler deploy --dry-run --outdir dist
         env:

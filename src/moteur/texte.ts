@@ -93,6 +93,12 @@ export function racines(texte: string): string[] {
 }
 
 /**
+ * Une question n'est lue que jusqu'à ce nombre de mots utiles : c'est bien
+ * plus qu'une vraie question, et un message fleuve ne coûte pas plus cher.
+ */
+export const MOTS_MAX = 40;
+
+/**
  * Les racines d'une QUESTION : comme `racines`, mais un mot nié ne compte pas.
  * « On peut boucher sans boucheuse ? », « je n'ai pas de boucheuse » : la
  * boucheuse n'est pas le sujet. (Les alias, eux, gardent tous leurs mots.)
@@ -101,7 +107,7 @@ export function racinesDeLaQuestion(texte: string): string[] {
   const mots = normaliser(texte).split(" ");
   const out: string[] = [];
   let nie = false;
-  for (let i = 0; i < mots.length; i++) {
+  for (let i = 0; i < mots.length && out.length < MOTS_MAX; i++) {
     const mot = mots[i]!;
     if (mot === "sans" || (mot === "pas" && (mots[i + 1] === "de" || mots[i + 1] === "d"))) {
       nie = true;
@@ -120,23 +126,83 @@ export function racinesDeLaQuestion(texte: string): string[] {
 /** Distance d'édition (Damerau-Levenshtein restreinte), arrêtée au-delà de `max`. */
 export function distanceEdition(a: string, b: string, max: number): number {
   if (Math.abs(a.length - b.length) > max) return max + 1;
-  const d: number[][] = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0));
-  for (let i = 0; i <= a.length; i++) d[i]![0] = i;
-  for (let j = 0; j <= b.length; j++) d[0]![j] = j;
+  // Trois lignes du tableau suffisent : la transposition regarde deux lignes en arrière.
+  let avant = new Array<number>(b.length + 1).fill(0);
+  let precedente = Array.from({ length: b.length + 1 }, (_, j) => j);
+  let courante = new Array<number>(b.length + 1).fill(0);
   for (let i = 1; i <= a.length; i++) {
-    let minLigne = Infinity;
+    courante[0] = i;
+    let minLigne = i;
     for (let j = 1; j <= b.length; j++) {
       const cout = a[i - 1] === b[j - 1] ? 0 : 1;
-      let v = Math.min(d[i - 1]![j]! + 1, d[i]![j - 1]! + 1, d[i - 1]![j - 1]! + cout);
+      let v = Math.min(precedente[j]! + 1, courante[j - 1]! + 1, precedente[j - 1]! + cout);
       if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
-        v = Math.min(v, d[i - 2]![j - 2]! + 1);
+        v = Math.min(v, avant[j - 2]! + 1);
       }
-      d[i]![j] = v;
+      courante[j] = v;
       minLigne = Math.min(minLigne, v);
     }
     if (minLigne > max) return max + 1;
+    [avant, precedente, courante] = [precedente, courante, avant];
   }
-  return d[a.length]![b.length]!;
+  return precedente[b.length]!;
+}
+
+/** Un vocabulaire rangé par longueur de mot, et les corrections déjà calculées. */
+interface IndexDeCorrection {
+  taille: number;
+  parLongueur: Map<number, Array<{ mot: string; lettres: Int8Array }>>;
+  memoire: Map<string, string | null>;
+}
+
+/** Le compte de chaque lettre d'un mot (a à z, puis « autre »). */
+function compterLettres(mot: string): Int8Array {
+  const lettres = new Int8Array(27);
+  for (let i = 0; i < mot.length; i++) {
+    const c = mot.charCodeAt(i) - 97;
+    lettres[c >= 0 && c < 26 ? c : 26]!++;
+  }
+  return lettres;
+}
+
+/**
+ * Minorant rapide de la distance d'édition : les lettres en trop d'un côté ou
+ * de l'autre. Il écarte la plupart des mots sans faire le calcul complet.
+ */
+function ecartDeLettres(a: Int8Array, b: Int8Array, max: number): number {
+  let enTrop = 0;
+  let enMoins = 0;
+  for (let i = 0; i < 27; i++) {
+    const d = a[i]! - b[i]!;
+    if (d > 0) enTrop += d;
+    else enMoins -= d;
+    if (enTrop > max || enMoins > max) return max + 1;
+  }
+  return Math.max(enTrop, enMoins);
+}
+
+const INDEX_DE_CORRECTION = new WeakMap<ReadonlySet<string>, IndexDeCorrection>();
+
+/**
+ * Au-delà de ce nombre de corrections gardées en mémoire, on repart de zéro :
+ * un flot de mots inventés ne peut pas faire grossir la mémoire sans fin.
+ */
+const MEMOIRE_MAX = 5_000;
+
+function indexer(vocabulaire: ReadonlySet<string>): IndexDeCorrection {
+  let index = INDEX_DE_CORRECTION.get(vocabulaire);
+  if (!index || index.taille !== vocabulaire.size) {
+    const parLongueur: IndexDeCorrection["parLongueur"] = new Map();
+    for (const mot of [...vocabulaire].sort()) {
+      const entree = { mot, lettres: compterLettres(mot) };
+      const liste = parLongueur.get(mot.length);
+      if (liste) liste.push(entree);
+      else parLongueur.set(mot.length, [entree]);
+    }
+    index = { taille: vocabulaire.size, parLongueur, memoire: new Map() };
+    INDEX_DE_CORRECTION.set(vocabulaire, index);
+  }
+  return index;
 }
 
 /**
@@ -144,22 +210,36 @@ export function distanceEdition(a: string, b: string, max: number): number {
  * Une faute à partir de 6 lettres, deux à partir de 9 ; rien en dessous : les
  * mots courts se ressemblent trop (« temps » n'est pas « trempe », « trompé »
  * n'est pas « trempage »).
+ *
+ * Seuls les mots de longueur voisine sont comparés, et chaque correction est
+ * retenue : une question remplie de mots inventés reste rapide à traiter.
  */
 export function corriger(racine: string, vocabulaire: ReadonlySet<string>): string | undefined {
   if (vocabulaire.has(racine)) return racine;
   if (racine.length < 6 || /\d/.test(racine)) return undefined;
+  const index = indexer(vocabulaire);
+  const connue = index.memoire.get(racine);
+  if (connue !== undefined) return connue ?? undefined;
+
   const max = racine.length >= 9 ? 2 : 1;
+  const lettres = compterLettres(racine);
   let meilleur: string | undefined;
   let meilleureDistance = max + 1;
-  for (const candidat of vocabulaire) {
-    if (Math.abs(candidat.length - racine.length) > max) continue;
-    const d = distanceEdition(racine, candidat, max);
-    // À distance égale, on garde le premier par ordre alphabétique : le
-    // résultat ne dépend pas de l'ordre d'insertion.
-    if (d < meilleureDistance || (d === meilleureDistance && meilleur !== undefined && candidat < meilleur)) {
-      meilleur = candidat;
-      meilleureDistance = d;
+  for (let longueur = racine.length - max; longueur <= racine.length + max; longueur++) {
+    for (const { mot: candidat, lettres: lettresDuCandidat } of index.parLongueur.get(longueur) ?? []) {
+      const plafond = Math.min(max, meilleureDistance);
+      if (ecartDeLettres(lettres, lettresDuCandidat, plafond) > plafond) continue;
+      const d = distanceEdition(racine, candidat, plafond);
+      // À distance égale, on garde le premier par ordre alphabétique : le
+      // résultat ne dépend pas de l'ordre d'insertion.
+      if (d < meilleureDistance || (d === meilleureDistance && meilleur !== undefined && candidat < meilleur)) {
+        meilleur = candidat;
+        meilleureDistance = d;
+      }
     }
   }
-  return meilleureDistance <= max ? meilleur : undefined;
+  const correction = meilleureDistance <= max ? meilleur : undefined;
+  if (index.memoire.size >= MEMOIRE_MAX) index.memoire.clear();
+  index.memoire.set(racine, correction ?? null);
+  return correction;
 }

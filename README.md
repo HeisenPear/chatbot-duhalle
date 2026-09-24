@@ -6,6 +6,7 @@ Le chatbot de **duhalle-boutique.fr** : un conseiller en ligne qui répond aux q
 - **Hébergé sur Cloudflare Workers.** La réponse est calculée sur place en quelques millisecondes, sans service externe.
 - **Question-réponse uniquement.** Le chatbot n'a accès ni aux comptes clients ni aux commandes. Pour tout ce qui demande une action, il renvoie vers le site ou le service client.
 - **Vouvoiement systématique**, ton de la marque, sans emoji. Un test le vérifie.
+- **Sécurisé pour une boutique en ligne** : empreinte d'intégrité sur le script, limite de questions par visiteur, aucune donnée client. Voir [Sécurité](#sécurité).
 
 ---
 
@@ -63,7 +64,7 @@ public/
   widget.js             le widget compilé (généré par npm run build, versionné)
   index.html            page de démonstration
 oxatis/                 les codes à coller dans le back-office Oxatis
-test/                   base, banc, jeu inédit, Worker
+test/                   base, banc, jeu inédit, Worker, robustesse
 ```
 
 ---
@@ -80,7 +81,7 @@ Le déploiement passe par **Workers Builds** : Cloudflare se branche sur ce dép
 
 Aucune clé secrète n'est nécessaire. Le plan gratuit de Cloudflare Workers (100 000 requêtes par jour) suffit largement.
 
-**Sites autorisés.** La variable `ALLOWED_ORIGINS` de `wrangler.jsonc` liste les sites qui peuvent interroger le chatbot : `https://www.duhalle-boutique.fr` et `https://duhalle-boutique.fr`. Pour tester depuis un autre domaine, par exemple l'aperçu Oxatis, ajoutez-le, séparé par une virgule, ou mettez `*`.
+**Sites autorisés.** La variable `ALLOWED_ORIGINS` de `wrangler.jsonc` liste les sites qui peuvent interroger le chatbot : `https://www.duhalle-boutique.fr` et `https://duhalle-boutique.fr`. Pour tester depuis un autre domaine, par exemple l'aperçu Oxatis, ajoutez-le, séparé par une virgule. Évitez `*` en production : n'importe quel site pourrait alors afficher votre chatbot.
 
 ## Installation sur le site Oxatis
 
@@ -89,12 +90,12 @@ Deux codes sont prêts dans le dossier `oxatis/`.
 ### 1. Le script du chatbot, sur toutes les pages : `oxatis/1-script-chatbot.html`
 
 1. Remplacez `VOTRE-SOUS-DOMAINE` par celui de l'adresse workers.dev.
-2. Collez le code **une seule fois**, à un endroit présent sur toutes les pages. Deux possibilités :
-   - un élément **« Code HTML »** placé dans le **pied de page** avec l'éditeur de design (le pied de page est commun à toutes les pages) ;
-   - ou l'emplacement réservé aux scripts de suivi (celui qu'on utilise pour Google Tag Manager).
-3. Enregistrez, puis ouvrez le site : la bulle **« Une question ? »** apparaît en bas à droite.
+2. Collez le code **une seule fois** dans le bloc HTML du `<head>` du site, **et dans celui du site mobile** si Oxatis en a un séparé.
+3. Enregistrez, puis ouvrez le site : la bulle **« Une question ? »** apparaît en bas à droite, au-dessus de la pastille des cookies.
 
-Le visuel (bulle, fenêtre, couleurs Duhallé) est dessiné par le script lui-même, isolé du thème : il ne déforme pas le site et le site ne le déforme pas. Réglages facultatifs, en attributs de la balise : `data-titre`, `data-couleur`, `data-position` (`droite` ou `gauche`), `data-telephone`.
+**Après chaque mise à jour du widget** (`public/widget.js`), l'empreinte `integrity` change : attendez la fin du déploiement Cloudflare, puis recopiez la balise du fichier `oxatis/1-script-chatbot.html` dans Oxatis (ordinateur et mobile). Tant que l'empreinte ne correspond pas, le navigateur refuse le script : la bulle disparaît, le reste du site n'est pas touché.
+
+Le visuel (bulle, fenêtre, vert et ocre Duhallé) est dessiné par le script lui-même, isolé du thème : il ne déforme pas le site et le site ne le déforme pas. Sur mobile, la discussion s'ouvre en plein écran. Réglages facultatifs, en attributs de la balise : `data-titre`, `data-couleur`, `data-position` (`droite` ou `gauche`), `data-decalage` (distance au bas de l'écran en pixels, 84 par défaut), `data-telephone`.
 
 ### 2. L'encart « Une question ? », dans une page : `oxatis/2-bloc-bouton-conseiller.html`
 
@@ -140,6 +141,23 @@ Règles de la maison :
 
 **Les questions sans réponse** sont journalisées par le Worker, avec l'événement `sans-reponse` (Cloudflare, puis le Worker, puis **Logs**). C'est la meilleure source pour savoir quels alias et quels faits ajouter.
 
+## Sécurité
+
+Le chatbot ajoute un script à une boutique en ligne : c'est le point à protéger. Ce qui est en place :
+
+| Risque | Protection |
+|---|---|
+| Un `widget.js` modifié (compte GitHub ou Cloudflare piraté) qui lirait les pages de la boutique | **Empreinte d'intégrité (SRI)** sur la balise : le navigateur refuse tout fichier qui n'est pas exactement celui publié. `npm run build` la recalcule et la reporte dans `oxatis/1-script-chatbot.html` ; la CI vérifie qu'elle est à jour. |
+| Injection de code dans la fenêtre de discussion | Aucun texte reçu (réponse, stockage) n'est inséré comme HTML : tout passe par `textContent`. Les liens ne mènent qu'à `duhalle-boutique.fr` en `https`. Les réponses et la conversation gardée en `sessionStorage` sont vérifiées avant affichage. |
+| Robot qui inonde l'API (quota, coûts) | **30 appels par minute et par adresse IP** (binding `ratelimits` de Cloudflare), puis réponse 429 et message « merci de patienter ». |
+| Message énorme ou piégé | Corps limité à 4 000 octets, lu en flux et coupé au-delà ; question lue sur 40 mots au plus ; correcteur de fautes indexé : un message piégé coûte moins de 5 ms de calcul (plus de 50 ms avant). Testé dans `test/robustesse.test.ts`. |
+| Autre site qui utiliserait le chatbot | CORS : seuls les sites de `ALLOWED_ORIGINS` sont acceptés (403 sinon). |
+| Données personnelles | Le chatbot ne demande ni ne stocke rien. Les questions sans réponse sont journalisées **sans e-mail ni numéro** (masqués). La conversation reste dans l'onglet du client et disparaît à sa fermeture. |
+| Fuite d'erreurs techniques | Toute erreur renvoie un message générique ; le détail reste dans les journaux Cloudflare. |
+| En-têtes HTTP | API : `nosniff`, `Content-Security-Policy: default-src 'none'`, `no-store`. Fichiers statiques (`public/_headers`) : CSP stricte, `X-Frame-Options: DENY`, `noindex`. |
+
+À faire de votre côté : activer la **double authentification** sur les comptes GitHub et Cloudflare, et protéger la branche `main` (relecture obligatoire avant fusion).
+
 ## Informations à faire valider avant la mise en ligne
 
 Le site n'était pas accessible depuis l'environnement de développement. Les informations commerciales viennent donc d'extraits indexés du site et sont à confirmer. Elles sont centralisées dans `src/savoir/coordonnees.ts` et `src/savoir/commande.ts` :
@@ -159,9 +177,9 @@ Les faits de **savoir-faire général** (étapes de la mise en bouteille, du cid
 
 ```bash
 npm install
-npm test            # base, banc de questions, jeu inédit, Worker
+npm test            # base, banc de questions, jeu inédit, Worker, robustesse
 npm run typecheck   # types du Worker et du widget
-npm run build       # recompile public/widget.js (à commiter)
+npm run build       # recompile public/widget.js et son empreinte (à commiter)
 npm run dev         # Worker en local sur http://localhost:8787 (page de démonstration)
 ```
 

@@ -1,0 +1,16 @@
+# En-têtes des fichiers statiques (widget.js, page de démonstration).
+# Les réponses de l'API /api/* ont les leurs, posées par le Worker.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  X-Robots-Tag: noindex
+
+# Le widget est chargé par le site Duhallé avec une empreinte d'intégrité
+# (attribut integrity) : le navigateur doit pouvoir le lire en mode CORS.
+/widget.js
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin

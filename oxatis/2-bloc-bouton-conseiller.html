@@ -18,30 +18,29 @@
 </div>
 <style>
   .dh-chatcta {
-    --dh-bordeaux: #6B2737; --dh-bordeaux-fonce: #521C2A; --dh-liege: #B5835A; --dh-creme: #F5EFE6;
-    --dh-vert: #3E4E3A; --dh-texte: #2B2B2B;
+    --dh-vert: #20342C; --dh-vert-fonce: #15231D; --dh-ocre: #B07420; --dh-creme: #F7F4EE; --dh-texte: #26302B;
     box-sizing: border-box; display: grid; grid-template-columns: 1fr auto; gap: 16px 24px; align-items: center;
     max-width: 1100px; margin: 24px auto; padding: clamp(20px, 4vw, 32px);
-    background: var(--dh-creme); border: 1px solid #E4D9C8; border-radius: 10px;
+    background: var(--dh-creme); border: 1px solid #E2DDD2; border-radius: 10px;
     color: var(--dh-texte); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   .dh-chatcta * { box-sizing: border-box; }
-  .dh-chatcta .dh-chatcta__titre { margin: 0 0 6px; font: 600 clamp(20px, 2.6vw, 26px)/1.25 Georgia, "Times New Roman", serif; color: var(--dh-bordeaux); }
+  .dh-chatcta .dh-chatcta__titre { margin: 0 0 6px; font: 600 clamp(20px, 2.6vw, 26px)/1.25 Georgia, "Times New Roman", serif; color: var(--dh-vert); }
   .dh-chatcta .dh-chatcta__accroche { margin: 0; font-size: 16px; line-height: 1.5; }
   .dh-chatcta .dh-chatcta__bouton {
     display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 12px 22px;
-    border-radius: 8px; background: var(--dh-bordeaux); color: #fff; font-weight: 600; font-size: 16px;
+    border-radius: 8px; background: var(--dh-vert); color: #fff; font-weight: 600; font-size: 16px;
     text-decoration: none; white-space: nowrap; transition: background .15s ease;
   }
-  .dh-chatcta .dh-chatcta__bouton:hover { background: var(--dh-bordeaux-fonce); color: #fff; }
+  .dh-chatcta .dh-chatcta__bouton:hover { background: var(--dh-vert-fonce); color: #fff; }
   .dh-chatcta .dh-chatcta__bouton svg { width: 22px; height: 22px; }
   .dh-chatcta .dh-chatcta__questions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
   .dh-chatcta .dh-chatcta__questions a {
     display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; border-radius: 22px;
-    border: 1px solid var(--dh-bordeaux); background: #fff; color: var(--dh-bordeaux); font-size: 15px; text-decoration: none;
+    border: 1px solid var(--dh-vert); background: #fff; color: var(--dh-vert); font-size: 15px; text-decoration: none;
   }
-  .dh-chatcta .dh-chatcta__questions a:hover { background: var(--dh-bordeaux); color: #fff; }
-  .dh-chatcta a:focus-visible { outline: 3px solid var(--dh-liege); outline-offset: 2px; }
+  .dh-chatcta .dh-chatcta__questions a:hover { background: var(--dh-vert); color: #fff; }
+  .dh-chatcta a:focus-visible { outline: 3px solid var(--dh-ocre); outline-offset: 2px; }
   @media (max-width: 640px) {
     .dh-chatcta { grid-template-columns: 1fr; }
     .dh-chatcta .dh-chatcta__bouton { justify-content: center; width: 100%; }

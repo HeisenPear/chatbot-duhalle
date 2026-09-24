@@ -8,6 +8,11 @@
 //
 // Aucun appel à un service externe : la base de connaissances est dans le
 // code, la réponse est calculée sur place en quelques millisecondes.
+//
+// Sécurité : l'API ne fait que lire la base (aucune donnée client, aucune
+// action sur le site). Elle limite le nombre de questions par visiteur, borne
+// la taille des requêtes, n'accepte que les sites autorisés et ne journalise
+// pas les coordonnées tapées par les clients.
 // ═══════════════════════════════════════════════════════════════════════════
 import { Assistant } from "./moteur/assistant";
 import { REGLAGES } from "./savoir/coordonnees";
@@ -18,6 +23,8 @@ export interface Env {
   ASSETS?: Fetcher;
   /** Sites autorisés à appeler l'API, séparés par des virgules ; « * » pour tous. */
   ALLOWED_ORIGINS?: string;
+  /** Limite de requêtes par visiteur (binding « ratelimits » de wrangler.jsonc). */
+  LIMITEUR?: RateLimit;
 }
 
 /** Longueur maximale d'une question : au-delà, on tronque. */
@@ -64,23 +71,65 @@ function json(corps: unknown, statut: number, origine: string | null, extra: Rec
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
+      // Une réponse de l'API n'est jamais une page : rien à charger, rien à encadrer.
+      "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
+      "Referrer-Policy": "no-referrer",
       ...entetesCors(origine),
       ...extra,
     },
   });
 }
 
+class CorpsInvalide extends Error {}
+
+/**
+ * Lit le corps sans jamais en garder plus que CORPS_MAX octets en mémoire :
+ * un envoi énorme est coupé dès qu'il dépasse, qu'il annonce sa taille ou non.
+ */
 async function lireCorps(request: Request): Promise<unknown> {
-  const texte = await request.text();
-  if (texte.length > CORPS_MAX) throw new Error("trop long");
-  return JSON.parse(texte);
+  const annoncee = Number(request.headers.get("Content-Length") ?? 0);
+  if (annoncee > CORPS_MAX) throw new CorpsInvalide();
+  if (!request.body) throw new Error("corps vide");
+  const lecteur = request.body.getReader();
+  const morceaux: Uint8Array[] = [];
+  let taille = 0;
+  for (;;) {
+    const { done, value } = await lecteur.read();
+    if (done) break;
+    taille += value.byteLength;
+    if (taille > CORPS_MAX) {
+      await lecteur.cancel();
+      throw new CorpsInvalide();
+    }
+    morceaux.push(value);
+  }
+  const octets = new Uint8Array(taille);
+  let position = 0;
+  for (const m of morceaux) {
+    octets.set(m, position);
+    position += m.byteLength;
+  }
+  return JSON.parse(new TextDecoder().decode(octets));
+}
+
+/**
+ * Masque ce qui pourrait identifier un client avant de journaliser une
+ * question : adresses e-mail, numéros (téléphone, commande, carte…).
+ */
+export function anonymiser(question: string): string {
+  return question
+    .replace(/[^\s@]+@[^\s@]+/g, "[e-mail]")
+    // Six chiffres ou plus : un format de bouchon (« 45 x 24 ») reste lisible.
+    .replace(/\+?\d[\d\s.\-/]*\d/g, (n) => (n.replace(/\D/g, "").length >= 6 ? "[numéro]" : n))
+    .slice(0, 200);
 }
 
 async function chat(request: Request, origine: string | null): Promise<Response> {
   let corps: unknown;
   try {
     corps = await lireCorps(request);
-  } catch {
+  } catch (e) {
+    if (e instanceof CorpsInvalide) return json({ erreur: "Requête trop longue." }, 413, origine);
     return json({ erreur: "Requête invalide." }, 400, origine);
   }
   const { message, contexte } = (corps ?? {}) as { message?: unknown; contexte?: unknown };
@@ -91,28 +140,50 @@ async function chat(request: Request, origine: string | null): Promise<Response>
 
   // Les questions sans réponse sont journalisées (Workers Logs) pour enrichir la base.
   if (reponse.nature === "inconnu") {
-    console.log(JSON.stringify({ evenement: "sans-reponse", question: question.slice(0, 200) }));
+    console.log(JSON.stringify({ evenement: "sans-reponse", question: anonymiser(question) }));
   }
   return json(reponse, 200, origine);
+}
+
+/** Trop de questions d'un même visiteur en une minute : on le fait patienter. */
+async function tropDeRequetes(request: Request, env: Env): Promise<boolean> {
+  if (!env.LIMITEUR) return false;
+  const visiteur = request.headers.get("CF-Connecting-IP") ?? "inconnu";
+  const { success } = await env.LIMITEUR.limit({ key: visiteur });
+  return !success;
+}
+
+async function api(request: Request, env: Env, url: URL, origine: string | null): Promise<Response> {
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: entetesCors(origine) });
+
+  // Une page d'un site non autorisé ne peut pas utiliser le chatbot.
+  if (request.headers.get("Origin") && !origine) return json({ erreur: "Origine non autorisée." }, 403, null);
+
+  if (await tropDeRequetes(request, env)) {
+    return json({ erreur: "Trop de questions en peu de temps. Merci de patienter une minute." }, 429, origine, { "Retry-After": "60" });
+  }
+
+  if (url.pathname === "/api/chat" && request.method === "POST") return chat(request, origine);
+  if (url.pathname === "/api/accueil" && request.method === "GET") {
+    return json(assistant.repondre("bonjour"), 200, origine, { "Cache-Control": "public, max-age=300" });
+  }
+  if (url.pathname === "/api/sante" && request.method === "GET") return json({ ok: true, ...assistant.taille }, 200, origine);
+  return json({ erreur: "Introuvable." }, 404, origine);
 }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    const origine = origineCors(request, env);
 
     if (url.pathname.startsWith("/api/")) {
-      if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: entetesCors(origine) });
-
-      // Une page d'un site non autorisé ne peut pas utiliser le chatbot.
-      if (request.headers.get("Origin") && !origine) return json({ erreur: "Origine non autorisée." }, 403, null);
-
-      if (url.pathname === "/api/chat" && request.method === "POST") return chat(request, origine);
-      if (url.pathname === "/api/accueil" && request.method === "GET") {
-        return json(assistant.repondre("bonjour"), 200, origine, { "Cache-Control": "public, max-age=300" });
+      const origine = origineCors(request, env);
+      try {
+        return await api(request, env, url, origine);
+      } catch (e) {
+        // Jamais de détail technique vers l'extérieur ; l'erreur reste dans les journaux.
+        console.error(JSON.stringify({ evenement: "erreur", message: e instanceof Error ? e.message : String(e) }));
+        return json({ erreur: "Erreur interne." }, 500, origine);
       }
-      if (url.pathname === "/api/sante" && request.method === "GET") return json({ ok: true, ...assistant.taille }, 200, origine);
-      return json({ erreur: "Introuvable." }, 404, origine);
     }
 
     if (env.ASSETS) return env.ASSETS.fetch(request);

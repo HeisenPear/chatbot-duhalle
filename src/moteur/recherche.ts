@@ -8,7 +8,7 @@
 // renvoie vers le service client.
 // ═══════════════════════════════════════════════════════════════════════════
 import type { BaseDeSavoir, Fait } from "../savoir/types";
-import { corriger, racines } from "./texte";
+import { corriger, MOTS_MAX, racines } from "./texte";
 
 export interface FaitTrouve {
   readonly fait: Fait;
@@ -60,7 +60,7 @@ export class RechercheDansLesFaits {
   }
 
   chercher(texte: string, limite = 3): FaitTrouve[] {
-    const mots = [...new Set(racines(texte).map((r) => corriger(r, this.vocabulaire) ?? r))];
+    const mots = [...new Set(racines(texte).slice(0, MOTS_MAX).map((r) => corriger(r, this.vocabulaire) ?? r))];
     if (mots.length === 0) return [];
     // Un mot inconnu de toute la base pèse lourd : une question sur les
     // lasagnes ne doit pas ressortir sur la seule foi du mot « recette ».

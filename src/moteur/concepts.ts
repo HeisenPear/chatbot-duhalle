@@ -90,10 +90,14 @@ export class DetecteurDeConcepts {
       if (forme.includes(formule) && !trouves.has(concept.id)) trouves.set(concept.id, { concept, position: -1 });
     }
 
+    // Seuls les alias dont tous les mots sont dans la question peuvent correspondre.
+    const presents = new Set(mots);
+    const possibles = this.alias.filter((alias) => alias.racines.every((r) => presents.has(r)));
+
     const utilises = new Set<AliasIndexe>();
     for (;;) {
       let meilleur: { alias: AliasIndexe; positions: number[]; etendue: number } | null = null;
-      for (const alias of this.alias) {
+      for (const alias of possibles) {
         if (utilises.has(alias) || trouves.has(alias.concept.id)) continue;
         const positions = this.trouver(alias, mots, pris);
         if (!positions) continue;

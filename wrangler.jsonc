@@ -15,6 +15,15 @@
     // Sites autorisés à interroger le chatbot (séparés par des virgules, "*" = tous).
     "ALLOWED_ORIGINS": "https://www.duhalle-boutique.fr,https://duhalle-boutique.fr"
   },
+  // Au plus 30 appels à l'API par minute et par visiteur (adresse IP) : bien
+  // plus qu'une vraie conversation, mais un robot qui s'acharne est freiné.
+  "ratelimits": [
+    {
+      "name": "LIMITEUR",
+      "namespace_id": "1001",
+      "simple": { "limit": 30, "period": 60 }
+    }
+  ],
   "observability": {
     "enabled": true
   }

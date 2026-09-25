@@ -15,8 +15,11 @@
 // pas les coordonnées tapées par les clients.
 // ═══════════════════════════════════════════════════════════════════════════
 import { Assistant } from "./moteur/assistant";
+import { enregistrerQuestion } from "./questions";
 import { REGLAGES } from "./savoir/coordonnees";
 import { BASE } from "./savoir/index";
+
+export { anonymiser } from "./questions";
 
 export interface Env {
   /** Les fichiers statiques (widget.js, demo.html). */
@@ -25,6 +28,8 @@ export interface Env {
   ALLOWED_ORIGINS?: string;
   /** Limite de requêtes par visiteur (binding « ratelimits » de wrangler.jsonc). */
   LIMITEUR?: RateLimit;
+  /** Questions anonymisées destinées à l'amélioration du chatbot. */
+  QUESTIONS_DB?: D1Database;
 }
 
 /** Longueur maximale d'une question : au-delà, on tronque. */
@@ -112,19 +117,7 @@ async function lireCorps(request: Request): Promise<unknown> {
   return JSON.parse(new TextDecoder().decode(octets));
 }
 
-/**
- * Masque ce qui pourrait identifier un client avant de journaliser une
- * question : adresses e-mail, numéros (téléphone, commande, carte…).
- */
-export function anonymiser(question: string): string {
-  return question
-    .replace(/[^\s@]+@[^\s@]+/g, "[e-mail]")
-    // Six chiffres ou plus : un format de bouchon (« 45 x 24 ») reste lisible.
-    .replace(/\+?\d[\d\s.\-/]*\d/g, (n) => (n.replace(/\D/g, "").length >= 6 ? "[numéro]" : n))
-    .slice(0, 200);
-}
-
-async function chat(request: Request, origine: string | null): Promise<Response> {
+async function chat(request: Request, env: Env, ctx: ExecutionContext | undefined, origine: string | null): Promise<Response> {
   let corps: unknown;
   try {
     corps = await lireCorps(request);
@@ -138,9 +131,18 @@ async function chat(request: Request, origine: string | null): Promise<Response>
   const question = message.slice(0, LONGUEUR_MAX);
   const reponse = assistant.repondre(question, assistant.contexteValide(contexte));
 
-  // Les questions sans réponse sont journalisées (Workers Logs) pour enrichir la base.
-  if (reponse.nature === "inconnu") {
-    console.log(JSON.stringify({ evenement: "sans-reponse", question: anonymiser(question) }));
+  if (env.QUESTIONS_DB) {
+    const enregistrement = enregistrerQuestion(env.QUESTIONS_DB, question, reponse.nature).catch((e: unknown) => {
+      // Ne jamais inclure la question dans les journaux, même en cas d'échec D1.
+      console.error(
+        JSON.stringify({
+          evenement: "enregistrement-question-echoue",
+          message: e instanceof Error ? e.message : String(e),
+        }),
+      );
+    });
+    if (ctx) ctx.waitUntil(enregistrement);
+    else await enregistrement;
   }
   return json(reponse, 200, origine);
 }
@@ -153,7 +155,7 @@ async function tropDeRequetes(request: Request, env: Env): Promise<boolean> {
   return !success;
 }
 
-async function api(request: Request, env: Env, url: URL, origine: string | null): Promise<Response> {
+async function api(request: Request, env: Env, ctx: ExecutionContext | undefined, url: URL, origine: string | null): Promise<Response> {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: entetesCors(origine) });
 
   // Une page d'un site non autorisé ne peut pas utiliser le chatbot.
@@ -163,7 +165,7 @@ async function api(request: Request, env: Env, url: URL, origine: string | null)
     return json({ erreur: "Trop de questions en peu de temps. Merci de patienter une minute." }, 429, origine, { "Retry-After": "60" });
   }
 
-  if (url.pathname === "/api/chat" && request.method === "POST") return chat(request, origine);
+  if (url.pathname === "/api/chat" && request.method === "POST") return chat(request, env, ctx, origine);
   if (url.pathname === "/api/accueil" && request.method === "GET") {
     return json(assistant.repondre("bonjour"), 200, origine, { "Cache-Control": "public, max-age=300" });
   }
@@ -172,13 +174,13 @@ async function api(request: Request, env: Env, url: URL, origine: string | null)
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx?: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith("/api/")) {
       const origine = origineCors(request, env);
       try {
-        return await api(request, env, url, origine);
+        return await api(request, env, ctx, url, origine);
       } catch (e) {
         // Jamais de détail technique vers l'extérieur ; l'erreur reste dans les journaux.
         console.error(JSON.stringify({ evenement: "erreur", message: e instanceof Error ? e.message : String(e) }));

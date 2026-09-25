@@ -34,7 +34,7 @@ const INEDIT: Array<[string, string[]]> = [
   ["quel est le meilleur moment pour ramasser les pommes à cidre", ["cidre.moment"]],
   ["mon cidre est plat, pas de bulles", ["cidre.condition", "cidre+mise-en-bouteille.moment", "bouteille-champenoise.condition"]],
   ["un pressoir de 6 litres suffit ?", ["pressoir.choix"]],
-  ["peut-on faire du vinaigre avec du cidre", ["vinaigre.procedure", "vinaigre.erreur"]],
+  ["peut-on faire du vinaigre avec du cidre", ["vinaigre+cidre.condition", "vinaigre.procedure", "vinaigre.erreur"]],
   ["mettre du vin rouge ou blanc dans le vinaigrier", ["vinaigre.procedure"]],
   ["comment savoir si un bocal est bien stérilisé", ["conserve.condition", "conserve.procedure"]],
   ["confiture moins sucrée possible ?", ["confiture.procedure"]],

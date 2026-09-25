@@ -52,7 +52,7 @@ r.fait(["bouchage", "cidre"], "choix", `
 
 r.concept("pomme", "Les pommes à cidre", ["pomme", "pommes", "pommes a cidre", "variete de pomme", "varietes de pommes", "quelles pommes", "pommes douces", "pommes ameres", "pommes acides", "fruits"], {
   famille: "cidre",
-  formules: ["laver les pommes avant de les broyer", "laver les pommes avant broyage"],
+  formules: ["laver les pommes avant de les broyer", "laver les pommes avant broyage", "garder les pommes avant pressage", "conserver les pommes avant de les presser"],
 });
 
 r.fait("pomme", "choix", `
@@ -60,6 +60,9 @@ r.fait("pomme", "choix", `
 
 r.fait("pomme", "condition", `
   Avant le broyage, triez les pommes et retirez fruits pourris, terre, feuilles, cailloux et autres corps étrangers. Lavez-les avec une eau propre lorsqu'elles sont sales, puis laissez-les s'égoutter : la fermentation ne remplace pas l'hygiène des fruits et du matériel.`, { source: IFPC });
+
+r.fait("pomme", "duree", `
+  La durée d'attente avant pressage dépend de la variété, de la maturité et de l'état sanitaire : stockez les pommes en couche aérée, au frais et à l'abri, contrôlez-les souvent et éliminez tout fruit pourri. Pressez dès que la maturité recherchée est atteinte plutôt que d'appliquer un nombre de jours universel.`, { source: IFPC });
 
 r.concept("broyeur", "Broyeur à pommes", ["broyeur", "broyeurs", "broyeur a pommes", "broyer", "broyer les pommes", "broyage", "raper les pommes", "moulin a pommes", "concasseur"], {
   famille: "cidre",
@@ -107,6 +110,59 @@ r.fait("fermentation-cidre", "condition", `
 
 r.fait("pressoir", "procedure", `
   Remplissez la cage de pulpe broyée (idéalement dans une toile de pressage), posez les demi-lunes et les cales en bois, puis serrez la vis **progressivement**. Laissez le jus s'écouler entre deux serrages : un pressage lent donne plus de jus.`, { source: SAVOIR_FAIRE });
+
+r.concept("nettoyage-materiel-cidre", "Nettoyer broyeur et pressoir", ["nettoyer le broyeur", "nettoyer le pressoir", "broyeur apres usage", "pressoir apres usage", "fruits colorants pressoir"], {
+  famille: "cidre",
+  lien: PAGES.broyerPresser,
+  formules: ["presser apres des fruits tres colorants", "nettoyer le pressoir apres des fruits colorants"],
+});
+
+r.fait("nettoyage-materiel-cidre", "procedure", `
+  Nettoyez immédiatement après usage avant que pulpe et jus ne sèchent : démontez seulement les pièces prévues par la notice, retirez les résidus, lavez avec un produit compatible alimentaire, rincez et séchez. Pour des fruits colorants, répétez le lavage sans abrasif agressif et acceptez une coloration résiduelle si la surface reste propre et intacte.`, { source: IFPC, liens: [PAGES.broyerPresser] });
+
+r.fait(["nettoyage-bouteilles", "nettoyage-materiel-cidre"], "procedure", `
+  Après des fruits très colorants, nettoyez le pressoir immédiatement : retirez les résidus, lavez les pièces prévues par la notice avec un produit compatible alimentaire, rincez et séchez. Répétez sans abrasif agressif ; une coloration résiduelle est acceptable si la surface reste propre, intacte et sans transfert.`, { source: IFPC, liens: [PAGES.broyerPresser] });
+
+r.concept("sucre-cidre", "Sucre et prise de mousse du cidre", ["sucre pour le cidre", "sucre prise de mousse", "combien de sucre cidre", "cidre trop gazeux", "surpression cidre"], {
+  famille: "cidre",
+});
+
+r.fait("sucre-cidre", "dimension", `
+  Je ne donne pas de dose universelle : le sucre à ajouter dépend du **sucre résiduel déjà mesuré**, du gaz recherché, de la température, des levures et de la pression admissible par la bouteille et la fermeture. Utilisez un protocole cidricole validé et mesurez la densité ; un dosage au jugé peut faire éclater les bouteilles.`, { source: IFPC });
+
+r.fait("sucre-cidre", "raison", `
+  Un cidre trop gazeux contient souvent davantage de sucres fermentescibles que prévu, a été embouteillé trop tôt ou a fermenté plus chaud. Refroidissez et isolez prudemment le lot, évitez les manipulations et faites contrôler le protocole avant toute ouverture ou correction.`, { source: IFPC });
+
+r.concept("maturation-cidre", "Maturation du cidre embouteillé", ["boire un cidre embouteille", "attendre avant de boire le cidre", "maturation en bouteille cidre"], {
+  famille: "cidre",
+});
+
+r.fait("maturation-cidre", "duree", `
+  Le délai avant dégustation dépend de la prise de mousse, de la stabilité et du style recherché. Ne fixez pas une date d'ouverture à partir du calendrier seul : suivez le protocole, la densité et l'état des bouteilles, et conservez-les au frais dans un contenant prévu pour la pression.`, { source: IFPC });
+
+r.concept("style-cidre", "Cidre doux ou brut", ["cidre doux", "cidre brut", "cidre demi sec", "obtenir un cidre doux", "sucre residuel cidre"], {
+  famille: "cidre",
+});
+
+r.fait("style-cidre", "procedure", `
+  Le style doux ou brut se pilote par l'assemblage, le suivi de fermentation, le sucre résiduel et la stabilisation, pas par un ajout de sucre au hasard en bouteille. Mesurez la densité et appliquez un protocole cidricole validé avant la mise, car conserver davantage de sucre augmente aussi le risque de pression.`, { source: IFPC });
+
+r.fait("style-cidre", "choix", `
+  **Doux ou brut** ne se choisit pas avec une simple dose finale de sucre : le brut fermente plus loin, tandis que le doux conserve davantage de sucre résiduel. Choisissez d'abord le style, puis suivez densité, fermentation et stabilisation avec un protocole cidricole validé avant la mise.`, { source: IFPC });
+
+r.concept("cidre-trouble", "Cidre trouble", ["cidre trouble", "cidre devient trouble", "trouble dans le cidre", "depot dans le cidre"], {
+  famille: "cidre",
+});
+
+r.fait("cidre-trouble", "raison", `
+  Un trouble peut venir de particules, de levures en suspension, d'une reprise de fermentation ou d'une instabilité. Observez la densité, le gaz, l'odeur et l'évolution ; soutirez seulement si le diagnostic le justifie et ne mettez pas en bouteille un cidre instable.`, { source: IFPC });
+
+r.concept("bouchon-mecanique-cidre", "Bouchon mécanique de cidre", ["bouchon mecanique cidre", "bouchon a etrier cidre", "reutiliser bouchon mecanique", "joint bouchon mecanique"], {
+  famille: "bouchage",
+});
+
+r.fait("bouchon-mecanique-cidre", "condition", `
+  Réutilisez le mécanisme seulement s'il est conçu pour plusieurs usages, intact et compatible avec la pression ; remplacez le joint dès qu'il est durci, fissuré ou selon la consigne du fabricant. Contrôlez aussi la bouteille et sa bague : le bouchon seul ne garantit pas la résistance à la pression.`, { source: IFPC });
 
 r.concept("jus", "Jus de pomme et de fruits", ["jus", "jus de pomme", "jus de pommes", "jus de fruits", "pur jus", "jus maison", "jus de raisin"], {
   famille: "cidre",

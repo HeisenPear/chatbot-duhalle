@@ -25,6 +25,27 @@ r.fait("conserve", "procedure", `
   4. Respectez exactement la température ou la pression, la durée, le format du bocal et l'éventuelle correction d'altitude.
   5. Laissez refroidir, vérifiez la fermeture, puis étiquetez et datez.`, { source: SAVOIR_FAIRE, liens: [PAGES.sterilisateur, PAGES.bocaux] });
 
+r.concept("remplissage-bocal", "Espace de tête des conserves", ["temperature de remplissage des conserves", "espace de tete bocal", "vide sous le couvercle", "niveau de remplissage bocal"], {
+  famille: "conserve",
+  formules: ["remplir les bocaux a chaud ou a froid", "faut il remplir les bocaux a chaud ou a froid"],
+});
+
+r.fait("remplissage-bocal", "choix", `
+  Le remplissage à chaud ou à froid dépend de la **recette testée** : suivez sa température de préparation, son ordre de remplissage et son procédé. Ne changez pas de méthode parce que le bocal paraît identique.`, { source: NCHFP });
+
+r.fait("remplissage-bocal", "dimension", `
+  L'espace de tête n'est pas universel : il dépend de l'aliment, du format du bocal et du procédé. Utilisez exactement la valeur de la recette testée ; trop peu d'espace favorise les débordements, trop d'espace peut gêner la formation du vide.`, { source: NCHFP });
+
+r.concept("incident-traitement-conserve", "Incident pendant le traitement des conserves", ["liquide sort des bocaux", "bocal ne prend pas le vide", "temps non respecte", "temperature non respectee", "traitement interrompu", "bocal sans vide"], {
+  famille: "conserve",
+});
+
+r.fait("incident-traitement-conserve", "raison", `
+  Une perte de liquide ou un défaut de vide peut venir d'un espace de tête incorrect, d'air emprisonné, d'une fermeture sale ou mal posée, d'un refroidissement trop rapide ou d'un traitement inadapté. Un couvercle fermé ne prouve pas que le contenu est sûr.`, { source: NCHFP });
+
+r.fait("incident-traitement-conserve", "condition", `
+  Si le temps, la température, la pression ou une étape du barème n'a pas été respecté, considérez le traitement comme non validé. N'improvisez pas une reprise : suivez immédiatement les instructions de la recette ou de l'autorité sanitaire pour retraiter, réfrigérer ou jeter.`, { source: MINISTERE_BOTULISME });
+
 r.fait("conserve", "condition", `
   Pour des conserves sûres, suivez toujours une **recette testée** et son barème complet. L'acidité, la densité, le format du bocal, la température ou la pression, la durée et l'altitude peuvent tous modifier la sécurité du procédé. Une conserve insuffisamment traitée peut exposer au **botulisme** : ne goûtez jamais un bocal bombé, fuyant, descellé ou d'odeur anormale.`, { source: MINISTERE_BOTULISME });
 
@@ -60,6 +81,9 @@ r.fait("bareme-conserve", "duree", `
 r.fait("bareme-conserve", "dimension", `
   La température ou la pression à atteindre dépend du procédé validé. Le bain d'eau bouillante et le traitement sous pression ne sont pas interchangeables : suivez la valeur, la durée et les réglages de la recette testée et de l'appareil.`, { source: NCHFP });
 
+r.fait("bareme-conserve", "procedure", `
+  Pour l'altitude, utilisez uniquement la correction indiquée par la recette testée pour le **procédé exact** : elle peut modifier le temps au bain d'eau ou la pression requise. N'appliquez pas une règle d'altitude trouvée pour un autre aliment ou appareil.`, { source: NCHFP });
+
 r.concept("recette-conserve", "Recette testée de conserve", ["recette de conserve", "modifier une recette", "inventer une recette", "adapter une recette", "changer le sucre", "changer le vinaigre", "doubler la recette", "recette ancienne"], {
   famille: "conserve",
 });
@@ -82,6 +106,30 @@ r.concept("stockage-conserves", "Conservation des bocaux maison", ["conserver le
 r.fait("stockage-conserves", "duree", `
   Distinguez **sécurité** et qualité : suivez la durée de la recette testée, datez chaque lot et utilisez en priorité les plus anciens. Pour une bonne qualité, stockez les bocaux fermés dans un endroit frais, sec et sombre et contrôlez le sceau avant ouverture ; au moindre signe suspect, jetez sans goûter.`, { source: NCHFP });
 
+r.fait("stockage-conserves", "procedure", `
+  Étiquetez chaque bocal avec le contenu, la date, la recette ou le lot et les informations de traitement utiles. Rangez par catégorie et date, les plus anciens devant, sans masquer les couvercles afin de pouvoir contrôler toute fuite ou perte de vide.`, { source: NCHFP });
+
+r.concept("alteration-conserve", "Changement de couleur ou texture d’une conserve", ["couleur change au stockage", "texture change au stockage", "conserve change de couleur", "conserve ramollie"], {
+  famille: "conserve",
+});
+
+r.fait("alteration-conserve", "raison", `
+  La couleur ou la texture peut évoluer avec la chaleur, l'oxygène, la lumière, l'acidité ou le temps, mais l'apparence seule ne permet pas de conclure à la sécurité. Contrôlez le sceau, la recette et le stockage ; au moindre signe suspect, jetez sans goûter.`, { source: NCHFP });
+
+r.concept("conserve-au-four", "Conserves traitées au four", ["steriliser des bocaux au four", "conserve au four", "bocaux dans le four"], {
+  famille: "conserve",
+});
+
+r.fait("conserve-au-four", "condition", `
+  Ne remplacez pas un procédé validé par un traitement au four : la chaleur sèche ne reproduit ni un bain d'eau ni un traitement sous pression, et les bocaux peuvent se casser. Utilisez seulement la méthode prévue par la recette testée et le fabricant des bocaux.`, { source: NCHFP });
+
+r.concept("empilage-bocaux", "Empiler des bocaux dans le stérilisateur", ["empiler les bocaux", "deux couches de bocaux", "bocaux superposes sterilisateur"], {
+  famille: "sterilisateur",
+});
+
+r.fait("empilage-bocaux", "condition", `
+  N'empilez les bocaux que si la notice de l'appareil et la méthode testée l'autorisent, avec un support assurant la circulation de l'eau et sans contact instable entre couvercles. Le niveau d'eau et la charge doivent rester conformes à la notice.`, { source: NCHFP, liens: [PAGES.sterilisateur] });
+
 r.concept("sterilisateur", "Stérilisateur", ["sterilisateur", "sterilisateurs", "steriliseur", "bouilleur", "sterilisateur electrique", "cuve de sterilisation", "27 litres", "thermometre", "thermometre de sterilisation", "thermometre bouilleur"], {
   famille: "conserve",
   lien: PAGES.sterilisateur,
@@ -95,6 +143,20 @@ r.fait("sterilisateur", "dimension", `
 
 r.fait("sterilisateur", "condition", `
   Ce stérilisateur chauffe un **bain d'eau** ; il ne doit pas être assimilé à un appareil de mise en conserve sous pression. Utilisez-le seulement lorsque la recette testée prévoit ce mode de traitement et respectez ses limites et sa notice.`, { source: NCHFP, liens: [PAGES.sterilisateur] });
+
+r.fait("sterilisateur", "entretien", `
+  Appareil débranché et froid, vidangez-le, retirez le tartre selon la notice, nettoyez la cuve, le robinet et les supports puis rincez. Avant une nouvelle saison, contrôlez câble, thermostat, minuteur, robinet et thermomètre ; n'utilisez pas l'appareil s'il fuit ou régule mal.`, { source: SAVOIR_FAIRE, liens: [PAGES.sterilisateur] });
+
+r.fait("sterilisateur", "procedure", `
+  Avant la saison, appareil froid et débranché : nettoyez et rincez la cuve, le robinet et les supports, détartrez selon la notice, puis contrôlez câble, thermostat, minuteur, robinet et thermomètre. Faites l'essai prévu par le fabricant ; n'utilisez pas l'appareil s'il fuit ou régule mal.`, { source: SAVOIR_FAIRE, liens: [PAGES.sterilisateur] });
+
+r.concept("etiquetage-conserves", "Étiqueter et ranger les conserves", ["etiqueter les conserves", "organiser ses conserves", "ranger les conserves", "etiquette de conserve"], {
+  famille: "conserve",
+  formules: ["etiqueter et organiser ses conserves"],
+});
+
+r.fait("etiquetage-conserves", "procedure", `
+  Une fois les bocaux froids et leur fermeture contrôlée, indiquez sur chacun le **contenu**, la **date de fabrication** et, si utile, le numéro de lot ou la recette. Rangez les plus anciens devant, dans un lieu frais, sec et sombre, et tenez un inventaire simple pour appliquer « premier entré, premier sorti ».`, { source: SAVOIR_FAIRE });
 
 r.concept("bocal", "Bocaux et couvercles", ["bocal", "bocaux", "pot", "pots", "pot en verre", "bocaux en verre", "joint", "joints", "joint caoutchouc", "couvercle", "couvercles", "capsule a vis", "capsules a vis", "pots a confiture", "verrine", "1,5 l", "bocal 1,5 litre"], {
   famille: "conserve",
@@ -148,6 +210,58 @@ r.fait("prise-confiture", "procedure", `
 
 r.fait("prise-confiture", "raison", `
   Une confiture reste souvent liquide lorsque l'équilibre **fruit-sucre-pectine-acidité** n'est pas adapté, que le lot est trop grand ou que la cuisson n'a pas atteint le point prévu. Ne la recuisez ou ne la corrigez qu'avec une méthode éprouvée correspondant à cette recette.`, { source: NCHFP });
+
+r.concept("stockage-confiture", "Conserver une confiture maison", ["conserver une confiture maison", "duree confiture maison", "moisissure sur confiture", "confiture moisie"], {
+  famille: "confiture",
+});
+
+r.fait("stockage-confiture", "duree", `
+  La durée dépend de la recette, du traitement et du stockage : datez les pots et suivez la durée de la recette testée. Après ouverture, conservez au réfrigérateur ; si de la moisissure apparaît, jetez tout le pot sans simplement retirer la surface.`, { source: NCHFP });
+
+r.fait("stockage-confiture", "condition", `
+  Pour limiter les moisissures, utilisez des fruits sains, des pots propres, le niveau de sucre et le traitement de la recette, puis vérifiez la fermeture et stockez au frais, au sec et dans l'obscurité. Un pot mal fermé ou moisi doit être jeté sans goûter.`, { source: NCHFP });
+
+r.concept("extracteur-jus", "Extracteur de jus", ["extracteur de jus", "extracteur vapeur", "choisir un extracteur", "presse ou extracteur"], {
+  famille: "conserve",
+});
+
+r.fait("extracteur-jus", "choix", `
+  Choisissez selon le résultat recherché : broyeur et pressoir pour extraire un jus cru à partir de fruits broyés ; extracteur pour séparer le jus par son procédé propre, souvent avec chauffage sur un modèle vapeur. Vérifiez capacité, source de chaleur, matériau alimentaire, nettoyage et méthode de conservation du jus obtenu.`, { source: SAVOIR_FAIRE });
+
+r.concept("deshydrateur", "Déshydrateur alimentaire", ["deshydrateur", "deshydrater", "aliment assez sec", "sechage des aliments"], {
+  famille: "conserve",
+});
+
+r.fait("deshydrateur", "choix", `
+  Choisissez un déshydrateur selon la surface de plateaux, la circulation d'air, la plage de température, la minuterie et le nettoyage. La fin du séchage dépend de l'aliment et de la recette : contrôlez la texture et, pour une conservation longue, appliquez la méthode validée plutôt qu'un temps générique.`, { source: SAVOIR_FAIRE });
+
+r.fait("deshydrateur", "condition", `
+  Un aliment peut sembler sec en surface tout en restant humide à cœur. Laissez-le refroidir avant évaluation, conditionnez-le seulement selon la recette et surveillez condensation, ramollissement ou moisissure.`, { source: SAVOIR_FAIRE });
+
+r.concept("presse-tomates", "Presse-tomates", ["presse tomates", "presse tomate", "choisir un presse tomates", "hachoir ou presse tomates"], {
+  famille: "conserve",
+});
+
+r.fait(["hachoir", "presse-tomates"], "choix", `
+  Le hachoir coupe ou broie viande et préparations selon sa grille ; le presse-tomates sépare pulpe, peau et pépins pour coulis. Choisissez l'outil selon l'aliment, le résultat voulu, la cadence, les matériaux en contact et la facilité de démontage.`, { source: SAVOIR_FAIRE });
+
+r.fait("presse-tomates", "choix", `
+  Pour un coulis, prenez un **presse-tomates**, qui sépare pulpe, peau et pépins. Le **hachoir** sert à couper ou broyer avec une grille et ne donne pas le même résultat. Comparez aussi cadence, matériaux alimentaires et facilité de démontage.`, { source: SAVOIR_FAIRE });
+
+r.concept("huile-aromatisee", "Huile aromatisée maison", ["huile aromatisee", "huile a l ail", "huile aux herbes", "conserver de l huile en bocal"], {
+  famille: "conserve",
+});
+
+r.fait("huile-aromatisee", "condition", `
+  Ne conservez pas à température ambiante une huile maison contenant ail, herbes ou autres ingrédients humides sans recette testée : le milieu sans oxygène peut présenter un risque de botulisme. Utilisez une méthode sanitaire validée et, à défaut, ne préparez pas ce produit pour une conservation longue.`, { source: MINISTERE_BOTULISME });
+
+r.concept("viande-en-conserve", "Viande et pâté en conserve", ["pate en conserve", "terrine en bocal", "charcuterie en bocal"], {
+  famille: "aliment-peu-acide",
+  formules: ["viande en conserve a la maison", "mettre du pate ou de la viande en conserve"],
+});
+
+r.fait("viande-en-conserve", "condition", `
+  Viandes, pâtés et terrines sont des aliments peu acides : utilisez uniquement une recette testée prévoyant un **traitement sous pression** avec l'appareil, la pression, le temps, le format et l'altitude indiqués. Le stérilisateur à bain d'eau Duhallé ne remplace pas cet appareil.`, { source: MINISTERE_BOTULISME });
 
 r.fait("confiture", "gamme", `
   La rubrique **Faire de la confiture** regroupe le matériel pour préparer confitures, gelées et compotes à partir des fruits de saison, comme l'entonnoir à confiture et les pots.`, { source: PAGES.confiture.url, liens: [PAGES.confiture] });

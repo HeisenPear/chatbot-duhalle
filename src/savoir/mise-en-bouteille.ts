@@ -57,7 +57,24 @@ r.fait("mise-en-bouteille", "erreur", `
   - des bouchons trop courts pour un vin que l'on veut garder longtemps.`, { source: SAVOIR_FAIRE });
 
 r.fait("mise-en-bouteille", "condition", `
-  Travaillez avec du matériel propre et bien rincé, dans un endroit frais et sans odeurs fortes : le vin et le liège prennent facilement les odeurs. Préparez tout le matériel avant de commencer, pour ne pas laisser le vin au contact de l'air.`, { source: SAVOIR_FAIRE });
+  Travaillez avec du matériel propre et bien rincé, dans un endroit frais et sans odeurs fortes : le vin et le liège prennent facilement les odeurs. Préparez tout le matériel avant de commencer, pour ne pas laisser le vin au contact de l'air. La température doit rester modérée et stable ; corrigez le niveau de remplissage selon la température réelle et évitez de mettre un vin très froid ou très chaud en bouteille sans protocole adapté.`, { source: SAVOIR_FAIRE });
+
+r.fait("mise-en-bouteille", "dimension", `
+  Il n'existe pas une température universelle de mise en bouteille. Travaillez à une température **modérée et stable**, cohérente avec le stockage futur et le réglage du niveau, car le liquide se dilate lorsqu'il se réchauffe. Pour un vin sensible ou un procédé professionnel, suivez le protocole œnologique du lot.`, { source: SAVOIR_FAIRE });
+
+r.concept("organisation-mise", "Organisation de la mise en bouteille", ["chaine de mise en bouteille", "organisation a deux", "mise en bouteille a deux personnes", "organiser l embouteillage"], {
+  famille: "mise-en-bouteille",
+});
+
+r.fait("organisation-mise", "procedure", `
+  À deux personnes, organisez un flux sans croisement : bouteilles propres et contrôlées, remplissage, contrôle du niveau, bouchage, contrôle final puis mise debout. Une personne remplit pendant que l'autre bouche et contrôle ; arrêtez la chaîne dès qu'un niveau ou un bouchage devient irrégulier.`, { source: SAVOIR_FAIRE });
+
+r.concept("bouteille-temoin", "Bouteille témoin après la mise", ["bouteille temoin", "echantillon apres mise", "controler un lot embouteille"], {
+  famille: "mise-en-bouteille",
+});
+
+r.fait("bouteille-temoin", "procedure", `
+  Identifiez une ou plusieurs bouteilles témoins représentatives du début, du milieu et de la fin du lot. Notez la date, le contenant, le bouchon et les mesures utiles, puis contrôlez à intervalles définis le niveau, les fuites, la limpidité, la pression éventuelle et l'odeur.`, { source: SAVOIR_FAIRE });
 
 r.concept("niveau-remplissage", "Le niveau de remplissage", ["niveau de remplissage", "remplir la bouteille", "remplissage", "jusqu ou remplir", "espace vide", "vide sous le bouchon", "hauteur de vin", "trop rempli", "trop pleine", "place entre le vin et le bouchon", "espace entre le vin et le bouchon", "distance entre le vin et le bouchon"], {
   famille: "mise-en-bouteille",
@@ -95,7 +112,22 @@ r.fait("bouteille", "dimension", `
   Les bouteilles de vin standard de 75 cl se bouchent avec des bouchons de **24 mm de diamètre** (38 ou 45 mm de long selon la garde). Les bouteilles champenoises se ferment avec des capsules couronne de **29 mm**, les petites bouteilles type bière avec des capsules de **26 mm**.`, { source: SAVOIR_FAIRE });
 
 r.fait("bouteille", "condition", `
-  Vous pouvez **réutiliser des bouteilles** de vin si le verre et le goulot ne sont ni ébréchés ni fissurés, qu'aucune odeur ne persiste et que l'intérieur peut être parfaitement nettoyé et contrôlé. Écartez toute bouteille d'origine inconnue pour une boisson sous pression : pour le cidre ou un vin pétillant, utilisez uniquement des bouteilles explicitement prévues pour cette pression.`, { source: SAVOIR_FAIRE });
+  Vous pouvez **réutiliser des bouteilles** de vin si le verre et le goulot ne sont ni ébréchés ni fissurés, qu'aucune odeur ne persiste et que l'intérieur peut être parfaitement nettoyé et contrôlé. Évitez les chocs thermiques : rapprochez progressivement la température du verre de celle de l'eau ou du liquide. Écartez toute bouteille d'origine inconnue pour une boisson sous pression.`, { source: SAVOIR_FAIRE });
+
+r.concept("bouteille-humide", "Bouteille humide avant remplissage", ["bouteille encore humide", "bouteilles humides", "remplir une bouteille mouillee", "eau dans la bouteille"], {
+  famille: "bouteille",
+  formules: ["remplir des bouteilles encore humides", "mettre en bouteille quand les bouteilles sont humides"],
+});
+
+r.fait("bouteille-humide", "condition", `
+  Remplissez de préférence des bouteilles **propres, parfaitement égouttées et protégées de la poussière**. Une eau résiduelle ou un produit mal rincé peut diluer ou contaminer le contenu ; si le procédé autorise un assainissement sans rinçage, respectez exactement sa notice et son temps d'égouttage.`, { source: SAVOIR_FAIRE });
+
+r.concept("inertage-bouteilles", "Inertage avant remplissage", ["inertiser les bouteilles", "inertage", "gaz inerte", "azote avant remplissage", "co2 avant remplissage"], {
+  famille: "mise-en-bouteille",
+});
+
+r.fait("inertage-bouteilles", "condition", `
+  L'inertage peut réduire l'oxygène pour un vin sensible, mais il n'est pas systématique et ne remplace ni un soutirage doux ni un niveau de remplissage correct. Le gaz, la dose et le matériel doivent être adaptés au vin et utilisés selon un protocole œnologique ; en cas de doute, faites valider la méthode.`, { source: SAVOIR_FAIRE });
 
 // ─── Nettoyage ─────────────────────────────────────────────────────────────
 
@@ -110,6 +142,45 @@ r.fait("nettoyage-bouteilles", "procedure", `
   2. Brossez l'intérieur au **goupillon**, ou utilisez un **lave-bouteille à turbine** qui se branche sur l'arrivée d'eau.
   3. Rincez abondamment, par exemple avec un **rince-bouteille**.
   4. Laissez égoutter tête en bas sur un **égouttoir** jusqu'au remplissage.`, { source: SAVOIR_FAIRE, liens: [PAGES.nettoyage] });
+
+r.fait("nettoyage-bouteilles", "moment", `
+  Lavez les bouteilles assez tôt pour qu'elles soient contrôlées et égouttées, mais gardez-les ensuite **tête en bas ou protégées de la poussière**. Si elles ont attendu dans un lieu non protégé, rincez ou assainissez-les de nouveau selon le protocole avant la mise.`, { source: SAVOIR_FAIRE, liens: [PAGES.nettoyage] });
+
+r.fait("nettoyage-bouteilles", "duree", `
+  Il n'y a pas de délai universel entre lavage et remplissage : une bouteille reste prête seulement tant qu'elle demeure propre, égouttée et protégée. Plus l'attente s'allonge ou l'environnement est exposé, plus un nouveau rinçage ou assainissement selon le protocole devient nécessaire.`, { source: SAVOIR_FAIRE });
+
+r.fait("nettoyage-bouteilles", "condition", `
+  N'utilisez pas d'eau de Javel par habitude : vérifiez qu'un produit chloré est autorisé pour l'usage, la concentration, le temps de contact et le rinçage prévus. Ne le mélangez jamais à un acide ou à un autre nettoyant, et préférez un produit alimentaire documenté lorsque la notice du matériel le recommande.`, { source: SAVOIR_FAIRE });
+
+r.concept("sechage-bouteilles", "Séchage hygiénique des bouteilles", ["secher les bouteilles sans recontaminer", "sechage hygienique", "bouteilles apres lavage", "proteger les bouteilles propres"], {
+  famille: "nettoyage-bouteilles",
+  formules: ["secher les bouteilles sans les recontaminer"],
+});
+
+r.fait("sechage-bouteilles", "procedure", `
+  Égouttez les bouteilles tête en bas sur un support **propre, lavable et réservé à cet usage**, sans essuyer l'intérieur avec un torchon. Placez-les à l'abri des poussières, éclaboussures et insectes, puis remplissez-les dès que possible.`, { source: SAVOIR_FAIRE, liens: [PAGES.egouttoirHerisson] });
+
+r.concept("etiquettes-anciennes", "Retirer les anciennes étiquettes", ["retirer les anciennes etiquettes", "enlever les etiquettes", "retirer la colle", "enlever la colle des bouteilles"], {
+  famille: "nettoyage-bouteilles",
+});
+
+r.fait("etiquettes-anciennes", "procedure", `
+  Faites tremper l'étiquette dans de l'eau tiède avec un produit compatible avec le verre, retirez le papier avec un grattoir non coupant puis traitez la colle résiduelle avec la méthode indiquée pour l'adhésif. Terminez par un lavage et un rinçage complets ; n'introduisez pas de solvant dans la bouteille.`, { source: SAVOIR_FAIRE });
+
+r.concept("eau-javel-bouteilles", "Eau de Javel pour les bouteilles", ["eau de javel bouteilles", "javel pour nettoyer", "produit chlore bouteilles"], {
+  famille: "nettoyage-bouteilles",
+  formules: ["utiliser de l eau de javel pour les bouteilles"],
+});
+
+r.fait("eau-javel-bouteilles", "condition", `
+  N'utilisez un produit chloré que si sa notice l'autorise pour le contact alimentaire, avec la concentration, le temps de contact et le rinçage prescrits. Ne mélangez jamais la Javel à un acide ou à un autre nettoyant et n'improvisez pas son dosage.`, { source: SAVOIR_FAIRE });
+
+r.concept("nettoyage-col-etroit", "Nettoyer un contenant à col étroit", ["nettoyer une dame jeanne", "dame jeanne col etroit", "nettoyer une bonbonne", "nettoyage col etroit"], {
+  famille: "nettoyage-bouteilles",
+});
+
+r.fait("nettoyage-col-etroit", "procedure", `
+  Rincez immédiatement, faites tremper avec un produit compatible puis utilisez une brosse, une chaîne ou un dispositif de nettoyage explicitement prévu pour le contenant, sans choc contre le verre. Rincez complètement, inspectez à la lumière et écartez un récipient impossible à contrôler.`, { source: SAVOIR_FAIRE });
 
 r.concept("hygiene-materiel", "Nettoyer, désinfecter et stériliser", ["nettoyer desinfecter steriliser", "nettoyage desinfection sterilisation", "difference nettoyer desinfecter", "difference desinfecter steriliser", "assainissement du materiel"], {
   famille: "nettoyage-bouteilles",
@@ -163,6 +234,9 @@ r.fait("egouttoir", "gamme", `
   liens: [PAGES.egouttoirHerisson, PAGES.egouttoirColonne],
 });
 
+r.fait("egouttoir", "entretien", `
+  Nettoyez régulièrement l'égouttoir avant d'y poser des bouteilles propres : retirez les dépôts, lavez avec un produit compatible, rincez et laissez sécher. Écartez une tige rouillée, écaillée ou difficile à nettoyer.`, { source: SAVOIR_FAIRE });
+
 r.concept("rince-bouteille", "Rince-bouteille", ["rince bouteille", "rince bouteilles", "rinceur", "aviner", "avinage", "laveuse", "lave bouteille a turbine", "turbine"], {
   famille: "nettoyage-bouteilles",
   lien: PAGES.rinceBouteille,
@@ -174,6 +248,19 @@ r.fait("rince-bouteille", "usage", `
   liens: [PAGES.rinceBouteille, PAGES.laveBouteille],
 });
 
+r.fait("rince-bouteille", "entretien", `
+  Après usage, videz et rincez la cuve, actionnez le mécanisme avec de l'eau propre puis laissez sécher démonté si la notice le permet. Contrôlez le ressort, le joint et la buse ; remplacez toute pièce fissurée ou encrassée.`, { source: SAVOIR_FAIRE, liens: [PAGES.rinceBouteille] });
+
+r.fait(["egouttoir", "rince-bouteille"], "choix", `
+  Nettoyez les deux avant d'y remettre des bouteilles propres : l'égouttoir se lave, se rince et sèche complètement ; le rince-bouteille se vide, se rince puis s'actionne à l'eau propre. Contrôlez corrosion, dépôts, buse, ressort et joints avant réutilisation.`, { source: SAVOIR_FAIRE, liens: [PAGES.egouttoirHerisson, PAGES.rinceBouteille] });
+
+r.concept("goupillon-usure", "Usure du goupillon", ["remplacer un goupillon", "goupillon use", "goupillon sale", "changer de goupillon"], {
+  famille: "nettoyage-bouteilles",
+});
+
+r.fait("goupillon-usure", "moment", `
+  Remplacez le goupillon lorsque les poils sont écrasés ou manquants, que la tige rouille, qu'une odeur ou un dépôt persiste après nettoyage, ou qu'il n'atteint plus correctement les parois. Rincez-le et faites-le sécher après chaque série.`, { source: SAVOIR_FAIRE, liens: [PAGES.goupillon] });
+
 // ─── Soutirage ─────────────────────────────────────────────────────────────
 
 r.concept("soutirage", "Le soutirage", ["soutirage", "soutirer", "soutireuse", "siphon", "siphonner", "transvaser", "tireuse", "tireuse a vin", "pompe a vin", "pompe", "tuyau", "tuyau de soutirage", "entonnoir", "remplisseuse", "canne de soutirage", "robinet de soutirage"], {
@@ -183,7 +270,14 @@ r.concept("soutirage", "Le soutirage", ["soutirage", "soutirer", "soutireuse", "
 });
 
 r.fait("soutirage", "definition", `
-  Le **soutirage** consiste à transvaser le vin d'un contenant à un autre (cuve, fût, bouteille) en laissant le dépôt au fond, et **sans l'aérer**. On soutire pendant l'élevage pour clarifier le vin, puis au moment de la mise en bouteille.`, { source: SAVOIR_FAIRE });
+  **Transvaser** signifie déplacer un liquide. Le **soutirage** est un transvasement contrôlé qui laisse le dépôt au fond et limite l'air ; la **mise en bouteille** est l'étape finale de remplissage des bouteilles avant fermeture.`, { source: SAVOIR_FAIRE });
+
+r.concept("operations-transfert", "Soutirage, transvasement et mise en bouteille", ["soutirage transvasement mise en bouteille", "difference entre soutirage et transvasement", "transvaser ou soutirer"], {
+  famille: "mise-en-bouteille",
+});
+
+r.fait("operations-transfert", "choix", `
+  **Transvaser** est le terme général pour déplacer un liquide. **Soutirer** ajoute l'objectif de laisser le dépôt et de limiter l'air. **Mettre en bouteille** remplit le contenant final au niveau prévu, juste avant la fermeture.`, { source: SAVOIR_FAIRE });
 
 r.fait("soutirage", "gamme", `
   Matériel de soutirage Duhallé :
@@ -209,6 +303,34 @@ r.fait("soutirage", "procedure", `
   2. Plongez le tuyau dans le vin **sans toucher la lie** au fond.
   3. Amorcez avec une **poire, un siphon automatique ou une pompe alimentaire** : n'aspirez jamais à la bouche.
   4. Remplissez en gardant l'extrémité du tuyau **au fond de la bouteille**, pour éviter les éclaboussures et l'oxydation.`, { source: SAVOIR_FAIRE });
+
+r.fait("soutirage", "erreur", `
+  Un siphon s'arrête si le récipient d'arrivée n'est plus assez bas, si de l'air entre par un raccord, si le tuyau est pincé ou si la canne aspire la lie. Vérifiez le dénivelé, réamorcez avec un dispositif hygiénique et ne compensez jamais en aspirant à la bouche.`, { source: SAVOIR_FAIRE });
+
+r.concept("nettoyage-tuyau", "Nettoyer un tuyau de soutirage", ["nettoyer un tuyau", "nettoyer l interieur du tuyau", "laver le siphon", "nettoyer apres soutirage"], {
+  famille: "soutirage",
+});
+
+r.fait("nettoyage-tuyau", "procedure", `
+  Juste après usage, faites circuler de l'eau puis le produit compatible prévu par sa notice dans toute la longueur du tuyau, respectez le temps de contact, rincez si nécessaire et suspendez-le pour l'égoutter. Remplacez-le s'il reste opaque, collant, craquelé ou odorant.`, { source: SAVOIR_FAIRE });
+
+r.concept("arret-remplissage", "Arrêt automatique du remplissage", ["arret automatique du remplissage", "arreter au bon niveau", "entonnoir a arret automatique", "remplissage automatique niveau"], {
+  famille: "soutirage",
+  lien: PAGES.entonnoirArret,
+});
+
+r.fait("arret-remplissage", "procedure", `
+  Utilisez un entonnoir à arrêt automatique ou une remplisseuse réglée au niveau voulu, puis faites un essai avec la bouteille exacte. Gardez l'appareil vertical, vérifiez l'absence de mousse et contrôlez régulièrement le niveau pendant la série.`, { source: SAVOIR_FAIRE, liens: [PAGES.entonnoirArret, PAGES.remplisseuse3Becs] });
+
+r.concept("pertes-soutirage", "Pertes pendant le soutirage", ["pertes au soutirage", "marge de perte", "fond de cuve", "limiter les pertes", "reste dans la cuve"], {
+  famille: "soutirage",
+});
+
+r.fait("pertes-soutirage", "dimension", `
+  Il n'existe pas de pourcentage de perte universel : il dépend du dépôt, de la forme de la cuve et du matériel. Mesurez le volume avant et après un premier soutirage, puis utilisez cette perte réelle pour prévoir les bouteilles du lot suivant. N'aspirez pas la lie pour gagner les derniers centilitres.`, { source: SAVOIR_FAIRE });
+
+r.fait("pertes-soutirage", "procedure", `
+  Laissez le dépôt se tasser, inclinez très progressivement le contenant seulement si cela ne remet pas la lie en suspension, et placez la prise juste au-dessus du dépôt. Arrêtez dès que le liquide se trouble.`, { source: SAVOIR_FAIRE });
 
 r.concept("tuyau-alimentaire", "Tuyau alimentaire de soutirage", ["tuyau alimentaire", "choix du tuyau alimentaire", "diametre du tuyau", "longueur du tuyau", "tuyau pour le vin", "tuyau silicone", "tuyau de transfert"], {
   famille: "soutirage",

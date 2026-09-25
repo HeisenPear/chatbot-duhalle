@@ -33,12 +33,19 @@ r.fait("vinaigre", "erreur", `
   - les récipients métalliques, qui réagissent avec l'acidité ;
   - remuer la mère sans nécessité.`, { source: SAVOIR_FAIRE });
 
-r.concept("mere-vinaigre", "La mère de vinaigre", ["mere de vinaigre", "mere du vinaigre", "mere", "voile", "peau gelatineuse", "bacteries acetiques", "acetobacter"], {
+r.fait(["vinaigre", "cidre"], "condition", `
+  Oui, un cidre contenant encore de l'alcool peut servir à produire un **vinaigre de cidre**. Utilisez un cidre sain, peu ou pas sulfité, laissez l'air nécessaire aux bactéries acétiques et démarrez avec une mère adaptée ou un vinaigre de cidre non pasteurisé actif.`, { source: SAVOIR_FAIRE });
+
+r.concept("mere-vinaigre", "La mère de vinaigre", ["mere de vinaigre", "mere du vinaigre", "mere", "voile", "peau gelatineuse", "bacteries acetiques", "acetobacter", "pellicule sur le vinaigre"], {
   famille: "vinaigre",
+  formules: ["pellicule se forme a la surface"],
 });
 
 r.fait("mere-vinaigre", "definition", `
-  La **mère de vinaigre** est un voile gélatineux formé par des bactéries acétiques : elle transforme l'alcool du vin en acide acétique. Elle se forme d'elle-même dans un vinaigre non pasteurisé, et on peut en prélever un morceau pour lancer un nouveau vinaigrier.`, { source: SAVOIR_FAIRE });
+  La **mère de vinaigre** est un voile gélatineux formé par des bactéries acétiques : elle accompagne la transformation de l'alcool en acide acétique. Une mère visible n'est pas strictement obligatoire si l'on ensemence avec un vinaigre non pasteurisé actif ; elle peut ensuite se former d'elle-même.`, { source: SAVOIR_FAIRE });
+
+r.fait("mere-vinaigre", "raison", `
+  Une pellicule lisse et gélatineuse à la surface peut être une nouvelle mère, ce qui est normal. En revanche, des taches duveteuses, colorées ou une odeur anormale évoquent une contamination : ne confondez pas les deux et écartez le lot en cas de doute.`, { source: SAVOIR_FAIRE });
 
 r.concept("vinaigrier", "Vinaigriers", ["vinaigrier", "vinaigriers", "vinaigrier en gres", "vinaigrier gres", "jarre a vinaigre", "pot a vinaigre", "tonneau a vinaigre", "vinaigrier chene", "vinaigrier en chene", "gres", "ustensiles en gres", "poterie"], {
   famille: "vinaigre",
@@ -68,6 +75,14 @@ r.fait("vinaigrier", "condition", `
 r.fait(["vinaigrier", "vin"], "procedure", `
   Vous pouvez alimenter le vinaigrier avec du vin rouge ou blanc **sain**, sans défaut majeur. Ajoutez-le progressivement pour ne pas noyer la mère ; un vin très soufré peut ralentir l'acétification.`, { source: SAVOIR_FAIRE });
 
+r.concept("vin-pour-vinaigre", "Choisir le vin de départ", ["vin rouge ou blanc vinaigre"], {
+  famille: "vinaigre",
+  formules: ["quel vin utiliser pour faire du vinaigre", "quel vin pour le vinaigre"],
+});
+
+r.fait("vin-pour-vinaigre", "choix", `
+  Utilisez un vin rouge ou blanc **sain**, sans défaut majeur et pas excessivement soufré. Évitez un vin moisi, contaminé ou très altéré : la transformation en vinaigre ne corrige pas un produit impropre. Ajoutez-le progressivement à une culture active.`, { source: SAVOIR_FAIRE });
+
 r.concept("moucherons-vinaigrier", "Moucherons dans le vinaigrier", ["moucheron", "moucherons", "mouche du vinaigre", "mouches du vinaigre", "insectes dans le vinaigrier", "eviter les moucherons", "proteger le vinaigrier des mouches"], {
   famille: "vinaigrier",
 });
@@ -81,6 +96,28 @@ r.concept("robinet-vinaigrier", "Robinet du vinaigrier", ["robinet", "robinet en
 
 r.fait("robinet-vinaigrier", "condition", `
   Un **robinet en bois** qui fuit un peu au début est normal : le bois doit gonfler. Faites-le tremper dans l'eau quelques heures avant de le remettre en place. Si la fuite persiste, contactez le service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+
+r.concept("entretien-robinet-vinaigrier", "Installer et nettoyer le robinet du vinaigrier", ["entretien du robinet de vinaigrier", "montage du robinet en bois"], {
+  famille: "robinet-vinaigrier",
+  formules: ["nettoyer le robinet en bois", "installer la bonde et le robinet"],
+});
+
+r.fait("entretien-robinet-vinaigrier", "procedure", `
+  Pour installer ou nettoyer le robinet, travaillez vinaigrier vide et soutenu, humidifiez le bois comme indiqué par la notice puis engagez-le **dans l'axe sans coup sec ni levier sur le grès**. Rincez le robinet à l'eau claire et au vinaigre, sans produit parfumé, et laissez-le sécher avant remontage.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+
+r.concept("aromatisation-vinaigre", "Aromatiser le vinaigre", ["aromatiser le vinaigre", "vinaigre aromatise", "herbes dans le vinaigrier", "epices dans le vinaigrier"], {
+  famille: "vinaigre",
+});
+
+r.fait("aromatisation-vinaigre", "condition", `
+  Pour ne pas perturber la mère ni boucher le robinet, soutirez d'abord le vinaigre puis aromatisez une **petite quantité séparément** avec des ingrédients propres et une recette maîtrisée. Filtrez avant la mise en bouteille et surveillez toute altération.`, { source: SAVOIR_FAIRE });
+
+r.concept("stockage-vinaigre", "Conserver le vinaigre soutiré", ["conserver le vinaigre soutire", "stockage du vinaigre", "vinaigre en bouteille", "garder le vinaigre"], {
+  famille: "vinaigre",
+});
+
+r.fait("stockage-vinaigre", "entretien", `
+  Conservez le vinaigre soutiré dans une bouteille propre, compatible avec l'acidité et bien fermée, à l'abri de la lumière et de la chaleur. Étiquetez la date et les éventuels aromates ; jetez le produit si l'aspect ou l'odeur devient anormal.`, { source: SAVOIR_FAIRE });
 
 r.concept("bouchon-vinaigrier", "Bouchon de vinaigrier", ["bouchon de vinaigrier", "bouchon vinaigrier", "bouchon de rechange", "bouchon pour vinaigrier", "32 28"], {
   famille: "vinaigrier",

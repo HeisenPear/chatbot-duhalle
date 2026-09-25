@@ -14,7 +14,7 @@ r.concept("cire", "Cire à cacheter", ["cire", "cires", "cire a cacheter", "cach
 });
 
 r.fait("cire", "definition", `
-  La **cire à cacheter** habille et protège le goulot après le bouchage : elle ajoute une barrière contre l'air, l'humidité et les bactéries, et donne une finition artisanale à vos bouteilles. La cire Duhallé est **fabriquée dans le Sud-Ouest de la France**, en version **dure** ou **souple**, en 12 couleurs et en teintes métallisées.`);
+  La **cire à cacheter** habille et protège extérieurement le goulot après le bouchage. Elle ne remplace jamais la fermeture étanche adaptée à la bouteille et à la pression. La cire Duhallé est **fabriquée dans le Sud-Ouest de la France**, en version **dure** ou **souple**, en 12 couleurs et en teintes métallisées.`);
 
 r.fait("cire", "procedure", `
   Pour cacheter une bouteille :
@@ -26,6 +26,35 @@ r.fait("cire", "procedure", `
 
 r.fait("cire", "condition", `
   Ne laissez **jamais** la cire chauffer sans surveillance, évitez la flamme directe sous le récipient et gardez les enfants à distance : la cire chaude brûle. Un **chauffe-cire à thermostat** maintient une température constante en toute sécurité.`, { source: SAVOIR_FAIRE, liens: [PAGES.chauffeCire] });
+
+r.fait("cire", "erreur", `
+  Bulles, coulures et fissures viennent souvent d'un goulot humide ou froid, d'une cire trop chaude ou trop visqueuse, d'un trempage irrégulier ou d'un refroidissement brusque. Travaillez sur un goulot **propre, sec et tempéré**, stabilisez la température, gardez le même geste et testez d'abord quelques bouteilles.`, { source: SAVOIR_FAIRE });
+
+r.concept("ouverture-cire", "Ouvrir une bouteille cirée", ["ouvrir une bouteille ciree", "retirer la cire du bouchon", "enlever la cire du goulot", "ouvrir sans eclats"], {
+  famille: "cire",
+});
+
+r.fait("ouverture-cire", "procedure", `
+  Avec une cire souple, incisez proprement autour du haut du goulot puis retirez la partie qui couvre le bouchon. Avec une cire dure, protégez la table, cassez seulement la zone nécessaire avec précaution et essuyez les fragments avant d'introduire le tire-bouchon.`, { source: SAVOIR_FAIRE });
+
+r.concept("support-cire", "Support sous la cire", ["cire sur capsule", "cire sur bouchon synthetique", "cirer une capsule", "cirer un bouchon synthetique"], {
+  famille: "cire",
+  formules: ["cire remplace t elle le bouchon ou la capsule", "cire remplace le bouchon"],
+});
+
+r.fait("support-cire", "condition", `
+  La cire peut recouvrir une capsule ou une fermeture seulement si le support est **sec, stable et résiste à la température d'application**. Faites un essai d'adhérence et d'ouverture : la cire reste décorative et ne corrige jamais une capsule mal sertie ni un bouchon incompatible.`, { source: SAVOIR_FAIRE });
+
+r.fait("support-cire", "choix", `
+  La cire est un **surbouchage décoratif** : elle se pose au-dessus d'un bouchon ou d'une capsule déjà compatible et étanche. Elle ne remplace ni le bouchon, ni la capsule, ni le muselet requis par la bouteille et la pression.`, { source: SAVOIR_FAIRE });
+
+r.concept("defauts-cire", "Défauts d’application de la cire", ["bulles dans la cire", "coulures de cire", "fissures dans la cire", "cire fissuree"], {
+  famille: "cire",
+  formules: ["eviter les bulles coulures ou fissures dans la cire"],
+});
+
+r.fait("defauts-cire", "erreur", `
+  Bulles, coulures et fissures viennent souvent d'un goulot humide ou froid, d'une cire trop chaude ou trop visqueuse, d'un trempage irrégulier ou d'un refroidissement brusque. Travaillez sur un goulot propre, sec et tempéré, stabilisez la température et testez d'abord quelques bouteilles.`, { source: SAVOIR_FAIRE });
 
 r.fait("cire", "gamme", `
   Cire à cacheter Duhallé :
@@ -67,6 +96,37 @@ r.fait("chauffe-cire", "definition", `
 
 r.fait("chauffe-cire", "dimension", `
   La température dépend de la **formulation exacte** : cire dure et cire souple ne fondent pas nécessairement dans la même plage. Réglez le chauffe-cire progressivement, sans dépasser sa plage de 0 à 100 °C, et suivez en priorité la température inscrite sur l'emballage de la cire. Si la fiche de la cire exige davantage que l'appareil, ne forcez pas le thermostat et demandez confirmation au service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.chauffeCire, PAGES.contact] });
+
+r.fait("chauffe-cire", "choix", `
+  Pour une petite série, un récipient dédié et un contrôle attentif peuvent suffire ; pour une série régulière, le chauffe-cire **1,3 L à thermostat** apporte une température plus stable. Dimensionnez surtout selon le volume de cire à maintenir fondu, la cadence et la compatibilité avec la température prescrite par la cire.`, { source: SAVOIR_FAIRE, liens: [PAGES.chauffeCire] });
+
+r.fait("chauffe-cire", "entretien", `
+  Laissez refroidir l'appareil débranché. Retirez la cire solidifiée selon la notice, sans outil qui rayerait la cuve ni eau dans les parties électriques. N'utilisez jamais de solvant non autorisé ; si un nettoyage à chaud est prévu, portez des protections contre les brûlures.`, { source: SAVOIR_FAIRE, liens: [PAGES.chauffeCire] });
+
+r.concept("nettoyage-chauffe-cire", "Nettoyer un chauffe-cire", ["nettoyer le chauffe cire", "nettoyer la cuve du chauffe cire"], {
+  famille: "chauffe-cire",
+  formules: ["nettoyer le chauffe cire et la cuve"],
+});
+
+r.fait("nettoyage-chauffe-cire", "procedure", `
+  Pour nettoyer le chauffe-cire, débranchez-le, laissez la cire revenir à l'état prévu par la notice pour son retrait, videz ou décollez le résidu sans rayer l'inox, puis essuyez la cuve. Ne plongez jamais l'appareil et n'introduisez pas d'eau dans les composants électriques.`, { source: SAVOIR_FAIRE, liens: [PAGES.chauffeCire] });
+
+r.concept("ordre-etiquette-cire", "Ordre entre étiquetage et cirage", ["etiquette avant cirage", "etiquette apres cirage", "ordre etiquette cire", "etiqueter avant de cirer"], {
+  famille: "cire",
+});
+
+r.fait("ordre-etiquette-cire", "moment", `
+  Posez généralement l'étiquette sur une bouteille **propre, sèche et à température ambiante avant le cirage**, puis protégez-la des gouttes. Si le procédé de cirage salit ou réchauffe la zone d'étiquetage, faites d'abord un essai et inversez l'ordre uniquement si l'adhésif et la finition le permettent.`, { source: SAVOIR_FAIRE, liens: [PAGES.surbouchage] });
+
+r.concept("nettoyage-cire", "Retirer des traces de cire", ["retirer la cire du verre", "enlever la cire du verre", "cire sur le plan de travail", "nettoyer une tache de cire"], {
+  famille: "cire",
+});
+
+r.fait("nettoyage-cire", "procedure", `
+  Laissez la cire refroidir et durcir, décollez-la avec un outil non coupant adapté au support, puis retirez le film restant selon la notice de la cire. Évitez de répandre de la cire chaude ou d'utiliser un solvant inflammable près du chauffe-cire.`, { source: SAVOIR_FAIRE });
+
+r.fait(["cire", "bouchon-liege"], "duree", `
+  La cire ne permet pas d'ajouter un nombre d'années garanti à la durée de garde. Elle protège extérieurement le goulot, mais la conservation dépend d'abord du vin, du bouchon, de sa pose, de la bouteille et de la cave.`, { source: SAVOIR_FAIRE });
 
 r.concept("rendement-cire", "Quantité de cire par bouteille", ["bouteilles avec 1 kg de cire", "rendement de la cire", "consommation de cire", "quantite de cire par bouteille", "un kilo de cire"], {
   famille: "cire",

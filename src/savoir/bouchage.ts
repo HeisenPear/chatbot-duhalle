@@ -29,10 +29,14 @@ r.fait("bouchage", "procedure", `
 r.concept("controle-bouchage", "Contrôler le bouchage", ["controle du bouchage", "controler le bouchage", "verifier le bouchage", "bouchon affleurant", "bouchon affleure", "bouchon centre"], {
   famille: "bouchage",
   lien: PAGES.boucheuses,
+  formules: ["bouchons ne sont pas enfonces a la meme profondeur", "bouchons enfonces a des profondeurs differentes", "bouchons ne sont pas tous enfonces a la meme hauteur", "bouchons ne sont ils pas tous enfonces a la meme hauteur"],
 });
 
 r.fait("controle-bouchage", "procedure", `
   Pour contrôler le bouchage, vérifiez sur plusieurs bouteilles en début de série que le bouchon est **centré et affleure le haut du col**, sans fissure, copeau ni marque profonde. Laissez ensuite les bouteilles debout et surveillez toute **fuite** ou remontée du bouchon avant de les coucher.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.fait("controle-bouchage", "erreur", `
+  Des bouchons enfoncés à des hauteurs différentes indiquent un réglage qui bouge, une bouteille mal centrée, des cols hétérogènes ou une cadence irrégulière. Arrêtez la série, contrôlez le serrage et la butée puis refaites plusieurs essais avec des bouteilles identiques.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
 
 r.fait("bouchage", "gamme", `
   Pour le bouchage, Duhallé propose des **bouchons en liège** pour le vin, des **bondes** pour fûts et bonbonnes, des **boucheuses manuelles**, des **capsules couronne** et des **capsuleuses** pour le cidre et la bière, et des **bouchons plastique** pour le cidre.`);
@@ -90,7 +94,54 @@ r.fait("bouchon-liege", "condition", `
   Les bouchons en liège Duhallé s'utilisent **à sec** : inutile de les faire tremper avant le bouchage. Les bouchons colmatés sont traités « super-glisse » pour glisser facilement dans la boucheuse et le goulot.`);
 
 r.fait("bouchon-liege", "entretien", `
-  Conservez les bouchons non utilisés dans leur **sachet fermé**, dans un endroit **sec, propre et sans odeurs** (produits ménagers, fioul, peinture) : le liège absorbe les odeurs. Utilisez-les de préférence dans les mois qui suivent l'achat.`, { source: SAVOIR_FAIRE });
+  Conservez les bouchons non utilisés dans leur **sachet fermé**, dans un endroit **sec, propre et sans odeurs** (produits ménagers, fioul, peinture) : le liège absorbe les odeurs. Refermez soigneusement un sachet entamé et suivez la durée indiquée par le fournisseur ; sans fiche du lot, ne promettez pas une durée précise.`, { source: SAVOIR_FAIRE });
+
+r.concept("etat-bouchon", "État d’un bouchon en liège", ["bouchon trop sec", "bouchon fissure", "bouchon friable", "reconnaitre un mauvais bouchon"], {
+  famille: "bouchon-liege",
+  formules: ["reconnaitre un bouchon trop sec ou endommage", "bouchon sec ou endommage"],
+});
+
+r.fait("etat-bouchon", "condition", `
+  Écartez un bouchon fissuré, déformé, friable, taché, très dur ou porteur d'une odeur étrangère. Un bouchon sain reste propre, souple et régulier ; ne tentez pas de restaurer un bouchon trop sec par trempage ou ébullition.`, { source: SAVOIR_FAIRE });
+
+r.fait("etat-bouchon", "choix", `
+  Retenez seulement des bouchons propres, souples, réguliers et sans odeur. Écartez ceux qui sont très durs, fissurés, déformés, friables ou tachés : un bouchon trop sec ou endommagé ne doit pas être « récupéré » par trempage.`, { source: SAVOIR_FAIRE });
+
+r.concept("preparation-bouchon", "Préparer les bouchons avant la mise", ["preparer les bouchons", "bouchons prets a l emploi", "bouchons traites", "bouchons prepares"], {
+  famille: "bouchon-liege",
+  formules: ["faut il acheter des bouchons traites ou prepares", "acheter des bouchons deja traites"],
+});
+
+r.fait("preparation-bouchon", "choix", `
+  Préférez des bouchons neufs dont la fiche confirme qu'ils sont **prêts à l'emploi** pour votre boisson et votre boucheuse. Les bouchons colmatés Duhallé sont traités « super-glisse » et s'utilisent secs : ne les trempez pas et n'improvisez pas de traitement maison.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin] });
+
+r.concept("stockage-bouchons", "Stocker des bouchons neufs", ["stockage des bouchons neufs", "stocker des bouchons neufs", "conserver des bouchons neufs"], {
+  famille: "bouchon-liege",
+});
+
+r.fait("stockage-bouchons", "procedure", `
+  Gardez les bouchons neufs dans leur sachet d'origine bien refermé, dans un local sec, propre, tempéré et sans odeurs de peinture, carburant ou produit ménager. Évitez humidité, poussière et soleil ; pour la durée après ouverture, appliquez la fiche du lot plutôt qu'une durée générique.`, { source: SAVOIR_FAIRE });
+
+r.concept("reemploi-bouchon", "Réutiliser un bouchon en liège", ["reutiliser un bouchon", "bouchon en liege reutilise", "remettre un bouchon usage"], {
+  famille: "bouchon-liege",
+});
+
+r.fait("reemploi-bouchon", "condition", `
+  Ne réutilisez pas un bouchon en liège extrait pour une nouvelle mise en bouteille : il est déjà comprimé, percé ou contaminé et son étanchéité n'est plus maîtrisée. Utilisez un bouchon neuf adapté ; un bouchon à tête est préférable pour refermer provisoirement une bouteille ouverte.`, { source: SAVOIR_FAIRE });
+
+r.concept("bouchon-agglomere", "Bouchon aggloméré", ["bouchon agglomere", "bouchons agglomeres", "liege agglomere", "bouchon reconstitue"], {
+  famille: "bouchon-liege",
+});
+
+r.fait("bouchon-agglomere", "condition", `
+  Un bouchon aggloméré peut convenir au vin seulement si sa fiche le prévoit pour la boisson, le goulot et la durée visée. Sa qualité et ses performances varient selon la fabrication : ne transposez pas automatiquement les usages des bouchons naturels ou colmatés Duhallé.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+
+r.concept("gout-bouchon", "Goût transmis par le bouchon", ["gout de bouchon", "bouchon donne un gout", "odeur de liege dans le vin"], {
+  famille: "bouchon-liege",
+});
+
+r.fait("gout-bouchon", "condition", `
+  Un défaut dit « goût de bouchon » peut donner des odeurs de carton humide ou de moisi, mais toute odeur anormale ne vient pas forcément du liège. Isolez la bouteille, comparez avec une autre du lot et demandez un diagnostic avant de conclure sur toute une série.`, { source: SAVOIR_FAIRE });
 
 r.fait("bouchon-liege", "duree", `
   La durée de conservation d'un vin bouché dépend du **vin**, de la qualité du liège, de la longueur, du goulot, de la pose et de la cave. Un 45 mm en liège naturel est destiné aux vins de garde ; un 38 mm colmaté de catégorie 5 ou 6 aux vins à boire jeunes. Duhallé ne publie pas encore d'**années de garde garanties par référence** : pour un engagement chiffré, demandez la fiche technique du lot au service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin, PAGES.contact] });
@@ -117,6 +168,9 @@ r.fait("categorie-bouchon", "definition", `
 
 r.fait("categorie-bouchon", "duree", `
   Les catégories donnent un **usage cible**, pas une durée universelle : catégorie 3 pour les vins supérieurs et une garde intermédiaire, catégorie 4 pour les vins de pays, catégorie 5 pour les vins jeunes et le cidre, catégorie 6 pour une conservation courte. Les années exactes doivent venir de la **fiche technique de la référence vendue** ; sans elle, je préfère ne pas annoncer un chiffre qui pourrait être trompeur.`, { liens: [PAGES.bouchonsVin, PAGES.contact] });
+
+r.fait("categorie-bouchon", "condition", `
+  Une catégorie supérieure améliore la régularité du liège et peut soutenir une garde plus exigeante, mais elle **n'améliore pas le vin lui-même**. Choisissez la catégorie proportionnée au vin, à la durée et au budget plutôt que la plus haute par principe.`, { source: SAVOIR_FAIRE });
 
 r.concept("bouchon-naturel", "Bouchons en liège naturel", ["liege naturel", "bouchon naturel", "bouchons naturels", "bouchon liege naturel", "naturel superieur", "bouchon haut de gamme", "bouchon premium", "bouchon d une piece"], {
   famille: "bouchon-liege",
@@ -163,7 +217,17 @@ r.fait(["bouchon", "vin-jeune"], "choix", `
 
 r.concept("taille-bouchon", "Taille des bouchons", ["taille des bouchons", "taille de bouchon", "dimension des bouchons", "diametre du bouchon", "longueur du bouchon", "38 24", "45 24", "38 mm", "45 mm", "24 mm", "44 mm", "49 mm", "54 mm", "bouchon de 38", "bouchon de 45", "bouchon long", "bouchon court"], {
   famille: "bouchon-liege",
-  formules: ["bouchon plus long conserve", "plus long conserve t il", "plus long conserve mieux"],
+  formules: [
+    "bouchon plus long conserve",
+    "plus long conserve t il",
+    "plus long conserve mieux",
+    "diametre du col standard",
+    "mesurer le diametre du col",
+    "bouchon pour bouteilles anciennes ou recuperees",
+    "choisir un bouchon pour des bouteilles anciennes",
+    "adapter le bouchon aux bouteilles anciennes ou recuperees",
+    "diametre du col de bouteille est il standard",
+  ],
 });
 
 r.fait("taille-bouchon", "dimension", `
@@ -174,6 +238,9 @@ r.fait("taille-bouchon", "raison", `
 
 r.fait("taille-bouchon", "choix", `
   Un bouchon plus long n'est pas automatiquement meilleur : choisissez **38 ou 45 mm** selon la durée de garde visée, la qualité du liège, le goulot et la boucheuse. Le 45 mm offre plus de surface de contact pour la garde, mais il ne compense ni un liège inadapté ni une mauvaise pose.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin] });
+
+r.fait("taille-bouchon", "condition", `
+  Le diamètre intérieur d'un col n'est pas garanti par la seule mention « bouteille de vin » ou « 75 cl ». Pour une bouteille ancienne, récupérée ou sans référence, mesurez le profil du goulot, vérifiez l'absence de défaut et faites un essai avec le bouchon et la boucheuse exacts.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
 
 r.concept("bouchon-conique", "Bouchons coniques", ["bouchon conique", "bouchons coniques", "33 23 19", "bouchon a la main", "boucher a la main", "bouchon pour reboucher"], {
   famille: "bouchon",
@@ -249,6 +316,44 @@ r.fait("boucheuse", "procedure", `
 r.fait("boucheuse", "condition", `
   Une personne peut généralement utiliser seule une boucheuse manuelle correctement installée. Le modèle doit être stable, la bouteille bien centrée et les mains tenues hors des mors et du mécanisme. Pour une longue série, une deuxième personne peut préparer et contrôler les bouteilles, mais elle ne doit pas tenir le goulot pendant l'actionnement.`, { source: SAVOIR_FAIRE });
 
+r.fait("boucheuse", "dimension", `
+  La cadence réelle dépend du modèle, de l'opérateur, du réglage, de la préparation des bouteilles et des contrôles. Sans valeur publiée par le fabricant, chronométrez une série d'essai incluant le centrage et le contrôle plutôt que d'annoncer un nombre de bouteilles par heure.`, { source: SAVOIR_FAIRE });
+
+r.fait("boucheuse", "entretien", `
+  Dépoussiérez les mors et retirez les fragments de liège après chaque série, appareil hors tension ou hors charge. Contrôlez leur propreté, leur alignement et leur usure ; ne graissez jamais la zone en contact avec le bouchon sauf indication explicite de la notice.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.concept("installation-boucheuse", "Installer une boucheuse", ["fixer la boucheuse", "boucheuse sur etabli", "installer une boucheuse", "stabiliser la boucheuse"], {
+  famille: "boucheuse",
+});
+
+r.fait("installation-boucheuse", "condition", `
+  Fixez la boucheuse à un établi si sa notice ou ses perçages le prévoient. Sinon, placez-la sur une surface plane, rigide et antidérapante. Dans tous les cas, elle ne doit ni basculer ni glisser pendant la course du levier.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.concept("format-bouteille-boucheuse", "Formats de bouteille acceptés par la boucheuse", ["demi bouteille boucheuse", "petite bouteille boucheuse", "format bouteille boucheuse"], {
+  famille: "boucheuse",
+  formules: ["meme boucheuse pour demi bouteilles", "boucheuse pour bouteilles de 37 5 cl"],
+});
+
+r.fait("format-bouteille-boucheuse", "condition", `
+  Une demi-bouteille peut utiliser la même boucheuse seulement si sa **hauteur, son goulot et son bouchon** entrent dans la plage du modèle et si le plateau la maintient correctement. Vérifiez la notice et faites un essai sans forcer.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.fait(["bouchage", "format-bouteille-boucheuse"], "condition", `
+  Oui, la même boucheuse peut convenir aux demi-bouteilles si leur **hauteur, leur goulot et leur bouchon** entrent dans la plage du modèle et si le plateau les maintient correctement. Contrôlez la notice et faites un essai sans forcer avant la série.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.concept("securite-bouchage", "Sécurité pendant le bouchage", ["casser une bouteille au bouchage", "bouteille cassee boucheuse", "eviter la casse au bouchage"], {
+  famille: "bouchage",
+});
+
+r.fait("securite-bouchage", "condition", `
+  Inspectez le goulot, centrez la bouteille, réglez la hauteur sans contrainte latérale et actionnez le levier d'un geste régulier. N'utilisez jamais une bouteille fissurée ou ébréchée, ne forcez pas un bouchon hors format et gardez mains et visage hors de l'axe.`, { source: SAVOIR_FAIRE });
+
+r.concept("bouchon-synthetique", "Bouchon synthétique", ["bouchon synthetique", "bouchons synthetiques", "bouchon plastique pour vin"], {
+  famille: "bouchon",
+});
+
+r.fait(["boucheuse", "bouchon-synthetique"], "condition", `
+  Une boucheuse à vin ne peut poser un bouchon synthétique que si le fabricant l'autorise pour le **matériau, le diamètre et la longueur** concernés. Certains synthétiques demandent une compression ou des mors spécifiques : vérifiez la notice des deux produits avant essai.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+
 r.fait(["boucheuse", "taille-bouchon"], "choix", `
   Pour des bouchons de **38 ou 45 mm**, vérifiez la longueur et le diamètre admis par la boucheuse, le type de mors, le réglage de hauteur/profondeur et la cadence prévue. Toutes les boucheuses ne couvrent pas automatiquement les mêmes formats : comparez la fiche du modèle au bouchon exact avant de commander.`, { liens: [PAGES.boucheuses, PAGES.bouchonsVin] });
 
@@ -282,6 +387,7 @@ r.fait("boucheuse-machoires", "condition", `
 r.concept("boucheuse-universelle", "Capsuleuse boucheuse universelle", ["capsuleuse boucheuse", "boucheuse capsuleuse", "boucheuse universelle", "capsuleuse universelle", "universelle"], {
   famille: "boucheuse",
   lien: PAGES.boucheuseUniverselle,
+  formules: ["poser des capsules couronne et des bouchons liege", "capsules couronne et bouchons liege"],
 });
 
 r.fait("boucheuse-universelle", "definition", `

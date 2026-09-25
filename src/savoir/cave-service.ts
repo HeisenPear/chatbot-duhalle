@@ -11,6 +11,7 @@ r.concept("cave", "La cave à vin", ["cave", "caves", "cave a vin", "cellier", "
   famille: "vin",
   lien: PAGES.casiers,
   voirAussi: ["casier", "cave-electrique", "hygrometrie"],
+  formules: ["lumiere abime le vin", "lumiere abime t elle le vin", "vibrations nuisent au vieillissement", "vibrations nuisent elles au vieillissement", "vibrations nuisent au vin"],
 });
 
 r.fait("cave", "condition", `
@@ -23,6 +24,17 @@ r.fait("cave", "condition", `
 
 r.fait("cave", "procedure", `
   Pour organiser votre cave, rangez les bouteilles **couchées**, par type de vin et par date d'apogée : les vins à boire en premier à portée de main, les vins de garde en bas ou au fond, là où il fait le plus frais. Tenez un petit inventaire pour savoir quoi ouvrir et quand.`, { source: SAVOIR_FAIRE, liens: [PAGES.articleCave] });
+
+r.concept("position-bouteilles", "Position des bouteilles en cave", ["position des bouteilles", "orientation des bouteilles en cave"], {
+  famille: "cave",
+  formules: ["conserver les bouteilles couchees ou debout", "bouteilles couchees ou debout"],
+});
+
+r.fait("position-bouteilles", "entretien", `
+  Après les **24 à 48 heures debout** qui suivent le bouchage, conservez couchées les bouteilles fermées par un bouchon en liège et destinées à la garde. Une bouteille déjà ouverte, une fermeture différente ou la notice d'un produit peuvent demander une autre position.`, { source: SAVOIR_FAIRE });
+
+r.fait("position-bouteilles", "choix", `
+  **Debout juste après le bouchage**, pendant 24 à 48 heures, puis **couchée pour la garde** si la bouteille est fermée par un bouchon en liège. Une bouteille ouverte ou un autre système de fermeture peut demander une position différente.`, { source: SAVOIR_FAIRE });
 
 r.fait("cave", "gamme", `
   Pour ranger vos bouteilles, Duhallé propose des **casiers** en acier plastifié (24 à 144 places), en polystyrène (12 et 16 places), en bois (12 bouteilles), un casier transportable, un petit casier modulable 3 bouteilles, et une **cave à vin électrique** double zone de 40 bouteilles.`, { liens: [PAGES.casiers, PAGES.caveElectrique] });

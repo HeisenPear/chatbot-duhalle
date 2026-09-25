@@ -26,6 +26,21 @@ r.fait("commande", "procedure", `
 
   Vous recevez ensuite un e-mail de confirmation. Une question avant de commander ? Le service client vous répond au **${TELEPHONE}**.`);
 
+r.concept("quantite-commande", "Calculer la quantité à commander", ["quantite a commander", "calcul de quantite a commander", "nombre a commander", "combien de bouchons commander", "combien de capsules commander", "marge de bouchons", "marge de capsules"], {
+  famille: "commande",
+});
+
+r.fait("quantite-commande", "dimension", `
+  Partez du nombre de bouteilles, ajoutez une petite marge pour les **essais, réglages et rebuts**, puis arrondissez au conditionnement réellement vendu sur la fiche produit. Pour la cire ou un consommable dont le rendement varie, faites d'abord un test sur quelques bouteilles avant de commander le reste.`);
+
+r.concept("materiel-depart", "Matériel minimum pour commencer", ["materiel minimum", "materiel de depart", "liste de materiel", "kit pour commencer", "equipement pour debuter", "indispensables pour commencer"], {
+  famille: "catalogue",
+  lien: PAGES.accueil,
+});
+
+r.fait("materiel-depart", "gamme", `
+  Le minimum dépend du projet, mais la liste suit toujours le même ordre : **contenant adapté**, matériel de nettoyage, transfert ou remplissage, fermeture compatible, outil de contrôle, puis rangement. Pour le vin : bouteilles, goupillon/rince-bouteille, siphon, bouchons et boucheuse ; pour le cidre, ajoutez des bouteilles prévues pour la pression et la fermeture correspondante.`, { liens: [PAGES.accueil] });
+
 r.concept("suivi-commande", "Suivre ma commande", ["suivi", "suivi de commande", "suivre ma commande", "suivre mon colis", "numero de suivi", "etat de ma commande", "statut de ma commande", "colis pas recu", "colis non recu", "retard", "retard de livraison", "numero de commande", "commande pas arrivee", "commande pas recue", "commande en retard"], {
   famille: "commande",
   formules: ["ou en est ma commande", "ou en est mon colis", "je n ai pas recu", "pas recu", "toujours pas recu", "pas encore recu", "jamais recu", "quand vais je recevoir", "quand vais je etre livre"],

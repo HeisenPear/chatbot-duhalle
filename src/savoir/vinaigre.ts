@@ -62,6 +62,19 @@ r.fait("vinaigrier", "choix", `
 r.fait("vinaigrier", "entretien", `
   Avant la première utilisation, rincez le vinaigrier à l'eau claire, **sans produit vaisselle**. Faites tremper le **robinet en bois** dans l'eau quelques heures pour qu'il gonfle et devienne étanche. Pour le nettoyer, videz-le, rincez à l'eau chaude puis au vinaigre, et relancez-le avec une partie de la mère.`, { source: SAVOIR_FAIRE });
 
+r.fait("vinaigrier", "condition", `
+  Pendant l'acétification, ne fermez pas le vinaigrier **hermétiquement** : les bactéries ont besoin d'oxygène. Protégez plutôt l'ouverture avec une toile fine, propre et respirante, solidement fixée, afin de laisser passer l'air tout en bloquant les insectes.`, { source: SAVOIR_FAIRE });
+
+r.fait(["vinaigrier", "vin"], "procedure", `
+  Vous pouvez alimenter le vinaigrier avec du vin rouge ou blanc **sain**, sans défaut majeur. Ajoutez-le progressivement pour ne pas noyer la mère ; un vin très soufré peut ralentir l'acétification.`, { source: SAVOIR_FAIRE });
+
+r.concept("moucherons-vinaigrier", "Moucherons dans le vinaigrier", ["moucheron", "moucherons", "mouche du vinaigre", "mouches du vinaigre", "insectes dans le vinaigrier", "eviter les moucherons", "proteger le vinaigrier des mouches"], {
+  famille: "vinaigrier",
+});
+
+r.fait("moucherons-vinaigrier", "condition", `
+  Couvrez l'ouverture d'une **toile fine respirante**, nettoyez immédiatement les coulures autour du robinet et éloignez fruits mûrs et déchets. Vérifiez que la protection ne laisse aucun passage, mais ne remplacez pas cette aération par une fermeture hermétique.`, { source: SAVOIR_FAIRE });
+
 r.concept("robinet-vinaigrier", "Robinet du vinaigrier", ["robinet", "robinet en bois", "robinet qui fuit", "le robinet coule", "robinet vinaigrier"], {
   famille: "vinaigrier",
 });

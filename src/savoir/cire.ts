@@ -66,7 +66,16 @@ r.fait("chauffe-cire", "definition", `
   Le **chauffe-cire** Duhallé est un pot chauffant en **acier inoxydable de 1,3 L** avec **thermostat réglable de 0 à 100 °C** : il garde la cire à température constante pendant tout le cachetage.`, { liens: [PAGES.chauffeCire, VIDEO_CIRE] });
 
 r.fait("chauffe-cire", "dimension", `
-  Chauffez la cire juste assez pour qu'elle soit **bien liquide** et nappe le goulot, sans la faire bouillir : le chauffe-cire, réglable de 0 à 100 °C, la maintient à cette température constante. Suivez aussi les indications portées sur l'emballage de la cire.`, { source: SAVOIR_FAIRE, liens: [PAGES.chauffeCire] });
+  La température dépend de la **formulation exacte** : cire dure et cire souple ne fondent pas nécessairement dans la même plage. Réglez le chauffe-cire progressivement, sans dépasser sa plage de 0 à 100 °C, et suivez en priorité la température inscrite sur l'emballage de la cire. Si la fiche de la cire exige davantage que l'appareil, ne forcez pas le thermostat et demandez confirmation au service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.chauffeCire, PAGES.contact] });
+
+r.concept("rendement-cire", "Quantité de cire par bouteille", ["bouteilles avec 1 kg de cire", "rendement de la cire", "consommation de cire", "quantite de cire par bouteille", "un kilo de cire"], {
+  famille: "cire",
+  lien: PAGES.cire,
+  formules: ["combien de bouteilles avec 1 kg", "combien de bouteilles avec un kilo de cire"],
+});
+
+r.fait("rendement-cire", "dimension", `
+  Le nombre de bouteilles par kilo varie avec le diamètre du col, la hauteur trempée, l'épaisseur et le nombre de couches. Pour une estimation fiable, pesez la cire avant et après un **test de 10 bouteilles**, calculez la consommation moyenne, puis ajoutez une marge pour la cire restant dans la cuve. Le service client peut aussi confirmer le rendement de la référence choisie.`, { source: SAVOIR_FAIRE, liens: [PAGES.cire, PAGES.contact] });
 
 r.fait(["surbouchage", "cire"], "choix", `
   **Capsule ou cire ?** La **capsule thermorétractable** se pose vite et donne une finition nette. La **cire à cacheter** offre un rendu artisanal et une protection supplémentaire contre l'air et l'humidité, appréciée pour les vins de garde et les bouteilles à offrir.`, { source: SAVOIR_FAIRE, liens: [PAGES.surbouchage, PAGES.cire] });

@@ -46,7 +46,7 @@ r.fait("mise-en-bouteille", "gamme", `
   - des **capsules de surbouchage** et des **étiquettes**.`);
 
 r.fait("mise-en-bouteille", "moment", `
-  Mettez votre vin en bouteille quand il est **terminé et stable** : fermentations achevées, vin clair après les soutirages, sans dépôt en suspension. Choisissez de préférence un jour de temps sec et de haute pression ; la tradition recommande aussi une période de lune descendante.`, { source: SAVOIR_FAIRE });
+  Mettez votre vin en bouteille quand il est **terminé et stable** : fermentations achevées, mesures ou analyses cohérentes, vin clair après les soutirages et sans dépôt en suspension. L'absence de bulles ne suffit pas à garantir la stabilité ; pour un vin sucré, pétillant ou incertain, demandez l'avis d'un œnologue avant la mise.`, { source: SAVOIR_FAIRE });
 
 r.fait("mise-en-bouteille", "erreur", `
   Les erreurs les plus courantes :
@@ -61,16 +61,26 @@ r.fait("mise-en-bouteille", "condition", `
 
 r.concept("niveau-remplissage", "Le niveau de remplissage", ["niveau de remplissage", "remplir la bouteille", "remplissage", "jusqu ou remplir", "espace vide", "vide sous le bouchon", "hauteur de vin", "trop rempli", "trop pleine", "place entre le vin et le bouchon", "espace entre le vin et le bouchon", "distance entre le vin et le bouchon"], {
   famille: "mise-en-bouteille",
+  formules: ["niveau de remplissage laisser sous le bouchon", "quel niveau de remplissage laisser sous le bouchon", "remplissage sous le bouchon"],
 });
 
 r.fait("niveau-remplissage", "dimension", `
-  Remplissez la bouteille en laissant **environ 1 à 2 cm** entre le vin et le bas du bouchon. Trop pleine, le bouchon comprime le vin et peut ressortir ou laisser perler du vin ; trop peu remplie, le vin est au contact de trop d'air.`, { source: SAVOIR_FAIRE });
+  Avec une bouteille standard, **1 à 2 cm sous le futur bouchon** est un repère courant. Respectez toutefois le niveau prévu par la bouteille et le système de remplissage, à la température de mise : trop pleine, la dilatation peut faire ressortir le bouchon ou provoquer une fuite ; trop peu remplie, l'espace d'air augmente.`, { source: SAVOIR_FAIRE });
+
+r.concept("rendement-bouteilles", "Calcul du nombre de bouteilles", ["nombre de bouteilles", "calculer le nombre de bouteilles", "bouteilles avec 10 litres", "bouteilles avec 20 litres", "bouteilles avec 50 litres"], {
+  famille: "mise-en-bouteille",
+  formules: ["combien de bouteilles avec 10 litres", "combien de bouteilles avec 20 litres", "combien de bouteilles avec 50 litres", "bouteilles de 75 cl remplit on", "10 20 ou 50 litres"],
+});
+
+r.fait("rendement-bouteilles", "dimension", `
+  Pour des bouteilles de **75 cl**, divisez le volume disponible par **0,75** : 10 L donnent 13 bouteilles pleines, 20 L en donnent 26 et 50 L en donnent 66, avec un reste. Ce sont des maxima théoriques : prévoyez un peu moins pour le dépôt, l'amorçage du siphon et les pertes de manipulation.`, { source: SAVOIR_FAIRE });
 
 // ─── Les bouteilles ────────────────────────────────────────────────────────
 
 r.concept("bouteille", "Bouteilles vides", ["bouteille", "bouteilles", "bouteille vide", "bouteilles vides", "bouteille en verre", "bordelaise", "bourgogne", "75 cl", "bouteille 75 cl", "flacon"], {
   famille: "mise-en-bouteille",
   lien: PAGES.miseEnBouteille,
+  formules: ["bouchon compatible avec ma bouteille", "bouchon est il compatible avec ma bouteille", "compatibilite bouchon bouteille"],
 });
 
 r.fait("bouteille", "gamme", `
@@ -85,7 +95,7 @@ r.fait("bouteille", "dimension", `
   Les bouteilles de vin standard de 75 cl se bouchent avec des bouchons de **24 mm de diamètre** (38 ou 45 mm de long selon la garde). Les bouteilles champenoises se ferment avec des capsules couronne de **29 mm**, les petites bouteilles type bière avec des capsules de **26 mm**.`, { source: SAVOIR_FAIRE });
 
 r.fait("bouteille", "condition", `
-  Vous pouvez **réutiliser des bouteilles** de vin, à condition de bien les laver, de vérifier que le goulot n'est pas ébréché, et de n'y mettre que des vins tranquilles. Pour le cidre ou un vin pétillant, utilisez **uniquement des bouteilles champenoises**, conçues pour résister à la pression.`, { source: SAVOIR_FAIRE });
+  Vous pouvez **réutiliser des bouteilles** de vin si le verre et le goulot ne sont ni ébréchés ni fissurés, qu'aucune odeur ne persiste et que l'intérieur peut être parfaitement nettoyé et contrôlé. Écartez toute bouteille d'origine inconnue pour une boisson sous pression : pour le cidre ou un vin pétillant, utilisez uniquement des bouteilles explicitement prévues pour cette pression.`, { source: SAVOIR_FAIRE });
 
 // ─── Nettoyage ─────────────────────────────────────────────────────────────
 
@@ -100,6 +110,34 @@ r.fait("nettoyage-bouteilles", "procedure", `
   2. Brossez l'intérieur au **goupillon**, ou utilisez un **lave-bouteille à turbine** qui se branche sur l'arrivée d'eau.
   3. Rincez abondamment, par exemple avec un **rince-bouteille**.
   4. Laissez égoutter tête en bas sur un **égouttoir** jusqu'au remplissage.`, { source: SAVOIR_FAIRE, liens: [PAGES.nettoyage] });
+
+r.concept("hygiene-materiel", "Nettoyer, désinfecter et stériliser", ["nettoyer desinfecter steriliser", "nettoyage desinfection sterilisation", "difference nettoyer desinfecter", "difference desinfecter steriliser", "assainissement du materiel"], {
+  famille: "nettoyage-bouteilles",
+  lien: PAGES.nettoyage,
+});
+
+r.fait("hygiene-materiel", "choix", `
+  **Nettoyer** retire les salissures ; **désinfecter** réduit les micro-organismes sur un matériel déjà propre ; **stériliser** correspond à un procédé validé visant leur élimination. Pour les bouteilles et accessoires, employez le terme et le produit réellement prévus par le fabricant : un rinçage visuellement propre n'est pas une stérilisation.`, { source: SAVOIR_FAIRE, liens: [PAGES.nettoyage] });
+
+r.concept("depot-sec-bouteille", "Dépôt sec dans une bouteille", ["depot sec", "depot colle", "salete seche au fond", "bouteille tres sale", "bouteille impossible a nettoyer"], {
+  famille: "nettoyage-bouteilles",
+  lien: PAGES.nettoyage,
+});
+
+r.fait("depot-sec-bouteille", "procedure", `
+  Pour un dépôt sec, faites tremper avec un **produit compatible avec le contact alimentaire**, puis utilisez un goupillon ou un lave-bouteille adapté. Rincez selon la notice et inspectez le fond à la lumière. Si le dépôt, une odeur ou une zone inaccessible persiste, écartez la bouteille plutôt que de risquer de contaminer le lot.`, { source: SAVOIR_FAIRE, liens: [PAGES.nettoyage] });
+
+r.concept("produit-nettoyage-bouteilles", "Produits de nettoyage des bouteilles", ["produit pour laver les bouteilles", "produit de nettoyage bouteille", "produit sans odeur", "desinfectant bouteille", "produit contact alimentaire"], {
+  famille: "nettoyage-bouteilles",
+  lien: PAGES.nettoyage,
+  formules: ["rincer apres un desinfectant", "rincer apres le desinfectant", "rincer apres un produit desinfectant", "sans rincage"],
+});
+
+r.fait("produit-nettoyage-bouteilles", "choix", `
+  Choisissez un produit explicitement prévu pour le **contact alimentaire** et pour la salissure à retirer. Respectez le dosage, la température et le temps de contact inscrits sur l'étiquette ; évitez les produits parfumés ou improvisés, qui peuvent laisser une odeur dans le verre.`, { source: SAVOIR_FAIRE, liens: [PAGES.nettoyage] });
+
+r.fait("produit-nettoyage-bouteilles", "condition", `
+  Le rinçage après désinfection dépend du produit et de sa concentration. Suivez exactement la mention **« avec rinçage » ou « sans rinçage »** de l'étiquette : n'improvisez jamais un non-rinçage et ne mélangez pas plusieurs produits.`, { source: SAVOIR_FAIRE });
 
 r.fait("nettoyage-bouteilles", "gamme", `
   Matériel de nettoyage Duhallé :
@@ -169,8 +207,16 @@ r.fait("soutirage", "procedure", `
   Pour soutirer sans aérer le vin :
   1. Placez le contenant plein **en hauteur** et les bouteilles plus bas.
   2. Plongez le tuyau dans le vin **sans toucher la lie** au fond.
-  3. Amorcez le siphon (la soutireuse automatique s'amorce toute seule).
+  3. Amorcez avec une **poire, un siphon automatique ou une pompe alimentaire** : n'aspirez jamais à la bouche.
   4. Remplissez en gardant l'extrémité du tuyau **au fond de la bouteille**, pour éviter les éclaboussures et l'oxydation.`, { source: SAVOIR_FAIRE });
+
+r.concept("tuyau-alimentaire", "Tuyau alimentaire de soutirage", ["tuyau alimentaire", "choix du tuyau alimentaire", "diametre du tuyau", "longueur du tuyau", "tuyau pour le vin", "tuyau silicone", "tuyau de transfert"], {
+  famille: "soutirage",
+  lien: PAGES.soutirage,
+});
+
+r.fait("tuyau-alimentaire", "choix", `
+  Choisissez un tuyau déclaré apte au **contact alimentaire**, de diamètre compatible avec la canne, la pompe et les raccords. Sa longueur doit permettre le dénivelé sans boucle ni pincement ; vérifiez aussi sa résistance au produit de nettoyage et remplacez-le s'il devient craquelé, opaque ou odorant.`, { source: SAVOIR_FAIRE, liens: [PAGES.soutirage] });
 
 r.concept("filtre-vin", "Filtration du vin", ["filtre", "filtres", "filtrer", "filtrer le vin", "filtration", "filtre papier", "vin trouble", "clarifier"], {
   famille: "soutirage",
@@ -181,7 +227,22 @@ r.fait("filtre-vin", "dimension", `
   Les **filtres à vin** Duhallé sont des filtres papier plissés de **40 cm de diamètre** (épaisseur 190 micromètres, filtration de 4 à 7 microns), vendus par 10. Ils s'adaptent aux entonnoirs.`, { source: PAGES.soutirage.url, liens: [PAGES.filtres, PAGES.entonnoirArret] });
 
 r.fait("filtre-vin", "usage", `
-  Filtrer permet de retirer les dernières particules en suspension avant la mise en bouteille. Un vin bien soutiré et reposé est souvent déjà clair : filtrez surtout si le vin reste trouble.`, { source: SAVOIR_FAIRE });
+  Filtrer permet de retirer les dernières particules en suspension avant la mise en bouteille. Un vin bien soutiré, limpide et stable n'a pas toujours besoin d'être filtré ; un vin trouble ou microbiologiquement incertain demande d'abord un diagnostic, car la filtration et sa finesse dépendent du style et de la stabilité recherchés.`, { source: SAVOIR_FAIRE });
+
+r.concept("depot-bouteille", "Dépôt après la mise en bouteille", ["depot apres mise en bouteille", "depot dans le vin", "depot dans mes bouteilles", "cristaux dans la bouteille", "lie dans la bouteille", "bouteille trouble apres remplissage"], {
+  famille: "mise-en-bouteille",
+  voirAussi: ["filtre-vin", "soutirage"],
+});
+
+r.fait("depot-bouteille", "raison", `
+  Un dépôt peut être une lie naturelle, des **cristaux tartriques** ou le signe d'un trouble en évolution. Observez sa forme, la limpidité, l'odeur, le goût et le moment d'apparition : si le vin devient gazeux, trouble ou présente une odeur anormale, ne concluez pas à un simple dépôt et demandez un avis œnologique.`, { source: SAVOIR_FAIRE });
+
+r.concept("refermentation-bouteille", "Reprise de fermentation en bouteille", ["reprise de fermentation", "refermentation", "fermentation en bouteille", "vin qui refermente", "eviter la fermentation en bouteille", "vin qui devient gazeux", "vin qui petille apres embouteillage"], {
+  famille: "mise-en-bouteille",
+});
+
+r.fait("refermentation-bouteille", "condition", `
+  Pour éviter une reprise de fermentation, mettez en bouteille seulement un vin dont les fermentations sont **terminées et la stabilité vérifiée** par les mesures ou analyses adaptées. L'absence de bulles ne suffit pas ; sucre résiduel, levures actives ou température plus élevée peuvent relancer la fermentation. En cas de doute, faites valider le lot par un œnologue.`, { source: SAVOIR_FAIRE });
 
 // ─── Œnologie : fûts, soufre, mesure ───────────────────────────────────────
 

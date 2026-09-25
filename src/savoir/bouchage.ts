@@ -26,6 +26,14 @@ r.fait("bouchage", "procedure", `
   4. Vérifiez que le bouchon affleure le haut du col.
   5. Laissez les bouteilles **debout 24 à 48 heures** avant de les coucher.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses, PAGES.bouchonsVin] });
 
+r.concept("controle-bouchage", "Contrôler le bouchage", ["controle du bouchage", "controler le bouchage", "verifier le bouchage", "bouchon affleurant", "bouchon affleure", "bouchon centre"], {
+  famille: "bouchage",
+  lien: PAGES.boucheuses,
+});
+
+r.fait("controle-bouchage", "procedure", `
+  Pour contrôler le bouchage, vérifiez sur plusieurs bouteilles en début de série que le bouchon est **centré et affleure le haut du col**, sans fissure, copeau ni marque profonde. Laissez ensuite les bouteilles debout et surveillez toute **fuite** ou remontée du bouchon avant de les coucher.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
 r.fait("bouchage", "gamme", `
   Pour le bouchage, Duhallé propose des **bouchons en liège** pour le vin, des **bondes** pour fûts et bonbonnes, des **boucheuses manuelles**, des **capsules couronne** et des **capsuleuses** pour le cidre et la bière, et des **bouchons plastique** pour le cidre.`);
 
@@ -45,6 +53,7 @@ r.concept("bouchon", "Les bouchons", ["bouchon", "bouchons", "bouchon de bouteil
   famille: "bouchage",
   lien: PAGES.bouchonsVin,
   voirAussi: ["bouchon-naturel", "bouchon-colmate", "bonde"],
+  formules: ["bouchon compatible avec ma bouteille", "bouchon est il compatible avec ma bouteille", "compatibilite bouchon bouteille"],
 });
 
 r.fait("bouchon", "gamme", `
@@ -65,6 +74,9 @@ r.fait("bouchon", "choix", `
 
   Le diamètre de 24 mm convient aux bouteilles de vin standard de 75 cl.`, { liens: [PAGES.bouchon45Naturel, PAGES.bouchon38Cat3, PAGES.bouchonsVin] });
 
+r.fait(["bouchon", "bouteille"], "condition", `
+  La compatibilité ne se déduit pas du seul volume de la bouteille. Avant de choisir, vérifiez le **profil intérieur et le diamètre du goulot**, le type de boisson (tranquille ou sous pression), la durée de garde visée et la plage acceptée par la boucheuse. En cas de bouteille ancienne, récupérée ou sans référence, faites un essai sur un petit lot ou demandez confirmation au service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin, PAGES.contact] });
+
 r.concept("bouchon-liege", "Bouchons en liège", ["bouchon en liege", "bouchons en liege", "bouchon liege", "bouchons liege", "bouchon de liege", "liege", "liege du portugal", "chene liege", "conserver les bouchons", "stocker les bouchons", "garder les bouchons", "ranger les bouchons", "tremper les bouchons", "trempage"], {
   famille: "bouchon",
   lien: PAGES.bouchonsVin,
@@ -81,7 +93,7 @@ r.fait("bouchon-liege", "entretien", `
   Conservez les bouchons non utilisés dans leur **sachet fermé**, dans un endroit **sec, propre et sans odeurs** (produits ménagers, fioul, peinture) : le liège absorbe les odeurs. Utilisez-les de préférence dans les mois qui suivent l'achat.`, { source: SAVOIR_FAIRE });
 
 r.fait("bouchon-liege", "duree", `
-  La durée de conservation d'un vin bouché dépend surtout de la **qualité** et de la **longueur** du bouchon : un 45 mm en liège naturel est fait pour les vins de garde, un 38 mm colmaté de catégorie 5 ou 6 pour les vins à boire jeunes. Une bonne cave (fraîche, humide, bouteilles couchées) fait le reste.`, { source: SAVOIR_FAIRE });
+  La durée de conservation d'un vin bouché dépend du **vin**, de la qualité du liège, de la longueur, du goulot, de la pose et de la cave. Un 45 mm en liège naturel est destiné aux vins de garde ; un 38 mm colmaté de catégorie 5 ou 6 aux vins à boire jeunes. Duhallé ne publie pas encore d'**années de garde garanties par référence** : pour un engagement chiffré, demandez la fiche technique du lot au service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin, PAGES.contact] });
 
 r.concept("lenticelles", "Les lenticelles du liège", ["lenticelle", "lenticelles", "pores du liege", "trous dans le bouchon", "petits trous", "porosite"], {
   famille: "bouchon-liege",
@@ -103,6 +115,9 @@ r.fait("categorie-bouchon", "definition", `
   - **cat. 5** : colmaté, pour les vins jeunes et le cidre ;
   - **cat. 6** : colmaté, pour une courte conservation.`);
 
+r.fait("categorie-bouchon", "duree", `
+  Les catégories donnent un **usage cible**, pas une durée universelle : catégorie 3 pour les vins supérieurs et une garde intermédiaire, catégorie 4 pour les vins de pays, catégorie 5 pour les vins jeunes et le cidre, catégorie 6 pour une conservation courte. Les années exactes doivent venir de la **fiche technique de la référence vendue** ; sans elle, je préfère ne pas annoncer un chiffre qui pourrait être trompeur.`, { liens: [PAGES.bouchonsVin, PAGES.contact] });
+
 r.concept("bouchon-naturel", "Bouchons en liège naturel", ["liege naturel", "bouchon naturel", "bouchons naturels", "bouchon liege naturel", "naturel superieur", "bouchon haut de gamme", "bouchon premium", "bouchon d une piece"], {
   famille: "bouchon-liege",
   lien: PAGES.bouchon45Naturel,
@@ -111,6 +126,9 @@ r.concept("bouchon-naturel", "Bouchons en liège naturel", ["liege naturel", "bo
 r.fait("bouchon-naturel", "definition", `
   Le **bouchon en liège naturel** est taillé d'une seule pièce dans l'écorce du chêne-liège. C'est le bouchon des **vins de garde**. Duhallé le propose en **45 x 24 mm** : lot de 100 en catégorie 1, et lot de 40 en qualité « naturel supérieur ».`, { liens: [PAGES.bouchon45Naturel, PAGES.bouchon45NaturelSuperieur] });
 
+r.fait("bouchon-naturel", "duree", `
+  Le bouchon naturel **45 x 24 mm** est la référence Duhallé pour la **garde longue**. Le nombre d'années réellement possible dépend aussi du vin, de la bouteille, du bouchage et de la cave ; faute de durée garantie publiée pour chaque lot, demandez la fiche technique avant de promettre 5, 10 ans ou davantage.`, { liens: [PAGES.bouchon45Naturel, PAGES.contact] });
+
 r.concept("bouchon-colmate", "Bouchons en liège colmaté", ["colmate", "colmates", "bouchon colmate", "bouchons colmates", "liege colmate", "colmatage", "super glisse"], {
   famille: "bouchon-liege",
   lien: PAGES.bouchon38Cat3,
@@ -118,6 +136,9 @@ r.concept("bouchon-colmate", "Bouchons en liège colmaté", ["colmate", "colmate
 
 r.fait("bouchon-colmate", "definition", `
   Un **bouchon colmaté** est un bouchon en liège naturel dont les pores (lenticelles) sont comblés avec de la poudre de liège : il est plus régulier, bien étanche et plus économique. Duhallé propose des colmatés **38 x 24 mm** (catégories 3, 4, 5 et 6) et **45 x 24 mm** (catégorie 3), traités « super-glisse ».`, { liens: [PAGES.bouchon38Cat3, PAGES.bouchon45Colmate] });
+
+r.fait("bouchon-colmate", "duree", `
+  Le colmaté **45 x 24 mm catégorie 3** vise les vins de qualité et une garde intermédiaire ; les 38 x 24 mm vont de la catégorie 3 à la catégorie 6 selon le vin. Duhallé ne publie pas encore de plafond chiffré par référence : utilisez l'horizon indiqué par la fiche technique du lot plutôt qu'une règle générale.`, { liens: [PAGES.bouchon45Colmate, PAGES.bouchonsVin, PAGES.contact] });
 
 r.fait(["bouchon-naturel", "bouchon-colmate"], "choix", `
   **Naturel ou colmaté ?** Le liège **naturel** (catégorie 1, 45 x 24 mm) est le choix des grands vins de garde. Le **colmaté** convient à la grande majorité des vins faits maison : catégorie 3 pour les vins supérieurs, 4 pour les vins de pays, 5 pour les vins jeunes et le cidre, 6 pour une courte conservation.`, { liens: [PAGES.bouchon45Naturel, PAGES.bouchon38Cat3] });
@@ -131,6 +152,7 @@ r.fait(["bouchon", "vin-de-garde"], "choix", `
 
 r.concept("vin-jeune", "Vin jeune ou à boire rapidement", ["vin jeune", "vins jeunes", "vin de pays", "vins de pays", "vin de l annee", "vin a boire", "vin de table", "vin primeur", "courte conservation", "boire rapidement", "boire vite", "consommer rapidement", "vin ordinaire"], {
   famille: "vin",
+  formules: ["a boire cet ete", "a boire dans l annee", "a consommer cet ete"],
 });
 
 r.fait("vin-de-garde", "duree", `
@@ -139,15 +161,19 @@ r.fait("vin-de-garde", "duree", `
 r.fait(["bouchon", "vin-jeune"], "choix", `
   Pour un vin à boire dans les premières années, un bouchon **38 x 24 mm colmaté** suffit : catégorie 4 pour un vin de pays, catégorie 5 pour un vin jeune (et le cidre), catégorie 6 pour une consommation rapide. Pour quelques mois seulement, le bouchon **conique** 33 x 23 x 19 mm s'enfonce même à la main.`, { liens: [PAGES.bouchon38Cat4, PAGES.bouchon38Cat5, PAGES.bouchon38Cat6] });
 
-r.concept("taille-bouchon", "Taille des bouchons", ["taille des bouchons", "taille de bouchon", "dimension des bouchons", "diametre du bouchon", "longueur du bouchon", "38 24", "45 24", "38 mm", "45 mm", "24 mm", "44 mm", "49 mm", "54 mm", "bouchon long", "bouchon court"], {
+r.concept("taille-bouchon", "Taille des bouchons", ["taille des bouchons", "taille de bouchon", "dimension des bouchons", "diametre du bouchon", "longueur du bouchon", "38 24", "45 24", "38 mm", "45 mm", "24 mm", "44 mm", "49 mm", "54 mm", "bouchon de 38", "bouchon de 45", "bouchon long", "bouchon court"], {
   famille: "bouchon-liege",
+  formules: ["bouchon plus long conserve", "plus long conserve t il", "plus long conserve mieux"],
 });
 
 r.fait("taille-bouchon", "dimension", `
-  Les bouchons se désignent par **longueur x diamètre**, en millimètres. Pour une bouteille de vin standard de 75 cl, le diamètre est de **24 mm** : le bouchon est comprimé par la boucheuse pour entrer dans le col. La **longueur** dépend de la garde : **38 mm** pour les vins à boire dans les premières années, **45 mm** pour les vins de garde. Le bouchon **conique** 33 x 23 x 19 mm sert à reboucher à la main.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin] });
+  Les bouchons se désignent par **longueur x diamètre**, en millimètres. Les références Duhallé pour bouteilles de vin standard ont un diamètre de **24 mm** et sont comprimées par la boucheuse. La **longueur** dépend de la garde : **38 mm** pour les vins à boire dans les premières années, **45 mm** pour les vins de garde. Le volume « 75 cl » ne garantit toutefois pas à lui seul le profil du goulot : vérifiez la bouteille, surtout si elle est ancienne ou récupérée.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin] });
 
 r.fait("taille-bouchon", "raison", `
-  Plus un bouchon est **long**, plus sa surface de contact avec le col est grande : l'étanchéité est meilleure sur la durée. C'est pourquoi les vins de garde se bouchent en 45 mm, alors que 38 mm suffisent pour les vins à boire jeunes.`, { source: SAVOIR_FAIRE });
+  Un bouchon plus long offre davantage de surface de contact, mais il ne conserve pas **forcément** mieux à lui seul. La qualité et l'homogénéité du liège, l'adaptation au goulot, la compression, la pose et les conditions de cave comptent aussi. C'est l'ensemble qui justifie le 45 mm pour la garde et le 38 mm pour les vins à boire jeunes.`, { source: SAVOIR_FAIRE });
+
+r.fait("taille-bouchon", "choix", `
+  Un bouchon plus long n'est pas automatiquement meilleur : choisissez **38 ou 45 mm** selon la durée de garde visée, la qualité du liège, le goulot et la boucheuse. Le 45 mm offre plus de surface de contact pour la garde, mais il ne compense ni un liège inadapté ni une mauvaise pose.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin] });
 
 r.concept("bouchon-conique", "Bouchons coniques", ["bouchon conique", "bouchons coniques", "33 23 19", "bouchon a la main", "boucher a la main", "bouchon pour reboucher"], {
   famille: "bouchon",
@@ -187,7 +213,7 @@ r.fait(["bonde", "contenant"], "gamme", `
 
 // ─── Les boucheuses ────────────────────────────────────────────────────────
 
-r.concept("boucheuse", "Boucheuses manuelles", ["boucheuse", "boucheuses", "bouchonneuse", "bouchonneuses", "boucheuse manuelle", "machine a boucher", "appareil a boucher", "bouchonner", "boucheuse a vin"], {
+r.concept("boucheuse", "Boucheuses manuelles", ["boucheuse", "boucheuses", "bouchonneuse", "bouchonneuses", "boucheuse manuelle", "machine a boucher", "appareil a boucher", "bouchonner", "boucheuse a vin", "regler la profondeur du bouchon", "profondeur d enfoncement", "bouchon dechire", "bouchon marque", "bouchon coince dans la boucheuse", "boucher seul", "boucher a deux"], {
   famille: "bouchage",
   lien: PAGES.boucheuses,
   voirAussi: ["boucheuse-2-leviers", "boucheuse-machoires", "bouchon-liege"],
@@ -214,6 +240,18 @@ r.fait("boucheuse", "choix", `
 r.fait("boucheuse", "erreur", `
   Pour un bouchage réussi : utilisez des **bouchons secs**, posez la bouteille **bien d'aplomb**, abaissez le levier d'un **geste franc et continu**, et ne remplissez pas trop la bouteille. Un bouchon qui ressort ou laisse perler du vin signale souvent une bouteille trop pleine, ou des bouteilles couchées trop tôt.`, { source: SAVOIR_FAIRE });
 
+r.fait("boucheuse", "erreur", `
+  Un bouchon **marqué, déchiré ou coincé** signale souvent un mauvais centrage, un bouchon hors de la plage admise, des mors sales ou usés, ou une compression/réglage inadapté. Arrêtez le geste, retirez la bouteille sans forcer sur le verre et contrôlez la notice et l'état des mors avant de reprendre. N'ajoutez un lubrifiant que s'il est explicitement prévu par le fabricant.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.fait("boucheuse", "procedure", `
+  Réglez la **profondeur d'enfoncement** selon la notice de la boucheuse, puis faites quelques essais : le bouchon doit être centré et **affleurer le haut du col**, sans être écrasé ni dépasser. Contrôlez plusieurs bouteilles au début de la série avant de conserver le réglage.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.fait("boucheuse", "condition", `
+  Une personne peut généralement utiliser seule une boucheuse manuelle correctement installée. Le modèle doit être stable, la bouteille bien centrée et les mains tenues hors des mors et du mécanisme. Pour une longue série, une deuxième personne peut préparer et contrôler les bouteilles, mais elle ne doit pas tenir le goulot pendant l'actionnement.`, { source: SAVOIR_FAIRE });
+
+r.fait(["boucheuse", "taille-bouchon"], "choix", `
+  Pour des bouchons de **38 ou 45 mm**, vérifiez la longueur et le diamètre admis par la boucheuse, le type de mors, le réglage de hauteur/profondeur et la cadence prévue. Toutes les boucheuses ne couvrent pas automatiquement les mêmes formats : comparez la fiche du modèle au bouchon exact avant de commander.`, { liens: [PAGES.boucheuses, PAGES.bouchonsVin] });
+
 r.concept("boucheuse-1-levier", "Boucheuse à un levier", ["boucheuse a un levier", "boucheuse 1 levier", "un levier", "1 levier", "boucheuse simple", "petite boucheuse"], {
   famille: "boucheuse",
   lien: PAGES.boucheuse1Levier,
@@ -237,6 +275,9 @@ r.concept("boucheuse-machoires", "Boucheuse à mâchoires sur pied", ["boucheuse
 
 r.fait("boucheuse-machoires", "definition", `
   La **boucheuse à mâchoires sur pied** est réglable et offre une grande stabilité : la bouteille est posée sur le socle et un grand levier actionne les mâchoires, qui compriment le bouchon avant de l'enfoncer. Elle s'utilise avec des bouchons en liège **à sec** et convient aux séries plus importantes.`, { source: PAGES.boucheuses.url, liens: [PAGES.boucheuseMachoires] });
+
+r.fait("boucheuse-machoires", "condition", `
+  Pour une série proche de **100 bouteilles**, une boucheuse sur pied à mâchoires n'est pas obligatoire, mais elle apporte davantage de stabilité, de régularité et de confort qu'un petit modèle tenu sur le goulot. Vérifiez toujours la capacité annoncée et les formats admis par le modèle choisi.`, { source: PAGES.boucheuses.url, liens: [PAGES.boucheuseMachoires] });
 
 r.concept("boucheuse-universelle", "Capsuleuse boucheuse universelle", ["capsuleuse boucheuse", "boucheuse capsuleuse", "boucheuse universelle", "capsuleuse universelle", "universelle"], {
   famille: "boucheuse",
@@ -289,3 +330,6 @@ r.fait("capsuleuse", "gamme", `
 
 r.fait("capsuleuse", "procedure", `
   Pour capsuler : posez la capsule sur le goulot, placez la bouteille sur le plateau réglé à sa hauteur, vérifiez que la bague correspond au diamètre de la capsule (26 ou 29 mm), puis abaissez le levier : la capsule est sertie tout autour du col.`, { source: SAVOIR_FAIRE });
+
+r.fait("capsuleuse", "condition", `
+  Une capsuleuse n'accepte les capsules de **26 et 29 mm** que si sa fiche prévoit les deux diamètres et que les têtes ou bagues correspondantes sont fournies ou disponibles. Vérifiez aussi la bague de la bouteille : le volume du flacon ne suffit pas à déterminer le diamètre.`, { liens: [PAGES.capsuleuse, PAGES.capsules29Or, PAGES.capsules26Or] });

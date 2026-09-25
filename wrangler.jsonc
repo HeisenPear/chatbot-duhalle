@@ -4,7 +4,7 @@
   "name": "chatbot-duhalle",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-01",
-  // Fichiers statiques : widget.js (le script du chatbot) et demo.html (page de test).
+  // Fichiers statiques : les versions du widget (v/<version>.js) et la page de démonstration.
   // Les routes /api/* sont toujours traitées par le Worker.
   "assets": {
     "directory": "./public",

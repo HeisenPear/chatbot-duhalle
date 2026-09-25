@@ -61,7 +61,8 @@ src/
     cave-service.ts, cidre.ts, vinaigre.ts, conserves.ts, droguerie.ts
   widget/widget.ts      le script affiché sur le site (bulle + fenêtre)
 public/
-  widget.js             le widget compilé (généré par npm run build, versionné)
+  v/<version>.js        les versions compilées du widget (npm run build, versionnées)
+  widget.js             ancienne adresse unique du widget, figée
   index.html            page de démonstration
 oxatis/                 les codes à coller dans le back-office Oxatis
 test/                   base, banc, jeu inédit, Worker, robustesse
@@ -93,7 +94,7 @@ Deux codes sont prêts dans le dossier `oxatis/`.
 2. Collez le code **une seule fois** dans le bloc HTML du `<head>` du site, **et dans celui du site mobile** si Oxatis en a un séparé.
 3. Enregistrez, puis ouvrez le site : la bulle **« Une question ? »** apparaît en bas à droite, au-dessus de la pastille des cookies.
 
-**Après chaque mise à jour du widget** (`public/widget.js`), l'empreinte `integrity` change : attendez la fin du déploiement Cloudflare, puis recopiez la balise du fichier `oxatis/1-script-chatbot.html` dans Oxatis (ordinateur et mobile). Tant que l'empreinte ne correspond pas, le navigateur refuse le script : la bulle disparaît, le reste du site n'est pas touché.
+**Chaque version du widget a sa propre adresse** (`/v/<version>.js`), qui ne change plus et reste en ligne. Publier une nouvelle version ne touche donc pas au site : il garde la précédente. Pour passer à la nouvelle, attendez la fin du déploiement Cloudflare, puis recopiez la balise du fichier `oxatis/1-script-chatbot.html` dans Oxatis (ordinateur et mobile). Vérifiez après l'enregistrement que le bloc se termine bien par `</script>` : un bloc trop long est coupé par Oxatis, et une balise coupée rend la page blanche.
 
 Après 6 secondes sur une page, une petite carte au-dessus de la bulle invite le client à poser sa question, avec un message et une question adaptés à la page (cidre, cire, bouchons, conserves…, voir `src/widget/invitations.ts`). Elle apparaît sur deux pages au plus par visite, jamais au panier ni pendant la commande, et plus du tout une fois fermée ou le conseiller ouvert ; une pastille « 1 » reste ensuite sur la bulle.
 
@@ -157,7 +158,7 @@ Le chatbot ajoute un script à une boutique en ligne : c'est le point à protég
 
 | Risque | Protection |
 |---|---|
-| Un `widget.js` modifié (compte GitHub ou Cloudflare piraté) qui lirait les pages de la boutique | **Empreinte d'intégrité (SRI)** sur la balise : le navigateur refuse tout fichier qui n'est pas exactement celui publié. `npm run build` la recalcule et la reporte dans `oxatis/1-script-chatbot.html` ; la CI vérifie qu'elle est à jour. |
+| Un `widget.js` modifié (compte GitHub ou Cloudflare piraté) qui lirait les pages de la boutique | **Empreinte d'intégrité (SRI)** sur la balise : le navigateur refuse tout fichier qui n'est pas exactement celui publié. Chaque version est publiée à une adresse fixe (`/v/<version>.js`) ; `npm run build` reporte adresse et empreinte dans `oxatis/1-script-chatbot.html`, et la CI vérifie qu'elles sont à jour. |
 | Injection de code dans la fenêtre de discussion | Aucun texte reçu (réponse, stockage) n'est inséré comme HTML : tout passe par `textContent`. Les liens ne mènent qu'à `duhalle-boutique.fr` en `https`. Les réponses et la conversation gardée en `sessionStorage` sont vérifiées avant affichage. |
 | Robot qui inonde l'API (quota, coûts) | **30 appels par minute et par adresse IP** (binding `ratelimits` de Cloudflare), puis réponse 429 et message « merci de patienter ». |
 | Message énorme ou piégé | Corps limité à 4 000 octets, lu en flux et coupé au-delà ; question lue sur 40 mots au plus ; correcteur de fautes indexé : un message piégé coûte moins de 5 ms de calcul (plus de 50 ms avant). Testé dans `test/robustesse.test.ts`. |
@@ -189,7 +190,7 @@ Les faits de **savoir-faire général** (étapes de la mise en bouteille, du cid
 npm install
 npm test            # base, banc de questions, jeu inédit, Worker, robustesse
 npm run typecheck   # types du Worker et du widget
-npm run build       # recompile public/widget.js et son empreinte (à commiter)
+npm run build       # compile une nouvelle version public/v/<version>.js et son empreinte (à commiter)
 npm run dev         # Worker en local sur http://localhost:8787 (page de démonstration)
 ```
 

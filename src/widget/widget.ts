@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // LE WIDGET DU CHATBOT DUHALLÉ — le script chargé par le site Oxatis.
 //
-//   <script src="https://…workers.dev/widget.js" integrity="sha384-…" crossorigin="anonymous" defer></script>
+//   <script src="https://…workers.dev/v/<version>.js" integrity="sha384-…" crossorigin="anonymous" defer></script>
 //
 // Il affiche une bulle en bas de page ; au clic, une fenêtre de discussion.
 // Après quelques secondes, une petite carte au-dessus de la bulle invite le

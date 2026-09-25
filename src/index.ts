@@ -4,7 +4,7 @@
 //   POST /api/chat    { message, contexte? }  →  la réponse de l'assistant
 //   GET  /api/accueil                          →  le message d'accueil et les questions de départ
 //   GET  /api/sante                            →  contrôle de santé (taille de la base)
-//   GET  /widget.js, /demo.html                →  fichiers statiques (dossier public/)
+//   GET  /v/<version>.js, /                    →  fichiers statiques (widget, démonstration)
 //
 // Aucun appel à un service externe : la base de connaissances est dans le
 // code, la réponse est calculée sur place en quelques millisecondes.
@@ -22,7 +22,7 @@ import { BASE } from "./savoir/index";
 export { anonymiser } from "./questions";
 
 export interface Env {
-  /** Les fichiers statiques (widget.js, demo.html). */
+  /** Les fichiers statiques (versions du widget, page de démonstration). */
   ASSETS?: Fetcher;
   /** Sites autorisés à appeler l'API, séparés par des virgules ; « * » pour tous. */
   ALLOWED_ORIGINS?: string;

@@ -1,9 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // LE WIDGET DU CHATBOT DUHALLÉ — le script chargé par le site Oxatis.
 //
-//   <script src="https://…workers.dev/widget.js" integrity="sha384-…" crossorigin="anonymous" defer></script>
+//   <script src="https://…workers.dev/v/<version>.js" integrity="sha384-…" crossorigin="anonymous" defer></script>
 //
 // Il affiche une bulle en bas de page ; au clic, une fenêtre de discussion.
+// Après quelques secondes, une petite carte au-dessus de la bulle invite le
+// client à poser sa question, avec un message adapté à la page (invitations.ts).
 // Tout le visuel vit dans un Shadow DOM : le thème du site ne le déforme pas,
 // et il ne déforme pas le thème. La conversation est gardée pendant la
 // visite (sessionStorage), pour suivre le client de page en page.
@@ -23,6 +25,8 @@
 // HTML. Les textes passent par textContent, les liens ne mènent qu'au site
 // Duhallé en https, et tout ce qui est relu est vérifié avant usage.
 // ═══════════════════════════════════════════════════════════════════════════
+
+import { choisirInvitation } from "./invitations";
 
 interface Lien {
   libelle: string;
@@ -51,6 +55,10 @@ interface Etat {
   ouvert: boolean;
   /** Le visiteur a déjà ouvert le conseiller pendant cette visite. */
   engage: boolean;
+  /** Nombre de pages où l'invitation est apparue pendant cette visite. */
+  invitations: number;
+  /** Le visiteur a fermé l'invitation : on ne la remontre plus. */
+  inviteFermee: boolean;
 }
 
 declare global {
@@ -83,11 +91,11 @@ declare global {
   const DUREE_FRAPPE_MAX = 7000;
   /** Les points « le conseiller écrit » restent visibles au moins ce temps (ms). */
   const ATTENTE_MIN = 450;
-  /** Appel visuel discret de la bulle : trois rappels brefs et espacés. */
-  const DELAI_PREMIER_APPEL = 5000;
-  const DELAI_ENTRE_APPELS = 10000;
-  const NOMBRE_APPELS = 3;
-  const DUREE_APPEL = 1500;
+  /** L'invitation apparaît après ce temps sur la page (ms)… */
+  const DELAI_INVITATION = 6000;
+  /** …sur deux pages au plus par visite, et se retire d'elle-même après ce temps (ms). */
+  const INVITATIONS_MAX = 2;
+  const DUREE_INVITATION = 25000;
   const MOUVEMENT_REDUIT = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
   /** Sur mobile, on n'ouvre pas le clavier d'office : il cacherait la réponse. */
   const ECRAN_TACTILE = window.matchMedia?.("(pointer: coarse)").matches ?? false;
@@ -159,12 +167,14 @@ declare global {
           contexte: brut.contexte && typeof brut.contexte === "object" ? brut.contexte : null,
           ouvert: brut.ouvert === true,
           engage: brut.engage === true || brut.ouvert === true || brut.messages.length > 0,
+          invitations: typeof brut.invitations === "number" ? Math.min(Math.max(Math.floor(brut.invitations), 0), 99) : 0,
+          inviteFermee: brut.inviteFermee === true,
         };
       }
     } catch {
       /* stockage indisponible ou illisible : on repart de zéro */
     }
-    return { messages: [], suggestions: [], contexte: null, ouvert: false, engage: false };
+    return { messages: [], suggestions: [], contexte: null, ouvert: false, engage: false, invitations: 0, inviteFermee: false };
   }
 
   const etat = lireEtat();
@@ -209,12 +219,43 @@ declare global {
       font-weight: 600; white-space: nowrap; box-shadow: 0 6px 20px rgba(20, 30, 25, .28);
       transition: transform .15s ease, box-shadow .15s ease;
     }
-    .bulle::before {
-      content: ""; position: absolute; inset: -6px; border: 2px solid var(--dh-ocre);
-      border-radius: inherit; opacity: 0; pointer-events: none;
+    .bulle.appel { animation: dh-appel 1.1s ease-out; }
+    .pastille-bulle {
+      position: absolute; top: -5px; ${COTE}: -3px; display: none; place-items: center;
+      min-width: 22px; height: 22px; padding: 0 6px; border: 2px solid #fff; border-radius: 11px;
+      background: var(--dh-ocre); color: #fff; font-size: 11.5px; font-weight: 700; line-height: 1;
     }
-    .bulle.appel { animation: dh-appel ${DUREE_APPEL}ms ease-out; }
-    .bulle.appel::before { animation: dh-halo ${DUREE_APPEL}ms ease-out; }
+    .bulle.signalee .pastille-bulle { display: grid; animation: dh-pastille .4s cubic-bezier(.2, .9, .3, 1.4); }
+    .invite {
+      position: fixed; bottom: ${BAS + 70}px; ${COTE}: 20px; z-index: 2147483000;
+      width: 300px; max-width: calc(100vw - 40px); padding: 14px 16px 16px;
+      background: #fff; border: 1px solid var(--dh-bord); border-radius: 14px;
+      box-shadow: 0 14px 36px rgba(20, 30, 25, .24);
+      transform-origin: bottom ${COTE}; animation: dh-invite .4s cubic-bezier(.2, .8, .2, 1);
+    }
+    .invite[hidden], .dh.ouvert .invite { display: none; }
+    .invite::after {
+      content: ""; position: absolute; bottom: -7px; ${COTE}: 24px; width: 12px; height: 12px; background: #fff;
+      border-right: 1px solid var(--dh-bord); border-bottom: 1px solid var(--dh-bord); transform: rotate(45deg);
+    }
+    .invite-entete { display: flex; align-items: center; gap: 8px; margin: 0 30px 6px 0; font-size: 13px; font-weight: 700; color: var(--dh-couleur); }
+    .invite-entete .enligne { width: 8px; height: 8px; flex: none; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46, 158, 91, .18); }
+    .invite-message {
+      display: block; width: 100%; margin: 0; padding: 0; border: 0; background: none; cursor: pointer;
+      color: var(--dh-texte); font-size: 14.5px; line-height: 1.45; text-align: left;
+    }
+    .invite-question {
+      display: inline-flex; align-items: center; margin-top: 12px; min-height: 36px; padding: 7px 14px;
+      border: 1px solid var(--dh-couleur); border-radius: 18px; background: #fff; color: var(--dh-couleur);
+      font-size: 13.5px; font-weight: 600; line-height: 1.3; text-align: left; cursor: pointer;
+    }
+    .invite-question:hover { background: var(--dh-couleur); color: #fff; }
+    .invite-fermer {
+      position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border: 0; border-radius: 50%;
+      background: transparent; color: var(--dh-doux); cursor: pointer; display: grid; place-items: center;
+    }
+    .invite-fermer:hover { background: var(--dh-creme); }
+    .invite-fermer svg { width: 16px; height: 16px; }
     .bulle:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(20, 30, 25, .32); }
     .dh.ouvert .bulle { display: none; }
     .bulle:focus-visible, button:focus-visible, a:focus-visible {
@@ -303,14 +344,11 @@ declare global {
       50% { transform: translateY(-2px); }
       66% { transform: translateY(0); }
     }
-    @keyframes dh-halo {
-      0%, 28% { opacity: 0; transform: scale(.9); }
-      45% { opacity: .8; }
-      80%, 100% { opacity: 0; transform: scale(1.16); }
-    }
+    @keyframes dh-invite { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+    @keyframes dh-pastille { from { transform: scale(0); } to { transform: scale(1); } }
     .cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     @media (prefers-reduced-motion: reduce) {
-      .bulle, .msg, .suggestions, .attente span { transition: none; animation: none; }
+      .bulle, .msg, .suggestions, .attente span, .invite, .pastille-bulle { transition: none; animation: none !important; }
     }
     @media (max-width: 480px), (max-height: 520px) {
       .fenetre { inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
@@ -334,8 +372,14 @@ declare global {
   const conteneur = document.createElement("div");
   conteneur.className = "dh";
   conteneur.innerHTML = `
-    <button class="bulle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="dh-fenetre">
-      ${ICONE_BULLE}<span class="libelle">Une question ?</span>
+    <div class="invite" role="complementary" aria-label="Invitation du conseiller" hidden>
+      <p class="invite-entete"><span class="enligne" aria-hidden="true"></span><span class="invite-nom"></span></p>
+      <button class="invite-message" type="button"></button>
+      <button class="invite-question" type="button"></button>
+      <button class="invite-fermer" type="button" aria-label="Masquer l'invitation">${ICONE_FERMER}</button>
+    </div>
+    <button class="bulle" type="button" aria-label="Une question ? Ouvrir le conseiller" aria-haspopup="dialog" aria-expanded="false" aria-controls="dh-fenetre">
+      ${ICONE_BULLE}<span class="libelle" aria-hidden="true">Une question ?</span><span class="pastille-bulle" aria-hidden="true">1</span>
     </button>
     <section class="fenetre" id="dh-fenetre" role="dialog" aria-modal="false" aria-labelledby="dh-titre" hidden>
       <header class="entete">
@@ -365,8 +409,12 @@ declare global {
   const formulaire = $<HTMLFormElement>(".saisie");
   const champ = $<HTMLTextAreaElement>("textarea");
   const envoyer = $<HTMLButtonElement>(".saisie button");
+  const invite = $<HTMLDivElement>(".invite");
   $<HTMLParagraphElement>(".titre").textContent = TITRE;
-  $<HTMLParagraphElement>(".mention").textContent = `Assistant automatique Duhallé. Pour une question sur votre commande : ${TELEPHONE}.`;
+  $<HTMLSpanElement>(".invite-nom").textContent = TITRE;
+  // Les questions sont enregistrées (anonymisées) pour enrichir la base : le client en est informé.
+  $<HTMLParagraphElement>(".mention").textContent =
+    `Assistant automatique. Vos questions sont enregistrées anonymement pour l'améliorer : n'y indiquez pas d'informations personnelles. Commande : ${TELEPHONE}.`;
 
   // ─── Mise en forme des réponses (sans jamais injecter de HTML reçu) ────────
 
@@ -671,33 +719,64 @@ declare global {
   // ─── Ouverture, fermeture ──────────────────────────────────────────────────
 
   let accueilDemande = false;
-  let appelsEffectues = 0;
-  let minuterieAppel: number | undefined;
 
-  function arreterAppels() {
-    if (minuterieAppel !== undefined) window.clearTimeout(minuterieAppel);
-    minuterieAppel = undefined;
-    bulle.classList.remove("appel");
+  // ─── L'invitation : une carte au-dessus de la bulle, adaptée à la page ─────
+  // Elle apparaît après quelques secondes, sur deux pages au plus par visite,
+  // jamais au panier ni pendant la commande, et plus du tout une fois fermée
+  // ou le conseiller ouvert. Une pastille « 1 » reste ensuite sur la bulle.
+
+  const INVITATION = choisirInvitation(location.pathname + location.search);
+  let minuterieInvitation: number | undefined;
+
+  const inviter = () =>
+    INVITATION !== null && !etat.engage && !etat.inviteFermee && etat.invitations < INVITATIONS_MAX;
+
+  function masquerInvitation(definitivement = false) {
+    window.clearTimeout(minuterieInvitation);
+    minuterieInvitation = undefined;
+    invite.hidden = true;
+    if (definitivement) {
+      etat.inviteFermee = true;
+      bulle.classList.remove("signalee");
+      sauver();
+    }
   }
 
-  function programmerAppel(delai: number) {
-    if (MOUVEMENT_REDUIT || etat.engage || appelsEffectues >= NOMBRE_APPELS) return;
-    minuterieAppel = window.setTimeout(() => {
-      minuterieAppel = undefined;
-      if (etat.engage || !fenetre.hidden || document.hidden) return;
-      appelsEffectues++;
-      bulle.classList.add("appel");
-      minuterieAppel = window.setTimeout(() => {
-        minuterieAppel = undefined;
-        bulle.classList.remove("appel");
-        programmerAppel(DELAI_ENTRE_APPELS);
-      }, DUREE_APPEL);
-    }, delai);
+  function montrerInvitation() {
+    if (!inviter() || !fenetre.hidden) return;
+    etat.invitations++;
+    sauver();
+    invite.hidden = false;
+    bulle.classList.add("signalee");
+    if (!MOUVEMENT_REDUIT) bulle.classList.add("appel");
+    minuterieInvitation = window.setTimeout(() => masquerInvitation(), DUREE_INVITATION);
   }
+
+  function programmerInvitation() {
+    if (!inviter()) return;
+    minuterieInvitation = window.setTimeout(() => {
+      // Onglet en arrière-plan : on attend que le client revienne.
+      if (document.hidden) document.addEventListener("visibilitychange", programmerInvitation, { once: true });
+      else montrerInvitation();
+    }, DELAI_INVITATION);
+  }
+
+  if (INVITATION) {
+    $<HTMLButtonElement>(".invite-message").textContent = INVITATION.texte;
+    $<HTMLButtonElement>(".invite-question").textContent = INVITATION.question;
+    $<HTMLButtonElement>(".invite-message").addEventListener("click", () => ouvrir());
+    $<HTMLButtonElement>(".invite-question").addEventListener("click", () => void poser(INVITATION.question));
+  }
+  $<HTMLButtonElement>(".invite-fermer").addEventListener("click", () => {
+    masquerInvitation(true);
+    bulle.focus();
+  });
+  bulle.addEventListener("animationend", () => bulle.classList.remove("appel"));
 
   function ouvrir({ accueil = true, focus = true } = {}) {
     if (!fenetre.hidden) return;
-    arreterAppels();
+    masquerInvitation();
+    bulle.classList.remove("signalee", "appel");
     etat.engage = true;
     fenetre.hidden = false;
     conteneur.classList.add("ouvert");
@@ -731,7 +810,9 @@ declare global {
   bulle.addEventListener("click", () => ouvrir());
   $<HTMLButtonElement>(".fermer").addEventListener("click", fermer);
   conteneur.addEventListener("keydown", (e) => {
-    if ((e as KeyboardEvent).key === "Escape") fermer();
+    if ((e as KeyboardEvent).key !== "Escape") return;
+    if (!invite.hidden) masquerInvitation(true);
+    fermer();
   });
   formulaire.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -758,8 +839,13 @@ declare global {
 
   function demarrer() {
     document.body.append(hote);
-    if (etat.ouvert) ouvrir({ focus: false });
-    else programmerAppel(DELAI_PREMIER_APPEL);
+    if (etat.ouvert) {
+      ouvrir({ focus: false });
+      return;
+    }
+    // Invitation déjà vue sur une page précédente, sans suite : la pastille reste.
+    if (INVITATION && !etat.engage && !etat.inviteFermee && etat.invitations > 0) bulle.classList.add("signalee");
+    programmerInvitation();
   }
   if (document.body) demarrer();
   else document.addEventListener("DOMContentLoaded", demarrer);

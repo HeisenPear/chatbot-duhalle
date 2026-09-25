@@ -129,10 +129,10 @@ describe("sécurité", () => {
             requete.params = params;
             return statement;
           },
+          run: vi.fn(async () => ({ meta: { changes: 0 } })),
         };
         return statement;
       },
-      batch: vi.fn(async () => []),
     } as unknown as D1Database;
     const taches: Promise<unknown>[] = [];
     const ctx = {
@@ -160,7 +160,29 @@ describe("sécurité", () => {
     expect(requetes[0]?.sql).toContain("INSERT INTO questions_chatbot");
     expect(requetes[0]?.params[0]).toBe("Je m'appelle [nom], commande [référence], [e-mail] [numéro]");
     expect(requetes[0]?.params[1]).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(requetes[1]?.sql).toContain("DELETE FROM questions_chatbot");
+    // Une seule écriture par question : la purge est une tâche planifiée.
+    expect(requetes).toHaveLength(1);
+  });
+
+  it("purge les anciennes questions non retenues par la tâche planifiée", async () => {
+    const requetes: string[] = [];
+    const db = {
+      prepare(sql: string) {
+        requetes.push(sql);
+        return { run: async () => ({ meta: { changes: 3 } }) };
+      },
+    } as unknown as D1Database;
+    const taches: Promise<unknown>[] = [];
+    const ctx = { waitUntil: (t: Promise<unknown>) => taches.push(t) } as unknown as ExecutionContext;
+    const journal = vi.spyOn(console, "log").mockImplementation(() => {});
+    await worker.scheduled({} as ScheduledController, { ...env, QUESTIONS_DB: db }, ctx);
+    await Promise.all(taches);
+    const lignes = journal.mock.calls.map((c) => String(c[0]));
+    journal.mockRestore();
+    expect(requetes).toHaveLength(1);
+    expect(requetes[0]).toContain("DELETE FROM questions_chatbot");
+    expect(requetes[0]).toContain("statut IN ('a_revoir', 'ignoree')");
+    expect(lignes.some((l) => l.includes('"supprimees":3'))).toBe(true);
   });
 
   it("masque les identifiants mais garde les formats de bouchons", () => {

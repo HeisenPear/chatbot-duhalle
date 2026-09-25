@@ -1,17 +1,22 @@
-// Compile le widget (src/widget/widget.ts) en un seul fichier public/widget.js,
-// servi par le Worker. Le fichier compilé est versionné : Cloudflare le
-// déploie tel quel, sans étape de construction à configurer.
+// Compile le widget (src/widget/widget.ts) en un seul fichier, servi par le
+// Worker. Les fichiers compilés sont versionnés : Cloudflare les déploie tels
+// quels, sans étape de construction à configurer.
 //
-// Il calcule aussi l'empreinte d'intégrité (SRI) du fichier et la reporte
-// dans les codes à coller dans Oxatis : le navigateur refusera tout widget.js
-// qui ne serait pas exactement celui-ci.
+// Chaque version a sa propre adresse, qui ne change plus : public/v/<version>.js.
+// Le site Oxatis charge une version précise, avec son empreinte d'intégrité
+// (SRI) : le navigateur refuse tout fichier modifié. Publier une nouvelle
+// version ne touche donc pas au site : il garde l'ancienne tant que la balise
+// n'est pas mise à jour dans Oxatis.
+//
+// Ce script reporte l'adresse et l'empreinte de la nouvelle version dans le
+// code à coller dans Oxatis et dans la page de démonstration.
+// (public/widget.js est l'ancienne adresse unique, figée : ne plus l'utiliser.)
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { build } from "esbuild";
 
-await build({
+const resultat = await build({
   entryPoints: ["src/widget/widget.ts"],
-  outfile: "public/widget.js",
   bundle: true,
   format: "iife",
   target: "es2019",
@@ -20,13 +25,26 @@ await build({
   banner: {
     js: "/* Chatbot Duhallé — widget compilé depuis src/widget/widget.ts (npm run build). Ne pas modifier à la main. */",
   },
+  write: false,
   logLevel: "info",
 });
+const code = resultat.outputFiles[0].contents;
 
-const empreinte = `sha384-${createHash("sha384").update(readFileSync("public/widget.js")).digest("base64")}`;
-for (const fichier of ["oxatis/1-script-chatbot.html"]) {
+const version = createHash("sha256").update(code).digest("hex").slice(0, 12);
+const empreinte = `sha384-${createHash("sha384").update(code).digest("base64")}`;
+mkdirSync("public/v", { recursive: true });
+writeFileSync(`public/v/${version}.js`, code);
+
+function reporter(fichier, remplacements) {
   const avant = readFileSync(fichier, "utf8");
-  const apres = avant.replace(/integrity="sha384-[A-Za-z0-9+/=]*"/g, `integrity="${empreinte}"`);
+  const apres = remplacements.reduce((texte, [motif, valeur]) => texte.replace(motif, valeur), avant);
   if (apres !== avant) writeFileSync(fichier, apres);
 }
-console.log(`Empreinte du widget : ${empreinte}`);
+reporter("oxatis/1-script-chatbot.html", [
+  [/workers\.dev\/(?:widget|v\/[0-9a-f]+)\.js/g, `workers.dev/v/${version}.js`],
+  [/integrity="sha384-[A-Za-z0-9+/=]*"/g, `integrity="${empreinte}"`],
+]);
+reporter("public/index.html", [[/src="(?:widget|v\/[0-9a-f]+)\.js"/g, `src="v/${version}.js"`]]);
+
+console.log(`Widget : public/v/${version}.js (${(code.length / 1024).toFixed(1)} Ko)`);
+console.log(`Empreinte : ${empreinte}`);

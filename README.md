@@ -6,7 +6,7 @@ Le chatbot de **duhalle-boutique.fr** : un conseiller en ligne qui répond aux q
 - **Hébergé sur Cloudflare Workers.** La réponse est calculée sur place en quelques millisecondes, sans service externe.
 - **Question-réponse uniquement.** Le chatbot n'a accès ni aux comptes clients ni aux commandes. Pour tout ce qui demande une action, il renvoie vers le site ou le service client.
 - **Vouvoiement systématique**, ton de la marque, sans emoji. Un test le vérifie.
-- **Sécurisé pour une boutique en ligne** : empreinte d'intégrité sur le script, limite de questions par visiteur, aucune donnée client. Voir [Sécurité](#sécurité).
+- **Sécurisé pour une boutique en ligne** : empreinte d'intégrité sur le script, limite de questions par visiteur, questions enregistrées anonymisées. Voir [Sécurité](#sécurité).
 
 ---
 
@@ -33,7 +33,7 @@ Cas particuliers :
 - **Rien de sûr** : l'assistant ne devine pas, il propose des pistes ou renvoie vers le service client.
 - **Trace** : chaque réponse porte une `trace` qui dit pourquoi (type lu, concepts, faits retenus).
 
-Aujourd'hui : **99 concepts** et **179 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
+Aujourd'hui : **184 concepts** et **327 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
 
 ### Mesure de la qualité
 
@@ -61,7 +61,8 @@ src/
     cave-service.ts, cidre.ts, vinaigre.ts, conserves.ts, droguerie.ts
   widget/widget.ts      le script affiché sur le site (bulle + fenêtre)
 public/
-  widget.js             le widget compilé (généré par npm run build, versionné)
+  v/<version>.js        les versions compilées du widget (npm run build, versionnées)
+  widget.js             ancienne adresse unique du widget, figée
   index.html            page de démonstration
 oxatis/                 les codes à coller dans le back-office Oxatis
 test/                   base, banc, jeu inédit, Worker, robustesse
@@ -93,7 +94,9 @@ Deux codes sont prêts dans le dossier `oxatis/`.
 2. Collez le code **une seule fois** dans le bloc HTML du `<head>` du site, **et dans celui du site mobile** si Oxatis en a un séparé.
 3. Enregistrez, puis ouvrez le site : la bulle **« Une question ? »** apparaît en bas à droite, au-dessus de la pastille des cookies.
 
-**Après chaque mise à jour du widget** (`public/widget.js`), l'empreinte `integrity` change : attendez la fin du déploiement Cloudflare, puis recopiez la balise du fichier `oxatis/1-script-chatbot.html` dans Oxatis (ordinateur et mobile). Tant que l'empreinte ne correspond pas, le navigateur refuse le script : la bulle disparaît, le reste du site n'est pas touché.
+**Chaque version du widget a sa propre adresse** (`/v/<version>.js`), qui ne change plus et reste en ligne. Publier une nouvelle version ne touche donc pas au site : il garde la précédente. Pour passer à la nouvelle, attendez la fin du déploiement Cloudflare, puis recopiez la balise du fichier `oxatis/1-script-chatbot.html` dans Oxatis (ordinateur et mobile). Vérifiez après l'enregistrement que le bloc se termine bien par `</script>` : un bloc trop long est coupé par Oxatis, et une balise coupée rend la page blanche.
+
+Après 6 secondes sur une page, une petite carte au-dessus de la bulle invite le client à poser sa question, avec un message et une question adaptés à la page (cidre, cire, bouchons, conserves…, voir `src/widget/invitations.ts`). Elle apparaît sur deux pages au plus par visite, jamais au panier ni pendant la commande, et plus du tout une fois fermée ou le conseiller ouvert ; une pastille « 1 » reste ensuite sur la bulle.
 
 Le visuel (bulle, fenêtre, vert et ocre Duhallé) est dessiné par le script lui-même, isolé du thème : il ne déforme pas le site et le site ne le déforme pas. Sur mobile, la discussion s'ouvre en plein écran. Réglages facultatifs, en attributs de la balise : `data-titre`, `data-couleur`, `data-position` (`droite` ou `gauche`), `data-decalage` (distance au bas de l'écran en pixels, 84 par défaut), `data-telephone`.
 
@@ -139,7 +142,15 @@ Règles de la maison :
 - Évitez les alias faits d'un mot trop général (« produit », « vin », « temps ») et les alias qui contiennent le nom d'un autre concept.
 - Après une modification, lancez `npm test`. Si une question du banc change de réponse, vérifiez que la nouvelle est meilleure avant de mettre le banc à jour.
 
-**Les questions sans réponse** sont journalisées par le Worker, avec l'événement `sans-reponse` (Cloudflare, puis le Worker, puis **Logs**). C'est la meilleure source pour savoir quels alias et quels faits ajouter.
+**Les questions posées** sont enregistrées, anonymisées, dans la base D1 `chatbot-duhalle` (table `questions_chatbot`, décrite dans `schema/questions_chatbot.sql`) : une ligne par question, avec son nombre d'occurrences et la nature de la dernière réponse. C'est la meilleure source pour savoir quels alias et quels faits ajouter. Les plus fréquentes restées sans réponse :
+
+```sql
+SELECT question, occurrences, dernier_jour FROM questions_chatbot
+WHERE statut = 'a_revoir' AND nature_derniere IN ('inconnu', 'recherche')
+ORDER BY occurrences DESC LIMIT 50;
+```
+
+Après tri, passez le `statut` à `retenue`, `integree` ou `ignoree`. Chaque nuit, une tâche planifiée du Worker supprime les questions `a_revoir` ou `ignoree` vues pour la dernière fois il y a plus de 90 jours.
 
 ## Sécurité
 
@@ -147,12 +158,12 @@ Le chatbot ajoute un script à une boutique en ligne : c'est le point à protég
 
 | Risque | Protection |
 |---|---|
-| Un `widget.js` modifié (compte GitHub ou Cloudflare piraté) qui lirait les pages de la boutique | **Empreinte d'intégrité (SRI)** sur la balise : le navigateur refuse tout fichier qui n'est pas exactement celui publié. `npm run build` la recalcule et la reporte dans `oxatis/1-script-chatbot.html` ; la CI vérifie qu'elle est à jour. |
+| Un `widget.js` modifié (compte GitHub ou Cloudflare piraté) qui lirait les pages de la boutique | **Empreinte d'intégrité (SRI)** sur la balise : le navigateur refuse tout fichier qui n'est pas exactement celui publié. Chaque version est publiée à une adresse fixe (`/v/<version>.js`) ; `npm run build` reporte adresse et empreinte dans `oxatis/1-script-chatbot.html`, et la CI vérifie qu'elles sont à jour. |
 | Injection de code dans la fenêtre de discussion | Aucun texte reçu (réponse, stockage) n'est inséré comme HTML : tout passe par `textContent`. Les liens ne mènent qu'à `duhalle-boutique.fr` en `https`. Les réponses et la conversation gardée en `sessionStorage` sont vérifiées avant affichage. |
 | Robot qui inonde l'API (quota, coûts) | **30 appels par minute et par adresse IP** (binding `ratelimits` de Cloudflare), puis réponse 429 et message « merci de patienter ». |
 | Message énorme ou piégé | Corps limité à 4 000 octets, lu en flux et coupé au-delà ; question lue sur 40 mots au plus ; correcteur de fautes indexé : un message piégé coûte moins de 5 ms de calcul (plus de 50 ms avant). Testé dans `test/robustesse.test.ts`. |
 | Autre site qui utiliserait le chatbot | CORS : seuls les sites de `ALLOWED_ORIGINS` sont acceptés (403 sinon). |
-| Données personnelles | Le chatbot ne demande ni ne stocke rien. Les questions sans réponse sont journalisées **sans e-mail ni numéro** (masqués). La conversation reste dans l'onglet du client et disparaît à sa fermeture. |
+| Données personnelles | Le chatbot ne demande rien. Les questions sont enregistrées **anonymisées** (e-mails, numéros, références de commande, adresses, noms, liens masqués — `src/questions.ts`), et le client en est informé sous la zone de saisie. Les questions non retenues sont effacées après 90 jours. La conversation reste dans l'onglet du client et disparaît à sa fermeture. Pensez à le mentionner dans la politique de confidentialité du site. |
 | Fuite d'erreurs techniques | Toute erreur renvoie un message générique ; le détail reste dans les journaux Cloudflare. |
 | En-têtes HTTP | API : `nosniff`, `Content-Security-Policy: default-src 'none'`, `no-store`. Fichiers statiques (`public/_headers`) : CSP stricte, `X-Frame-Options: DENY`, `noindex`. |
 
@@ -179,7 +190,7 @@ Les faits de **savoir-faire général** (étapes de la mise en bouteille, du cid
 npm install
 npm test            # base, banc de questions, jeu inédit, Worker, robustesse
 npm run typecheck   # types du Worker et du widget
-npm run build       # recompile public/widget.js et son empreinte (à commiter)
+npm run build       # compile une nouvelle version public/v/<version>.js et son empreinte (à commiter)
 npm run dev         # Worker en local sur http://localhost:8787 (page de démonstration)
 ```
 
@@ -188,7 +199,7 @@ API :
 ```http
 POST /api/chat        {"message": "Quel bouchon pour un vin de garde ?", "contexte": {…}}
 GET  /api/accueil     message d'accueil et questions de départ
-GET  /api/sante       {"ok": true, "concepts": 99, "faits": 179}
+GET  /api/sante       {"ok": true, "concepts": 184, "faits": 327}
 ```
 
 La réponse de `/api/chat` contient `texte` (gras, listes, paragraphes), `liens`, `suggestions`, `contexte` (à renvoyer avec la question suivante pour les relances) et `trace`.

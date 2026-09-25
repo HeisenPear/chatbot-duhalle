@@ -1,15 +1,16 @@
 <!-- DH CHATBOT : script du chatbot Duhallé — à placer UNE fois, sur toutes les pages.
      1. Remplacez VOTRE-SOUS-DOMAINE par celui de votre compte Cloudflare
         (Cloudflare > Workers & Pages > chatbot-duhalle : l'adresse *.workers.dev est affichée).
-     2. integrity + crossorigin : l'empreinte du widget. Le navigateur refuse tout
-        widget.js modifié, même si le compte Cloudflare ou GitHub était piraté.
-        Après chaque mise à jour du widget, recopiez ce bloc (l'empreinte change).
+     2. /v/….js + integrity : une version précise du widget et son empreinte. Le navigateur
+        refuse tout fichier modifié, même si le compte Cloudflare ou GitHub était piraté.
+        Une nouvelle version du widget ne change rien au site tant que ce bloc n'est pas
+        recopié dans Oxatis : le site garde la version précédente, qui reste en ligne.
      3. Réglages facultatifs : data-titre, data-couleur, data-position ("droite" ou "gauche"),
         data-decalage (distance au bas de l'écran en pixels, 84 par défaut), data-telephone.
      Le script affiche lui-même la bulle « Une question ? » et la fenêtre de discussion. -->
 <script
-  src="https://chatbot-duhalle.VOTRE-SOUS-DOMAINE.workers.dev/widget.js"
-  integrity="sha384-CvhVb7INxJL5DHZgSdPsI+SNJXjPf2In8KIdF8meFp00uBxKxhOkqIHsHC5mNnSf"
+  src="https://chatbot-duhalle.VOTRE-SOUS-DOMAINE.workers.dev/v/f94e217245a4.js"
+  integrity="sha384-uiqF0jRYc3e43GYy66bWcLCapywnGi6p7HT+aIxxirBqxvJa9HxYi+yafkMb2fpz"
   crossorigin="anonymous"
   defer></script>
 <!-- /DH CHATBOT -->

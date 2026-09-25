@@ -4,7 +4,7 @@
 //   POST /api/chat    { message, contexte? }  →  la réponse de l'assistant
 //   GET  /api/accueil                          →  le message d'accueil et les questions de départ
 //   GET  /api/sante                            →  contrôle de santé (taille de la base)
-//   GET  /widget.js, /demo.html                →  fichiers statiques (dossier public/)
+//   GET  /v/<version>.js, /                    →  fichiers statiques (widget, démonstration)
 //
 // Aucun appel à un service externe : la base de connaissances est dans le
 // code, la réponse est calculée sur place en quelques millisecondes.
@@ -15,14 +15,14 @@
 // pas les coordonnées tapées par les clients.
 // ═══════════════════════════════════════════════════════════════════════════
 import { Assistant } from "./moteur/assistant";
-import { enregistrerQuestion } from "./questions";
+import { enregistrerQuestion, purgerQuestions } from "./questions";
 import { REGLAGES } from "./savoir/coordonnees";
 import { BASE } from "./savoir/index";
 
 export { anonymiser } from "./questions";
 
 export interface Env {
-  /** Les fichiers statiques (widget.js, demo.html). */
+  /** Les fichiers statiques (versions du widget, page de démonstration). */
   ASSETS?: Fetcher;
   /** Sites autorisés à appeler l'API, séparés par des virgules ; « * » pour tous. */
   ALLOWED_ORIGINS?: string;
@@ -190,5 +190,16 @@ export default {
 
     if (env.ASSETS) return env.ASSETS.fetch(request);
     return new Response("Introuvable", { status: 404 });
+  },
+
+  /** Tâche planifiée quotidienne (wrangler.jsonc, « triggers ») : purge des anciennes questions. */
+  async scheduled(_controleur: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    if (!env.QUESTIONS_DB) return;
+    ctx.waitUntil(
+      purgerQuestions(env.QUESTIONS_DB).then(
+        (supprimees) => console.log(JSON.stringify({ evenement: "purge-questions", supprimees })),
+        (e: unknown) => console.error(JSON.stringify({ evenement: "purge-questions-echouee", message: e instanceof Error ? e.message : String(e) })),
+      ),
+    );
   },
 } satisfies ExportedHandler<Env>;

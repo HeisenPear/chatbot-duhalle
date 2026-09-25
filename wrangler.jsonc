@@ -24,6 +24,14 @@
       "simple": { "limit": 30, "period": 60 }
     }
   ],
+  // Questions anonymisées posées au chatbot.
+  "d1_databases": [
+    {
+      "binding": "QUESTIONS_DB",
+      "database_name": "chatbot-duhalle",
+      "database_id": "4eda5310-85d6-4f5a-a861-332a8e16e865"
+    }
+  ],
   "observability": {
     "enabled": true
   }

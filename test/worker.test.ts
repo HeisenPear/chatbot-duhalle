@@ -117,19 +117,59 @@ describe("sécurité", () => {
     expect(vus).toEqual(["203.0.113.7", "203.0.113.7", "203.0.113.7"]);
   });
 
-  it("ne journalise ni e-mail ni numéro tapés par un client", async () => {
-    const journal = vi.spyOn(console, "log").mockImplementation(() => {});
-    await post({ message: "zorglub truc machin, écrivez-moi à jean.dupont@exemple.fr ou au 06 12 34 56 78" });
-    const lignes = journal.mock.calls.map((c) => String(c[0]));
-    journal.mockRestore();
-    expect(lignes.some((l) => l.includes("sans-reponse"))).toBe(true);
-    expect(lignes.join(" ")).not.toMatch(/dupont|06 12/);
+  it("enregistre la question anonymisée dans D1 sans ralentir la réponse", async () => {
+    type Requete = { sql: string; params: unknown[] };
+    const requetes: Requete[] = [];
+    const db = {
+      prepare(sql: string) {
+        const requete: Requete = { sql, params: [] };
+        requetes.push(requete);
+        const statement = {
+          bind(...params: unknown[]) {
+            requete.params = params;
+            return statement;
+          },
+        };
+        return statement;
+      },
+      batch: vi.fn(async () => []),
+    } as unknown as D1Database;
+    const taches: Promise<unknown>[] = [];
+    const ctx = {
+      waitUntil(tache: Promise<unknown>) {
+        taches.push(tache);
+      },
+    } as unknown as ExecutionContext;
+    const envD1: Env = { ...env, QUESTIONS_DB: db };
+
+    const res = await worker.fetch(
+      new Request(`${URL_WORKER}/api/chat`, {
+        method: "POST",
+        headers: { Origin: SITE },
+        body: JSON.stringify({
+          message: "Je m'appelle Jean Dupont, commande CMD-123456, jean.dupont@exemple.fr, 06 12 34 56 78",
+        }),
+      }),
+      envD1,
+      ctx,
+    );
+
+    expect(res.status).toBe(200);
+    expect(taches).toHaveLength(1);
+    await Promise.all(taches);
+    expect(requetes[0]?.sql).toContain("INSERT INTO questions_chatbot");
+    expect(requetes[0]?.params[0]).toBe("Je m'appelle [nom], commande [référence], [e-mail] [numéro]");
+    expect(requetes[0]?.params[1]).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(requetes[1]?.sql).toContain("DELETE FROM questions_chatbot");
   });
 
-  it("masque les coordonnées mais garde les formats de bouchons", () => {
+  it("masque les identifiants mais garde les formats de bouchons", () => {
     expect(anonymiser("mon mail : a.b@c.fr")).toBe("mon mail : [e-mail]");
     expect(anonymiser("appelez le +33 6 12 34 56 78 svp")).toBe("appelez le [numéro] svp");
-    expect(anonymiser("commande 2026-004512")).toBe("commande [numéro]");
+    expect(anonymiser("commande 2026-004512")).toBe("commande [référence]");
+    expect(anonymiser("je m'appelle Jean Dupont")).toBe("je m'appelle [nom]");
+    expect(anonymiser("livrez au 12 rue des Lilas à Rouen")).toBe("livrez au [adresse]");
+    expect(anonymiser("site https://example.com/client/42")).toBe("site [lien]");
     expect(anonymiser("bouchon 45 x 24 ou 38 x 24")).toBe("bouchon 45 x 24 ou 38 x 24");
   });
 });

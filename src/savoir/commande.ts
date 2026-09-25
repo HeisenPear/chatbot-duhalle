@@ -26,6 +26,61 @@ r.fait("commande", "procedure", `
 
   Vous recevez ensuite un e-mail de confirmation. Une question avant de commander ? Le service client vous répond au **${TELEPHONE}**.`);
 
+r.concept("quantite-commande", "Calculer la quantité à commander", ["quantite a commander", "calcul de quantite a commander", "nombre a commander", "combien de bouchons commander", "combien de capsules commander", "marge de bouchons", "marge de capsules"], {
+  famille: "commande",
+  formules: ["quantite acheter pour mon nombre de bouteilles", "nombre de bouchons a acheter"],
+});
+
+r.fait("quantite-commande", "dimension", `
+  Partez du nombre de bouteilles, ajoutez une petite marge pour les **essais, réglages et rebuts**, puis arrondissez au conditionnement réellement vendu sur la fiche produit. Pour la cire ou un consommable dont le rendement varie, faites d'abord un test sur quelques bouteilles avant de commander le reste.`);
+
+r.fait("quantite-commande", "procedure", `
+  Pour calculer les bouchons à commander, comptez une unité par bouteille, ajoutez une marge pour les essais, réglages et bouchons écartés, puis arrondissez au lot vendu. Vérifiez avant tout que la référence est compatible avec le goulot, la boucheuse et la durée de garde.`, { liens: [PAGES.bouchonsVin] });
+
+r.concept("materiel-depart", "Matériel minimum pour commencer", ["materiel minimum", "materiel de depart", "liste de materiel", "kit pour commencer", "equipement pour debuter", "indispensables pour commencer"], {
+  famille: "catalogue",
+  lien: PAGES.accueil,
+});
+
+r.fait("materiel-depart", "gamme", `
+  Le minimum dépend du projet, mais la liste suit toujours le même ordre : **contenant adapté**, matériel de nettoyage, transfert ou remplissage, fermeture compatible, outil de contrôle, puis rangement. Pour le vin : bouteilles, goupillon/rince-bouteille, siphon, bouchons et boucheuse ; pour le cidre, ajoutez des bouteilles prévues pour la pression et la fermeture correspondante.`, { liens: [PAGES.accueil] });
+
+r.concept("piece-rechange", "Pièces de rechange", ["piece de rechange", "pieces de rechange", "piece d usure", "tete de rechange", "remplacer une piece", "remplacer une tete"], {
+  famille: "commande",
+  lien: PAGES.contact,
+  formules: ["bonne piece de rechange pour mon appareil", "retrouver la bonne piece de rechange"],
+});
+
+r.fait("piece-rechange", "procedure", `
+  Pour identifier une pièce de rechange, relevez la **marque, le modèle exact, les dimensions de la pièce, son mode de fixation** et, si possible, le numéro de série. Envoyez ces éléments avec des photos de l'appareil et de la pièce au service client ; une ressemblance visuelle seule ne garantit pas la compatibilité.`, { liens: [PAGES.contact] });
+
+r.concept("compatibilite-produit", "Vérifier la compatibilité d’un produit", ["compatibilite produit", "references proches", "deux references", "comparer deux references", "choisir entre deux references"], {
+  famille: "commande",
+  lien: PAGES.contact,
+});
+
+r.fait("compatibilite-produit", "choix", `
+  Entre deux références proches, comparez l'**usage prévu**, les dimensions utiles, les raccords ou fixations, les matériaux, la cadence et les consommables compatibles. Si une seule mesure ou référence manque, ne concluez pas d'après la photo : demandez une confirmation écrite au service client.`, { liens: [PAGES.contact] });
+
+r.concept("mesures-commande", "Mesures à relever avant commande", ["mesures avant commande", "mesurer avant de commander", "dimensions avant commande", "cotes avant commande"], {
+  famille: "commande",
+  formules: ["que faut il mesurer avant de commander", "que faut il mesurer avant d acheter"],
+});
+
+r.fait("mesures-commande", "procedure", `
+  Avant de commander, relevez les mesures qui font interface : **diamètre intérieur et profil du goulot**, diamètre de bague, longueur et diamètre du bouchon, diamètre intérieur/extérieur du tuyau, dimensions de fixation ou volume utile selon le produit. Notez aussi la marque et le modèle de l'appareil existant.`, { liens: [PAGES.contact] });
+
+r.concept("contact-alimentaire", "Aptitude au contact alimentaire", ["contact alimentaire", "apte au contact alimentaire", "alimentaire ou non", "convient aux aliments", "convient aux boissons"], {
+  famille: "catalogue",
+  formules: ["produit convient il au contact alimentaire", "produit est il adapte au contact alimentaire"],
+});
+
+r.fait("contact-alimentaire", "condition", `
+  N'utilisez un produit au contact d'un aliment ou d'une boisson que si sa **fiche, son emballage ou sa déclaration de conformité** l'indique pour cet usage et pour les températures prévues. L'aspect, la mention « inox » ou « plastique » et l'absence d'odeur ne suffisent pas à le prouver.`, { liens: [PAGES.contact] });
+
+r.fait("contact-alimentaire", "choix", `
+  Pour choisir un produit en contact avec un aliment, exigez la mention d'aptitude ou la déclaration de conformité correspondant à l'usage, au liquide et à la température. En l'absence de document, demandez confirmation avant achat plutôt que de vous fier au matériau apparent.`, { liens: [PAGES.contact] });
+
 r.concept("suivi-commande", "Suivre ma commande", ["suivi", "suivi de commande", "suivre ma commande", "suivre mon colis", "numero de suivi", "etat de ma commande", "statut de ma commande", "colis pas recu", "colis non recu", "retard", "retard de livraison", "numero de commande", "commande pas arrivee", "commande pas recue", "commande en retard"], {
   famille: "commande",
   formules: ["ou en est ma commande", "ou en est mon colis", "je n ai pas recu", "pas recu", "toujours pas recu", "pas encore recu", "jamais recu", "quand vais je recevoir", "quand vais je etre livre"],

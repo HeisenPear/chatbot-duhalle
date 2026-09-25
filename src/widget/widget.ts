@@ -49,6 +49,8 @@ interface Etat {
   suggestions: string[];
   contexte: unknown;
   ouvert: boolean;
+  /** Le visiteur a déjà ouvert le conseiller pendant cette visite. */
+  engage: boolean;
 }
 
 declare global {
@@ -81,6 +83,11 @@ declare global {
   const DUREE_FRAPPE_MAX = 7000;
   /** Les points « le conseiller écrit » restent visibles au moins ce temps (ms). */
   const ATTENTE_MIN = 450;
+  /** Appel visuel discret de la bulle : trois rappels brefs et espacés. */
+  const DELAI_PREMIER_APPEL = 5000;
+  const DELAI_ENTRE_APPELS = 10000;
+  const NOMBRE_APPELS = 3;
+  const DUREE_APPEL = 1500;
   const MOUVEMENT_REDUIT = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
   /** Sur mobile, on n'ouvre pas le clavier d'office : il cacherait la réponse. */
   const ECRAN_TACTILE = window.matchMedia?.("(pointer: coarse)").matches ?? false;
@@ -151,12 +158,13 @@ declare global {
           suggestions: textesValides(brut.suggestions),
           contexte: brut.contexte && typeof brut.contexte === "object" ? brut.contexte : null,
           ouvert: brut.ouvert === true,
+          engage: brut.engage === true || brut.ouvert === true || brut.messages.length > 0,
         };
       }
     } catch {
       /* stockage indisponible ou illisible : on repart de zéro */
     }
-    return { messages: [], suggestions: [], contexte: null, ouvert: false };
+    return { messages: [], suggestions: [], contexte: null, ouvert: false, engage: false };
   }
 
   const etat = lireEtat();
@@ -201,6 +209,12 @@ declare global {
       font-weight: 600; white-space: nowrap; box-shadow: 0 6px 20px rgba(20, 30, 25, .28);
       transition: transform .15s ease, box-shadow .15s ease;
     }
+    .bulle::before {
+      content: ""; position: absolute; inset: -6px; border: 2px solid var(--dh-ocre);
+      border-radius: inherit; opacity: 0; pointer-events: none;
+    }
+    .bulle.appel { animation: dh-appel ${DUREE_APPEL}ms ease-out; }
+    .bulle.appel::before { animation: dh-halo ${DUREE_APPEL}ms ease-out; }
     .bulle:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(20, 30, 25, .32); }
     .dh.ouvert .bulle { display: none; }
     .bulle:focus-visible, button:focus-visible, a:focus-visible {
@@ -282,6 +296,18 @@ declare global {
     @keyframes dh-rebond { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
     @keyframes dh-curseur { 50% { opacity: 0; } }
     @keyframes dh-apparition { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @keyframes dh-appel {
+      0%, 100% { transform: translateY(0); }
+      18% { transform: translateY(-5px); }
+      34% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+      66% { transform: translateY(0); }
+    }
+    @keyframes dh-halo {
+      0%, 28% { opacity: 0; transform: scale(.9); }
+      45% { opacity: .8; }
+      80%, 100% { opacity: 0; transform: scale(1.16); }
+    }
     .cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     @media (prefers-reduced-motion: reduce) {
       .bulle, .msg, .suggestions, .attente span { transition: none; animation: none; }
@@ -645,9 +671,34 @@ declare global {
   // ─── Ouverture, fermeture ──────────────────────────────────────────────────
 
   let accueilDemande = false;
+  let appelsEffectues = 0;
+  let minuterieAppel: number | undefined;
+
+  function arreterAppels() {
+    if (minuterieAppel !== undefined) window.clearTimeout(minuterieAppel);
+    minuterieAppel = undefined;
+    bulle.classList.remove("appel");
+  }
+
+  function programmerAppel(delai: number) {
+    if (MOUVEMENT_REDUIT || etat.engage || appelsEffectues >= NOMBRE_APPELS) return;
+    minuterieAppel = window.setTimeout(() => {
+      minuterieAppel = undefined;
+      if (etat.engage || !fenetre.hidden || document.hidden) return;
+      appelsEffectues++;
+      bulle.classList.add("appel");
+      minuterieAppel = window.setTimeout(() => {
+        minuterieAppel = undefined;
+        bulle.classList.remove("appel");
+        programmerAppel(DELAI_ENTRE_APPELS);
+      }, DUREE_APPEL);
+    }, delai);
+  }
 
   function ouvrir({ accueil = true, focus = true } = {}) {
     if (!fenetre.hidden) return;
+    arreterAppels();
+    etat.engage = true;
     fenetre.hidden = false;
     conteneur.classList.add("ouvert");
     bulle.setAttribute("aria-expanded", "true");
@@ -708,6 +759,7 @@ declare global {
   function demarrer() {
     document.body.append(hote);
     if (etat.ouvert) ouvrir({ focus: false });
+    else programmerAppel(DELAI_PREMIER_APPEL);
   }
   if (document.body) demarrer();
   else document.addEventListener("DOMContentLoaded", demarrer);

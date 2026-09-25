@@ -11,6 +11,7 @@ r.concept("cave", "La cave à vin", ["cave", "caves", "cave a vin", "cellier", "
   famille: "vin",
   lien: PAGES.casiers,
   voirAussi: ["casier", "cave-electrique", "hygrometrie"],
+  formules: ["lumiere abime le vin", "lumiere abime t elle le vin", "vibrations nuisent au vieillissement", "vibrations nuisent elles au vieillissement", "vibrations nuisent au vin", "bonne temperature pour garder le vin"],
 });
 
 r.fait("cave", "condition", `
@@ -23,6 +24,17 @@ r.fait("cave", "condition", `
 
 r.fait("cave", "procedure", `
   Pour organiser votre cave, rangez les bouteilles **couchées**, par type de vin et par date d'apogée : les vins à boire en premier à portée de main, les vins de garde en bas ou au fond, là où il fait le plus frais. Tenez un petit inventaire pour savoir quoi ouvrir et quand.`, { source: SAVOIR_FAIRE, liens: [PAGES.articleCave] });
+
+r.concept("position-bouteilles", "Position des bouteilles en cave", ["position des bouteilles", "orientation des bouteilles en cave"], {
+  famille: "cave",
+  formules: ["conserver les bouteilles couchees ou debout", "bouteilles couchees ou debout"],
+});
+
+r.fait("position-bouteilles", "entretien", `
+  Après les **24 à 48 heures debout** qui suivent le bouchage, conservez couchées les bouteilles fermées par un bouchon en liège et destinées à la garde. Une bouteille déjà ouverte, une fermeture différente ou la notice d'un produit peuvent demander une autre position.`, { source: SAVOIR_FAIRE });
+
+r.fait("position-bouteilles", "choix", `
+  **Debout juste après le bouchage**, pendant 24 à 48 heures, puis **couchée pour la garde** si la bouteille est fermée par un bouchon en liège. Une bouteille ouverte ou un autre système de fermeture peut demander une position différente.`, { source: SAVOIR_FAIRE });
 
 r.fait("cave", "gamme", `
   Pour ranger vos bouteilles, Duhallé propose des **casiers** en acier plastifié (24 à 144 places), en polystyrène (12 et 16 places), en bois (12 bouteilles), un casier transportable, un petit casier modulable 3 bouteilles, et une **cave à vin électrique** double zone de 40 bouteilles.`, { liens: [PAGES.casiers, PAGES.caveElectrique] });
@@ -48,7 +60,45 @@ r.fait("casier", "gamme", `
   - **Weinbox** transportable 12 bouteilles, et petit casier **Brindo** 3 bouteilles, modulable.`, { liens: [PAGES.casier30, PAGES.casier60, PAGES.casierPolystyrene16] });
 
 r.fait("casier", "choix", `
-  Pour une vraie cave, les casiers en **acier plastifié** offrent le plus de places et se fixent au mur. Dans une pièce de vie ou une cave peu isolée, le **polystyrène** protège les bouteilles des variations de température, des vibrations et de la lumière. Le **bois** apporte une touche traditionnelle, et les petits casiers modulables dépannent en cuisine.`, { liens: [PAGES.casier60, PAGES.casierPolystyrene16, PAGES.casierBois12] });
+  Choisissez d'abord selon le **nombre de bouteilles, leur diamètre, leur longueur et leur poids**, puis selon la place disponible et la fixation. Les casiers en acier plastifié offrent le plus de capacité ; le polystyrène isole davantage ; le bois privilégie l'esthétique. Vérifiez spécialement le diamètre des bouteilles champenoises : elles sont souvent plus larges et lourdes qu'une bordelaise de 75 cl.`, { liens: [PAGES.casier60, PAGES.casierPolystyrene16, PAGES.casierBois12] });
+
+r.fait("casier", "condition", `
+  Une bouteille de champagne peut être stockée dans un casier uniquement si ses **diamètre, longueur et poids** sont compatibles avec chaque logement et si le casier est stable ou fixé comme prévu. Ne forcez pas une bouteille plus large dans une alvéole conçue pour une bordelaise.`, { source: SAVOIR_FAIRE });
+
+r.concept("carafage-vin", "Carafer ou décanter un vin", ["carafer", "carafage", "decanter", "decantation", "mettre en carafe", "vin en carafe"], {
+  famille: "service-vin",
+});
+
+r.fait("carafage-vin", "moment", `
+  **Carafer** un vin jeune peut l'aérer avant le service ; **décanter** un vieux vin sert surtout à séparer le dépôt, avec très peu d'aération. Relevez la bouteille plusieurs heures avant, ouvrez-la sans la secouer et versez lentement en arrêtant lorsque le dépôt approche du col.`, { source: SAVOIR_FAIRE });
+
+r.concept("service-vieux-vin", "Servir un vieux vin", ["servir un vieux vin", "depot vieux vin", "sans remettre le depot", "transport vieux vin"], {
+  famille: "service-vin",
+});
+
+r.fait("service-vieux-vin", "procedure", `
+  Transportez et laissez reposer le vieux vin **debout** assez longtemps pour que le dépôt redescende, puis ouvrez-le sans secousse avec un bilame si le bouchon est fragile. Versez lentement ou décantez sous une bonne lumière et arrêtez dès que le dépôt atteint l'épaule.`, { source: SAVOIR_FAIRE, liens: [PAGES.tireBouchonBilame] });
+
+r.concept("garage-vin", "Stocker du vin dans un garage", ["vin dans un garage", "stocker dans le garage", "bouteilles au garage"], {
+  famille: "cave",
+});
+
+r.fait("garage-vin", "condition", `
+  Un garage ne convient que s'il reste **frais, sombre, sans gel ni forte chaleur**, avec peu de variations, de vibrations et d'odeurs de carburant ou de solvants. Mesurez température et humidité sur plusieurs semaines avant d'y confier des bouteilles de garde.`, { source: SAVOIR_FAIRE });
+
+r.concept("rotation-bouteilles", "Retourner les bouteilles en cave", ["retourner les bouteilles", "tourner les bouteilles", "faire pivoter les bouteilles"], {
+  famille: "cave",
+});
+
+r.fait("rotation-bouteilles", "condition", `
+  Ne retournez pas régulièrement les bouteilles de vin tranquille : les manipulations remettent le dépôt en suspension et n'améliorent pas la garde. Rangez-les stables, couchées si elles sont fermées par du liège, puis manipulez-les le moins possible.`, { source: SAVOIR_FAIRE });
+
+r.concept("transport-bouteilles", "Transporter les bouteilles avant service", ["transporter les bouteilles", "transport du vin", "bouteille apres transport"], {
+  famille: "service-vin",
+});
+
+r.fait("transport-bouteilles", "procedure", `
+  Transportez les bouteilles calées, protégées de la chaleur et des chocs. À l'arrivée, gardez-les debout et laissez reposer les vins présentant un dépôt avant de les ouvrir ; plus le trajet a remué la bouteille, plus cette précaution est utile.`, { source: SAVOIR_FAIRE });
 
 r.concept("cave-electrique", "Cave à vin électrique", ["cave electrique", "cave a vin electrique", "armoire a vin", "cave refrigeree", "double zone", "cave de service", "frigo a vin", "refrigerateur a vin"], {
   famille: "cave",
@@ -105,6 +155,14 @@ r.concept("bilame", "Tire-bouchon bilame", ["bilame", "tire bouchon bilame", "vi
 
 r.fait("bilame", "usage", `
   Le **tire-bouchon bilame** glisse ses deux lames entre le bouchon et le col, puis extrait le bouchon en tournant, **sans le percer** : c'est l'outil des vieux bouchons fragiles qui risquent de s'effriter ou de tomber dans la bouteille. Il est livré avec son étui.`, { liens: [PAGES.tireBouchonBilame] });
+
+r.concept("choix-tire-bouchon-fragile", "Choisir pour un bouchon long ou fragile", ["tire bouchon pour bouchon long ou fragile"], {
+  famille: "tire-bouchon",
+  formules: ["quel tire bouchon choisir pour un bouchon long ou fragile"],
+});
+
+r.fait("choix-tire-bouchon-fragile", "choix", `
+  Choisissez le **bilame** pour un bouchon vieux, long ou fragile : il l'extrait sans le percer et limite le risque d'effritement. Pour un bouchon récent et sain, un couteau de sommelier ou un modèle à levier est plus simple.`, { source: SAVOIR_FAIRE, liens: [PAGES.tireBouchonBilame] });
 
 r.concept("bouteille-ouverte", "Conserver une bouteille entamée", ["bouteille entamee", "bouteilles entamees", "bouteille ouverte", "bouteilles ouvertes", "vin ouvert", "garder un vin ouvert", "garder une bouteille ouverte", "conserver une bouteille ouverte", "reboucher une bouteille ouverte", "vide air", "pompe vide air", "pompe a vide", "enlever l air", "retirer l air", "pompe pour enlever l air", "pompe pour retirer l air", "sous vide", "bouchon verseur", "bouchon pratic", "bouchons pratic", "jerry"], {
   famille: "service-vin",

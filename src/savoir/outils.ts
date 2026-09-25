@@ -13,7 +13,7 @@ export function page(chemin: string, libelle: string): Lien {
 export const SAVOIR_FAIRE = "Savoir-faire général (vinification, cidrerie et conserverie amateur)";
 
 /** Date de la dernière relecture des faits de la base. */
-export const VERIFIE_LE = "2026-09-24";
+export const VERIFIE_LE = "2026-09-25";
 
 interface OptionsDeConcept {
   famille?: string;

@@ -33,12 +33,16 @@ export class DetecteurDeConcepts {
   private readonly alias: AliasIndexe[] = [];
   private readonly vocabulaire = new Set<string>();
   private readonly parId = new Map<string, Concept>();
-  private readonly formules: Array<{ concept: Concept; formule: string }> = [];
+  private readonly formules: Array<{ concept: Concept; formule: string; racines: readonly string[] }> = [];
 
   constructor(base: BaseDeSavoir) {
     for (const concept of base.concepts) {
       this.parId.set(concept.id, concept);
-      for (const f of concept.formules ?? []) this.formules.push({ concept, formule: ` ${normaliser(f)} ` });
+      for (const f of concept.formules ?? []) {
+        const racinesDeLaFormule = racines(f);
+        racinesDeLaFormule.forEach((x) => this.vocabulaire.add(x));
+        this.formules.push({ concept, formule: ` ${normaliser(f)} `, racines: racinesDeLaFormule });
+      }
       // Deux alias du même concept aux mêmes racines n'en font qu'un : on garde le plus long.
       const parCle = new Map<string, AliasIndexe>();
       for (const texte of [concept.libelle, ...concept.alias]) {
@@ -88,6 +92,23 @@ export class DetecteurDeConcepts {
     const forme = ` ${normaliser(texte)} `;
     for (const { concept, formule } of this.formules) {
       if (forme.includes(formule) && !trouves.has(concept.id)) trouves.set(concept.id, { concept, position: -1 });
+    }
+
+    // Une formule reste reconnaissable avec une incise polie ou une faute de
+    // frappe : ses mots porteurs de sens doivent tous être présents. Les
+    // formules de moins de trois mots utiles restent exactes afin d'éviter les
+    // faux positifs sur des expressions trop générales.
+    const motsDesFormules = racines(texte).map((r) => corriger(r, this.vocabulaire) ?? r);
+    for (const { concept, racines: attendues } of this.formules) {
+      if (trouves.has(concept.id) || attendues.length < 3) continue;
+      const restantes = [...motsDesFormules];
+      const toutesPresentes = attendues.every((attendue) => {
+        const index = restantes.indexOf(attendue);
+        if (index < 0) return false;
+        restantes.splice(index, 1);
+        return true;
+      });
+      if (toutesPresentes) trouves.set(concept.id, { concept, position: -1 });
     }
 
     // Seuls les alias dont tous les mots sont dans la question peuvent correspondre.

@@ -34,8 +34,9 @@ export function anonymiser(question: string): string {
 }
 
 /**
- * Insère une question anonymisée ou incrémente son compteur. La purge ne
- * concerne que les questions encore à trier ou explicitement ignorées.
+ * Insère une question anonymisée ou incrémente son compteur. Une seule
+ * écriture par question : la purge des anciennes passe par une tâche
+ * planifiée quotidienne (voir purgerQuestions).
  */
 export async function enregistrerQuestion(
   db: D1Database,
@@ -47,7 +48,7 @@ export async function enregistrerQuestion(
   if (!questionAnonyme) return;
 
   const jour = maintenant.toISOString().slice(0, 10);
-  const insertion = db
+  await db
     .prepare(
       `INSERT INTO questions_chatbot
         (question, premier_jour, dernier_jour, occurrences, nature_derniere, statut)
@@ -57,12 +58,23 @@ export async function enregistrerQuestion(
          occurrences = questions_chatbot.occurrences + 1,
          nature_derniere = excluded.nature_derniere`,
     )
-    .bind(questionAnonyme, jour, jour, nature);
-  const purge = db.prepare(
-    `DELETE FROM questions_chatbot
-     WHERE dernier_jour < date('now', '-${RETENTION_JOURS} days')
-       AND statut IN ('a_revoir', 'ignoree')`,
-  );
+    .bind(questionAnonyme, jour, jour, nature)
+    .run();
+}
 
-  await db.batch([insertion, purge]);
+/**
+ * Supprime les questions encore à trier ou ignorées, vues pour la dernière
+ * fois il y a plus de RETENTION_JOURS jours. Les questions retenues ou
+ * intégrées sont gardées. Lancée une fois par jour (tâche planifiée) : faite
+ * à chaque question, elle relirait toute la table à chaque fois.
+ */
+export async function purgerQuestions(db: D1Database): Promise<number> {
+  const resultat = await db
+    .prepare(
+      `DELETE FROM questions_chatbot
+       WHERE dernier_jour < date('now', '-${RETENTION_JOURS} days')
+         AND statut IN ('a_revoir', 'ignoree')`,
+    )
+    .run();
+  return resultat.meta.changes ?? 0;
 }

@@ -32,6 +32,10 @@
       "database_id": "4eda5310-85d6-4f5a-a861-332a8e16e865"
     }
   ],
+  // Chaque nuit (3 h 17 UTC) : purge des questions non retenues de plus de 90 jours.
+  "triggers": {
+    "crons": ["17 3 * * *"]
+  },
   "observability": {
     "enabled": true
   }

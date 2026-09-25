@@ -15,7 +15,7 @@
 // pas les coordonnées tapées par les clients.
 // ═══════════════════════════════════════════════════════════════════════════
 import { Assistant } from "./moteur/assistant";
-import { enregistrerQuestion } from "./questions";
+import { enregistrerQuestion, purgerQuestions } from "./questions";
 import { REGLAGES } from "./savoir/coordonnees";
 import { BASE } from "./savoir/index";
 
@@ -190,5 +190,16 @@ export default {
 
     if (env.ASSETS) return env.ASSETS.fetch(request);
     return new Response("Introuvable", { status: 404 });
+  },
+
+  /** Tâche planifiée quotidienne (wrangler.jsonc, « triggers ») : purge des anciennes questions. */
+  async scheduled(_controleur: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    if (!env.QUESTIONS_DB) return;
+    ctx.waitUntil(
+      purgerQuestions(env.QUESTIONS_DB).then(
+        (supprimees) => console.log(JSON.stringify({ evenement: "purge-questions", supprimees })),
+        (e: unknown) => console.error(JSON.stringify({ evenement: "purge-questions-echouee", message: e instanceof Error ? e.message : String(e) })),
+      ),
+    );
   },
 } satisfies ExportedHandler<Env>;

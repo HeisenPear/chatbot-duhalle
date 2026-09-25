@@ -16,6 +16,7 @@
 // rend `null` et la réponse suit le plan par défaut, une présentation générale.
 // ═══════════════════════════════════════════════════════════════════════════
 import type { TypeDeQuestion } from "../savoir/types";
+import { corriger } from "./texte";
 
 export interface MarqueDeType {
   readonly type: TypeDeQuestion;
@@ -49,6 +50,26 @@ export const MARQUES_DE_TYPE: readonly MarqueDeType[] = [
     motif:
       / (?:quelle (?:taille|dimension|longueur|hauteur|temperature|contenance|capacite|quantite|humidite|dose|cadence)|quel (?:niveau|diametre|format|volume|poids|calibre|taux|degre|nombre|dosage)|combien de|combien en faut|dimensions?|diametres?|tailles?|mesures?|mm|cm|contenance|capacite|doses?|dosages?|temperatures?|humidite|cadence|puissance|watts?|quelle puissance|combien de litres|combien de places) /,
     signal: "une valeur : « quelle taille », « quel diamètre », « combien de »",
+  },
+  {
+    type: "entretien",
+    motif: / (?:quelle est la methode|quelle methode|par quelle methode|de quelle maniere)(?: [a-z0-9]+){0,5} (?:entretenir|conserver|garder) /,
+    signal: "un entretien formulé indirectement : « quelle méthode pour conserver »",
+  },
+  {
+    type: "fait",
+    motif: / (?:quels signes permettent de savoir|quels indices permettent de savoir) /,
+    signal: "des signes de contrôle : « quels signes permettent de savoir »",
+  },
+  {
+    type: "raison",
+    motif: / (?:quelle est la raison|quelle en est la raison|quelle est la cause|d ou vient|a quoi est du) /,
+    signal: "une raison formulée indirectement : « quelle est la raison », « quelle est la cause »",
+  },
+  {
+    type: "procedure",
+    motif: / (?:quelle est la methode|quelle methode|par quelle methode|quelle est la marche a suivre|quelle marche a suivre|de quelle maniere) /,
+    signal: "une procédure formulée indirectement : « quelle méthode », « quelle marche à suivre »",
   },
   {
     // « quels bouchons pour un vin de garde » demande un CHOIX, pas la gamme :
@@ -92,7 +113,7 @@ export const MARQUES_DE_TYPE: readonly MarqueDeType[] = [
   {
     type: "choix",
     motif:
-      / (?:quel|quelle|lequel|laquelle|choisir|choix|difference|differences|different|differents|mieux|meilleur|meilleure|plutot|conseillez|recommandez|preconisez|ou bien|versus|vs|comparer|comparaison|adapte|adaptee|convient)(?: |$)| [a-z0-9]+ ou (?:[a-z0-9]+ ){1,3}$/,
+      / (?:quel|quelle|lequel|laquelle|choisir|selectionner|choix|difference|differences|different|differents|distinguer|distinction|mieux|meilleur|meilleure|plutot|conseillez|recommandez|preconisez|ou bien|versus|vs|comparer|comparaison|adapte|adaptee|convient)(?: |$)| [a-z0-9]+ ou (?:[a-z0-9]+ ){1,3}$/,
     signal: "un choix : « quel », « lequel », « quelle différence », « ceci ou cela ? »",
   },
   {
@@ -120,8 +141,31 @@ export const MARQUES_DE_TYPE: readonly MarqueDeType[] = [
   },
 ];
 
+const VOCABULAIRE_DES_TYPES = new Set([
+  "combien",
+  "choisir",
+  "comment",
+  "compatible",
+  "conserver",
+  "duree",
+  "entretenir",
+  "humidite",
+  "necessaire",
+  "nettoyer",
+  "obligatoire",
+  "pourquoi",
+  "quantite",
+  "selectionner",
+  "temperature",
+]);
+
 /** Le type de la question — la première marque qui s'applique, ou `null`. */
 export function lireTypeDeQuestion(forme: string, marques = MARQUES_DE_TYPE): MarqueDeType | null {
-  const cadre = ` ${forme.trim()} `;
+  const corrigee = forme
+    .trim()
+    .split(" ")
+    .map((mot) => corriger(mot, VOCABULAIRE_DES_TYPES) ?? mot)
+    .join(" ");
+  const cadre = ` ${corrigee} `;
   return marques.find((m) => m.motif.test(cadre)) ?? null;
 }

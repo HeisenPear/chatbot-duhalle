@@ -107,6 +107,9 @@ r.fait("etat-bouchon", "condition", `
 r.fait("etat-bouchon", "choix", `
   Retenez seulement des bouchons propres, souples, réguliers et sans odeur. Écartez ceux qui sont très durs, fissurés, déformés, friables ou tachés : un bouchon trop sec ou endommagé ne doit pas être « récupéré » par trempage.`, { source: SAVOIR_FAIRE });
 
+r.fait("etat-bouchon", "procedure", `
+  Pour reconnaître un bouchon utilisable, contrôlez sa propreté, sa souplesse, sa régularité et son odeur. Écartez tout bouchon très dur, fissuré, déformé, friable ou taché ; ne tentez pas de le restaurer par trempage.`, { source: SAVOIR_FAIRE });
+
 r.concept("preparation-bouchon", "Préparer les bouchons avant la mise", ["preparer les bouchons", "bouchons prets a l emploi", "bouchons traites", "bouchons prepares"], {
   famille: "bouchon-liege",
   formules: ["faut il acheter des bouchons traites ou prepares", "acheter des bouchons deja traites"],
@@ -115,14 +118,14 @@ r.concept("preparation-bouchon", "Préparer les bouchons avant la mise", ["prepa
 r.fait("preparation-bouchon", "choix", `
   Préférez des bouchons neufs dont la fiche confirme qu'ils sont **prêts à l'emploi** pour votre boisson et votre boucheuse. Les bouchons colmatés Duhallé sont traités « super-glisse » et s'utilisent secs : ne les trempez pas et n'improvisez pas de traitement maison.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin] });
 
-r.concept("stockage-bouchons", "Stocker des bouchons neufs", ["stockage des bouchons neufs", "stocker des bouchons neufs", "conserver des bouchons neufs"], {
+r.concept("stockage-bouchons", "Stocker des bouchons neufs", ["stockage des bouchons neufs", "stocker des bouchons neufs", "conserver des bouchons neufs", "entreposer des bouchons neufs"], {
   famille: "bouchon-liege",
 });
 
 r.fait("stockage-bouchons", "procedure", `
   Gardez les bouchons neufs dans leur sachet d'origine bien refermé, dans un local sec, propre, tempéré et sans odeurs de peinture, carburant ou produit ménager. Évitez humidité, poussière et soleil ; pour la durée après ouverture, appliquez la fiche du lot plutôt qu'une durée générique.`, { source: SAVOIR_FAIRE });
 
-r.concept("reemploi-bouchon", "Réutiliser un bouchon en liège", ["reutiliser un bouchon", "bouchon en liege reutilise", "remettre un bouchon usage"], {
+r.concept("reemploi-bouchon", "Réutiliser un bouchon en liège", ["reutiliser un bouchon", "reemployer un bouchon", "bouchon en liege reutilise", "remettre un bouchon usage"], {
   famille: "bouchon-liege",
 });
 

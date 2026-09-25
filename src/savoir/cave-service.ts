@@ -11,7 +11,7 @@ r.concept("cave", "La cave à vin", ["cave", "caves", "cave a vin", "cellier", "
   famille: "vin",
   lien: PAGES.casiers,
   voirAussi: ["casier", "cave-electrique", "hygrometrie"],
-  formules: ["lumiere abime le vin", "lumiere abime t elle le vin", "vibrations nuisent au vieillissement", "vibrations nuisent elles au vieillissement", "vibrations nuisent au vin"],
+  formules: ["lumiere abime le vin", "lumiere abime t elle le vin", "vibrations nuisent au vieillissement", "vibrations nuisent elles au vieillissement", "vibrations nuisent au vin", "bonne temperature pour garder le vin"],
 });
 
 r.fait("cave", "condition", `

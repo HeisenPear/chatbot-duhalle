@@ -5,7 +5,7 @@ import { BASE } from "../src/savoir/index";
 
 const assistant = new Assistant(BASE, REGLAGES);
 
-const QUESTIONS: Array<[rang: number, question: string]> = [
+export const QUESTIONS: Array<[rang: number, question: string]> = [
   [85, "Quel extracteur de jus choisir ?"],
   [86, "La cire remplace-t-elle le bouchon ou la capsule ?"],
   [87, "Quelle différence entre broyeur, presse et extracteur ?"],
@@ -124,7 +124,7 @@ const QUESTIONS: Array<[rang: number, question: string]> = [
   [200, "Comment calculer le nombre de bouchons à commander ?"],
 ];
 
-const FAITS_ATTENDUS: Record<number, string[]> = {
+export const FAITS_ATTENDUS: Record<number, string[]> = {
   85: ["extracteur-jus.choix"],
   86: ["support-cire.choix"],
   87: ["extracteur-jus.choix"],
@@ -163,7 +163,7 @@ const FAITS_ATTENDUS: Record<number, string[]> = {
   120: ["hygrometrie.condition"],
   121: ["cidre.moment"],
   122: ["entretien-robinet-vinaigrier.procedure"],
-  123: ["bouchage+format-bouteille-boucheuse.condition"],
+  123: ["bouchage+format-bouteille-boucheuse.condition", "format-bouteille-boucheuse.condition"],
   124: ["arret-remplissage.procedure"],
   125: ["hygrometrie.condition"],
   126: ["pomme.duree"],
@@ -171,7 +171,7 @@ const FAITS_ATTENDUS: Record<number, string[]> = {
   128: ["securite-bouchage.condition"],
   129: ["bouteille-humide.condition"],
   130: ["carafage-vin.moment"],
-  131: ["nettoyage-materiel-cidre.procedure"],
+  131: ["nettoyage-materiel-cidre.procedure", "nettoyage-bouteilles+nettoyage-materiel-cidre.procedure"],
   132: ["remplissage-bocal.dimension"],
   133: ["boucheuse.dimension"],
   134: ["pertes-soutirage.procedure"],
@@ -199,7 +199,7 @@ const FAITS_ATTENDUS: Record<number, string[]> = {
   156: ["sterilisateur.procedure"],
   157: ["repos-bouchage.raison"],
   158: ["etiquetage-conserves.procedure"],
-  159: ["etat-bouchon.choix"],
+  159: ["etat-bouchon.choix", "etat-bouchon.procedure", "etat-bouchon.condition"],
   160: ["taille-bouchon.dimension"],
   161: ["reemploi-bouchon.condition"],
   162: ["bouchon-agglomere.condition"],
@@ -207,10 +207,10 @@ const FAITS_ATTENDUS: Record<number, string[]> = {
   164: ["mesures-commande.procedure"],
   165: ["deshydrateur.choix"],
   166: ["nettoyage-chauffe-cire.procedure"],
-  167: ["nettoyage-bouteilles+nettoyage-materiel-cidre.procedure"],
+  167: ["nettoyage-bouteilles+nettoyage-materiel-cidre.procedure", "nettoyage-materiel-cidre.procedure"],
   168: ["ordre-etiquette-cire.moment"],
   169: ["nettoyage-cire.procedure"],
-  170: ["egouttoir+rince-bouteille.choix"],
+  170: ["egouttoir+rince-bouteille.choix", "rince-bouteille.procedure", "egouttoir.entretien", "rince-bouteille.entretien"],
   171: ["vinaigrier.choix"],
   172: ["goupillon-usure.moment"],
   173: ["aromatisation-vinaigre.condition"],
@@ -228,7 +228,7 @@ const FAITS_ATTENDUS: Record<number, string[]> = {
   185: ["bouteille-temoin.procedure"],
   186: ["cidre-trouble.raison"],
   187: ["inertage-bouteilles.condition"],
-  188: ["style-cidre.choix"],
+  188: ["style-cidre.choix", "style-cidre.procedure"],
   189: ["huile-aromatisee.condition"],
   190: ["jus.usage"],
   191: ["viande-en-conserve.condition"],

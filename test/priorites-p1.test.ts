@@ -10,7 +10,7 @@ const assistant = new Assistant(BASE, REGLAGES);
 
 type CasP1 = [rang: number, question: string, faitsAcceptables: string[]];
 
-const QUESTIONS_P1: CasP1[] = [
+export const QUESTIONS_P1: CasP1[] = [
   [1, "Quel bouchon choisir selon le nombre d’années de garde prévu ?", ["bouchon.choix", "bouchon+vin-de-garde.choix", "bouchon-liege.duree"]],
   [2, "Quelle boucheuse choisir pour des bouchons de 38 ou 45 mm ?", ["boucheuse+taille-bouchon.choix", "boucheuse.choix"]],
   [3, "Quand mettre le vin en bouteille ?", ["mise-en-bouteille.moment"]],

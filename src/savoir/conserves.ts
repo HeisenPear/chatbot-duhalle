@@ -71,7 +71,7 @@ r.concept("aliment-peu-acide", "Aliments peu acides en conserve", ["aliment peu 
 r.fait("aliment-peu-acide", "raison", `
   Les légumes, viandes et poissons sont généralement **peu acides** : un bain d'eau bouillante n'atteint pas les conditions exigées par les recettes testées pour maîtriser les spores responsables du botulisme. Utilisez uniquement le procédé sous pression, l'appareil et le barème explicitement prévus par une source compétente.`, { source: MINISTERE_BOTULISME });
 
-r.concept("bareme-conserve", "Barème de traitement des conserves", ["temps de sterilisation", "duree de sterilisation", "temperature de sterilisation", "combien de temps steriliser", "a quelle temperature steriliser", "bareme de sterilisation", "duree pour un bocal"], {
+r.concept("bareme-conserve", "Barème de traitement des conserves", ["temps de sterilisation", "duree de sterilisation", "temperature de sterilisation", "combien de temps steriliser", "a quelle temperature steriliser", "bareme de sterilisation", "duree pour un bocal", "bareme a l altitude"], {
   famille: "conserve",
 });
 
@@ -99,7 +99,7 @@ r.concept("bocal-suspect", "Bocal de conserve suspect", ["bocal bombe", "couverc
 r.fait("bocal-suspect", "condition", `
   Ne goûtez pas et ne consommez pas un bocal bombé, fuyant, descellé, mousseux ou d'odeur anormale. Évitez de l'ouvrir ou de le manipuler inutilement ; isolez-le et suivez les recommandations sanitaires d'élimination afin d'éviter toute projection ou contamination.`, { source: MINISTERE_BOTULISME });
 
-r.concept("stockage-conserves", "Conservation des bocaux maison", ["conserver les bocaux", "duree de conservation des bocaux", "combien de temps garder les conserves", "stockage des conserves", "garder un bocal maison"], {
+r.concept("stockage-conserves", "Conservation des bocaux maison", ["conserver les bocaux", "duree de conservation des bocaux", "combien de temps garder les conserves", "combien de temps garder des bocaux maison", "stockage des conserves", "garder un bocal maison"], {
   famille: "conserve",
 });
 
@@ -199,7 +199,7 @@ r.fait("confiture", "procedure", `
   3. Remplissez à chaud des pots **propres et ébouillantés**, à l'aide d'un entonnoir, jusqu'à 1 cm du bord.
   4. Fermez aussitôt et laissez refroidir.`, { source: SAVOIR_FAIRE, liens: [PAGES.confiture, PAGES.entonnoirConfiture] });
 
-r.concept("prise-confiture", "Cuisson et prise de la confiture", ["confiture assez cuite", "confiture trop liquide", "test de l assiette", "test de prise", "point de gelee", "cuisson de la confiture"], {
+r.concept("prise-confiture", "Cuisson et prise de la confiture", ["confiture assez cuite", "confiture trop liquide", "confiture ne prend pas", "test de l assiette", "test de prise", "point de gelee", "cuisson de la confiture"], {
   famille: "confiture",
   lien: PAGES.confiture,
   formules: ["ma confiture ne prend pas", "confiture ne prend pas", "confiture ne prend elle pas"],
@@ -211,7 +211,7 @@ r.fait("prise-confiture", "procedure", `
 r.fait("prise-confiture", "raison", `
   Une confiture reste souvent liquide lorsque l'équilibre **fruit-sucre-pectine-acidité** n'est pas adapté, que le lot est trop grand ou que la cuisson n'a pas atteint le point prévu. Ne la recuisez ou ne la corrigez qu'avec une méthode éprouvée correspondant à cette recette.`, { source: NCHFP });
 
-r.concept("stockage-confiture", "Conserver une confiture maison", ["conserver une confiture maison", "duree confiture maison", "moisissure sur confiture", "confiture moisie"], {
+r.concept("stockage-confiture", "Conserver une confiture maison", ["conserver une confiture maison", "garder une confiture maison", "duree confiture maison", "moisissure sur confiture", "confiture moisie"], {
   famille: "confiture",
 });
 

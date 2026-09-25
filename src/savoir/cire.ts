@@ -103,7 +103,7 @@ r.fait("chauffe-cire", "choix", `
 r.fait("chauffe-cire", "entretien", `
   Laissez refroidir l'appareil débranché. Retirez la cire solidifiée selon la notice, sans outil qui rayerait la cuve ni eau dans les parties électriques. N'utilisez jamais de solvant non autorisé ; si un nettoyage à chaud est prévu, portez des protections contre les brûlures.`, { source: SAVOIR_FAIRE, liens: [PAGES.chauffeCire] });
 
-r.concept("nettoyage-chauffe-cire", "Nettoyer un chauffe-cire", ["nettoyer le chauffe cire", "nettoyer la cuve du chauffe cire"], {
+r.concept("nettoyage-chauffe-cire", "Nettoyer un chauffe-cire", ["nettoyer le chauffe cire", "nettoyer la cuve du chauffe cire", "laver le chauffe cire", "laver la cuve du chauffe cire"], {
   famille: "chauffe-cire",
   formules: ["nettoyer le chauffe cire et la cuve"],
 });

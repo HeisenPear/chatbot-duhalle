@@ -307,7 +307,7 @@ r.fait("soutirage", "procedure", `
 r.fait("soutirage", "erreur", `
   Un siphon s'arrête si le récipient d'arrivée n'est plus assez bas, si de l'air entre par un raccord, si le tuyau est pincé ou si la canne aspire la lie. Vérifiez le dénivelé, réamorcez avec un dispositif hygiénique et ne compensez jamais en aspirant à la bouche.`, { source: SAVOIR_FAIRE });
 
-r.concept("nettoyage-tuyau", "Nettoyer un tuyau de soutirage", ["nettoyer un tuyau", "nettoyer l interieur du tuyau", "laver le siphon", "nettoyer apres soutirage"], {
+r.concept("nettoyage-tuyau", "Nettoyer un tuyau de soutirage", ["nettoyer un tuyau", "nettoyer l interieur du tuyau", "laver un tuyau de soutirage", "laver le siphon", "nettoyer apres soutirage", "laver le materiel apres soutirage"], {
   famille: "soutirage",
 });
 
@@ -351,7 +351,7 @@ r.fait("filtre-vin", "dimension", `
 r.fait("filtre-vin", "usage", `
   Filtrer permet de retirer les dernières particules en suspension avant la mise en bouteille. Un vin bien soutiré, limpide et stable n'a pas toujours besoin d'être filtré ; un vin trouble ou microbiologiquement incertain demande d'abord un diagnostic, car la filtration et sa finesse dépendent du style et de la stabilité recherchés.`, { source: SAVOIR_FAIRE });
 
-r.concept("depot-bouteille", "Dépôt après la mise en bouteille", ["depot apres mise en bouteille", "depot dans le vin", "depot dans mes bouteilles", "cristaux dans la bouteille", "lie dans la bouteille", "bouteille trouble apres remplissage"], {
+r.concept("depot-bouteille", "Dépôt après la mise en bouteille", ["depot apres mise en bouteille", "depot apres embouteillage", "depot dans le vin", "depot dans mes bouteilles", "cristaux dans la bouteille", "lie dans la bouteille", "bouteille trouble apres remplissage"], {
   famille: "mise-en-bouteille",
   voirAussi: ["filtre-vin", "soutirage"],
 });

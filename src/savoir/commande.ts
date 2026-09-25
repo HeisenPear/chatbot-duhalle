@@ -28,6 +28,7 @@ r.fait("commande", "procedure", `
 
 r.concept("quantite-commande", "Calculer la quantité à commander", ["quantite a commander", "calcul de quantite a commander", "nombre a commander", "combien de bouchons commander", "combien de capsules commander", "marge de bouchons", "marge de capsules"], {
   famille: "commande",
+  formules: ["quantite acheter pour mon nombre de bouteilles", "nombre de bouchons a acheter"],
 });
 
 r.fait("quantite-commande", "dimension", `
@@ -63,7 +64,7 @@ r.fait("compatibilite-produit", "choix", `
 
 r.concept("mesures-commande", "Mesures à relever avant commande", ["mesures avant commande", "mesurer avant de commander", "dimensions avant commande", "cotes avant commande"], {
   famille: "commande",
-  formules: ["que faut il mesurer avant de commander"],
+  formules: ["que faut il mesurer avant de commander", "que faut il mesurer avant d acheter"],
 });
 
 r.fait("mesures-commande", "procedure", `
@@ -71,7 +72,7 @@ r.fait("mesures-commande", "procedure", `
 
 r.concept("contact-alimentaire", "Aptitude au contact alimentaire", ["contact alimentaire", "apte au contact alimentaire", "alimentaire ou non", "convient aux aliments", "convient aux boissons"], {
   famille: "catalogue",
-  formules: ["produit convient il au contact alimentaire"],
+  formules: ["produit convient il au contact alimentaire", "produit est il adapte au contact alimentaire"],
 });
 
 r.fait("contact-alimentaire", "condition", `

@@ -111,7 +111,7 @@ r.fait("fermentation-cidre", "condition", `
 r.fait("pressoir", "procedure", `
   Remplissez la cage de pulpe broyée (idéalement dans une toile de pressage), posez les demi-lunes et les cales en bois, puis serrez la vis **progressivement**. Laissez le jus s'écouler entre deux serrages : un pressage lent donne plus de jus.`, { source: SAVOIR_FAIRE });
 
-r.concept("nettoyage-materiel-cidre", "Nettoyer broyeur et pressoir", ["nettoyer le broyeur", "nettoyer le pressoir", "broyeur apres usage", "pressoir apres usage", "fruits colorants pressoir"], {
+r.concept("nettoyage-materiel-cidre", "Nettoyer broyeur et pressoir", ["nettoyer le broyeur", "nettoyer le pressoir", "laver le broyeur", "laver le pressoir", "broyeur apres usage", "pressoir apres usage", "fruits colorants pressoir"], {
   famille: "cidre",
   lien: PAGES.broyerPresser,
   formules: ["presser apres des fruits tres colorants", "nettoyer le pressoir apres des fruits colorants"],

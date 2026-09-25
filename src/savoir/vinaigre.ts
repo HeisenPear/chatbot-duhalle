@@ -99,7 +99,7 @@ r.fait("robinet-vinaigrier", "condition", `
 
 r.concept("entretien-robinet-vinaigrier", "Installer et nettoyer le robinet du vinaigrier", ["entretien du robinet de vinaigrier", "montage du robinet en bois"], {
   famille: "robinet-vinaigrier",
-  formules: ["nettoyer le robinet en bois", "installer la bonde et le robinet"],
+  formules: ["nettoyer le robinet en bois", "laver le robinet en bois", "installer la bonde et le robinet"],
 });
 
 r.fait("entretien-robinet-vinaigrier", "procedure", `

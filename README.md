@@ -37,7 +37,7 @@ Aujourd'hui : **189 concepts** et **338 faits**, répartis en 10 fichiers de rub
 
 ### Mesure de la qualité
 
-- **Banc** (`test/banc.test.ts`) : 184 questions formulées comme les clients les posent, avec la réponse attendue. Tout doit passer.
+- **Banc** (`test/banc.test.ts`) : 186 questions formulées comme les clients les posent, avec la réponse attendue. Tout doit passer.
 - **Jeu inédit** (`test/inedit.test.ts`) : 25 questions écrites **après** le réglage, qu'on ne règle jamais une par une. Il est mesuré à **68 %** de premières réponses idéales, et les écarts restent en général dans le bon sujet. Quand un jeu inédit a servi à corriger, il rejoint le banc et on en écrit un nouveau. Les trois premiers jeux, mesurés à 57 %, 57 % puis 77 %, ont fait progresser les règles.
 
 ---
@@ -176,7 +176,7 @@ Le site n'était pas accessible depuis l'environnement de développement. Les in
 - **Téléphone** `02 47 53 00 26` et **e-mail** `contact@duhalle-boutique.fr`. Un autre numéro (05 62 11 73 09) apparaît sur d'anciennes pages et dans des annuaires.
 - **Livraison offerte** en France continentale dès **69 €** avec DPD (un extrait indiquait 59 €), **79 €** avec Colissimo et **150 €** avec Geodis. Corse et DOM-TOM : sur devis.
 - **Paiement** : carte bancaire, PayPal, virement et 4 fois sans frais.
-- Les **horaires** du service client ne sont pas donnés par le chatbot, car trois versions contradictoires circulent : il renvoie à la page Contact.
+- Les **horaires** du service client (`HORAIRES` dans `src/savoir/coordonnees.ts`) : du lundi au jeudi 9h-12h et 14h-18h, le vendredi 9h-12h et 14h-16h, identiques sur la page Contact et le pied de page du site au 28/09/2026.
 - Les **URL** des pages et des produits (`src/savoir/liens.ts`), relevées le 24/09/2026.
 - Les **caractéristiques produits** (formats de bouchons, catégories, contenances…), reprises des titres et descriptions indexés.
 

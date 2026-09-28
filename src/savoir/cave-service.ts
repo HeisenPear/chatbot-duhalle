@@ -1,4 +1,5 @@
 // La cave (conserver le vin, ranger les bouteilles) et le service du vin.
+import { TELEPHONE } from "./coordonnees";
 import { PAGES } from "./liens";
 import { rubrique, SAVOIR_FAIRE } from "./outils";
 
@@ -53,7 +54,7 @@ r.concept("casier", "Casiers range-bouteilles", ["casier", "casiers", "range bou
 
 r.fait("casier", "gamme", `
   Les casiers Duhallé :
-  - **acier plastifié noir**, fabriqués en Italie : 30 places (5 rangées de 6), 60 places (10 rangées de 6) et 144 places, légèrement inclinés vers l'avant, avec pattes de fixation murale en option ;
+  - **acier plastifié noir**, fabriqués en Italie : 30 places (5 rangées de 6), 60 places (10 rangées de 6) et 144 places, légèrement inclinés vers l'avant, livrés avec leurs pattes de fixation murale ;
   - **effet chromé** : 24 places (4 rangées de 6) et 48 places avec pattes de fixation murale ;
   - **polystyrène** : 16 places réversible effet béton ciré, et 12 places en matière d'origine écologique, empilables ;
   - **bois** : 12 bouteilles (H 39 x L 34 x P 18 cm), livré monté ;
@@ -64,6 +65,30 @@ r.fait("casier", "choix", `
 
 r.fait("casier", "condition", `
   Une bouteille de champagne peut être stockée dans un casier uniquement si ses **diamètre, longueur et poids** sont compatibles avec chaque logement et si le casier est stable ou fixé comme prévu. Ne forcez pas une bouteille plus large dans une alvéole conçue pour une bordelaise.`, { source: SAVOIR_FAIRE });
+
+r.concept("stabilite-casier", "Stabilité et inclinaison des casiers", ["stabilite du casier", "casier stable", "casier instable", "casier qui bouge", "casier qui penche", "casier bancal", "casier qui tombe", "robustesse du casier", "casier solide", "casier fragile", "casier incline", "inclinaison des bouteilles", "inclinaison vers l avant", "monter le casier", "remplir le casier"], {
+  famille: "casier",
+  lien: PAGES.casiers,
+  voirAussi: ["casier", "position-bouteilles", "cave"],
+  // Formules et non alias : « un casier qui se fixe au mur » cherche un produit (la gamme).
+  formules: ["fixer le casier", "fixer mon casier", "fixer les casiers", "fixer un casier", "fixer au mur", "pattes de fixation"],
+});
+
+r.fait("stabilite-casier", "condition", `
+  Les casiers en acier plastifié Duhallé sont stables **une fois montés selon la notice** fournie dans l'emballage :
+  - posez-les sur un **sol plan et stable** et fixez-les au mur avec les **pattes de fixation fournies** ;
+  - remplissez-les **du bas vers le haut** et, pour les vider, commencez par le haut ;
+  - gardez 6 bouteilles de vin par niveau, sans forcer une bouteille plus large ou plus lourde qu'une bouteille de 75 cl.
+
+  Leurs montants en tubes de 15 mm et leurs tiges de renfort latéral assurent la rigidité de l'ensemble.`, { source: PAGES.casier30.url, liens: [PAGES.casier30, PAGES.casier60, PAGES.casier144] });
+
+r.fait("stabilite-casier", "raison", `
+  Sur les casiers en acier plastifié, les bouteilles sont **légèrement inclinées vers l'avant** : c'est voulu. Les fils avant et arrière portent des **encoches** qui retiennent le goulot et le fond de chaque bouteille, si bien que les bouteilles restent maintenues vers le bas. Couchées ainsi, le goulot un peu plus bas, elles gardent le vin au contact du bouchon.`, { source: PAGES.casier30.url, liens: [PAGES.casier30, PAGES.casier60, PAGES.casier144] });
+
+r.fait(["avis-clients", "stabilite-casier"], "condition", `
+  Je ne peux pas commenter les avis publiés sur un autre site : ils peuvent porter sur un autre modèle, ou sur un casier monté ou chargé différemment. Sur nos casiers en acier plastifié, l'**inclinaison vers l'avant est voulue** : des encoches à l'avant et à l'arrière retiennent le goulot et le fond de chaque bouteille. La **stabilité** dépend surtout du montage selon la notice, d'un **sol plan**, de la **fixation au mur** avec les pattes fournies et d'un remplissage **du bas vers le haut**.
+
+  Les avis de nos clients sont consultables sur chaque fiche produit. Pour une question avant l'achat, le service client vous répond au **${TELEPHONE}**.`, { source: PAGES.casier30.url, liens: [PAGES.casier30, PAGES.contact] });
 
 r.concept("carafage-vin", "Carafer ou décanter un vin", ["carafer", "carafage", "decanter", "decantation", "mettre en carafe", "vin en carafe"], {
   famille: "service-vin",

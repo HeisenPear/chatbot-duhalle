@@ -70,7 +70,7 @@ r.fait("service-client", "definition", `
 
 // ─── Avis, fidélité, promotions ────────────────────────────────────────────
 
-r.concept("avis-clients", "Les avis clients", ["avis", "avis clients", "avis garantis", "notes", "note des clients", "temoignages", "satisfaction", "serieux", "fiable", "confiance", "arnaque"], {
+r.concept("avis-clients", "Les avis clients", ["avis", "avis clients", "avis garantis", "avis negatifs", "mauvais avis", "commentaires", "commentaires des clients", "notes", "note des clients", "temoignages", "satisfaction", "serieux", "fiable", "confiance", "arnaque"], {
   famille: "duhalle",
 });
 

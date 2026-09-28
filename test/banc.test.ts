@@ -85,6 +85,8 @@ const QUESTIONS: Array<[string, string]> = [
   ["mon colis est arrivé cassé", "produit-abime.procedure"],
   ["où en est ma commande ?", "suivi-commande.procedure"],
   ["comment vous contacter", "service-client.definition"],
+  ["quels sont vos horaires ?", "service-client.definition"],
+  ["êtes-vous ouverts le samedi ?", "service-client.definition"],
   ["qui êtes-vous ?", "duhalle.definition"],
   ["combien coûte la boucheuse à deux leviers", "catalogue.prix"],
   ["c'est cher ?", "catalogue.prix"],

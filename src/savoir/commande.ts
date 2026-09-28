@@ -96,6 +96,15 @@ r.concept("modifier-commande", "Modifier ou annuler une commande", ["modifier ma
 r.fait("modifier-commande", "procedure", `
   Pour modifier ou annuler une commande, contactez le service client **le plus tôt possible** au **${TELEPHONE}** ou à **${EMAIL}**, avec votre numéro de commande. Si le colis n'est pas encore parti, l'équipe pourra plus facilement faire le changement.`, { liens: [PAGES.contact] });
 
+r.concept("regrouper-commandes", "Regrouper deux commandes en un seul envoi", ["regrouper les commandes", "grouper les commandes", "fusionner les commandes", "regrouper les colis", "envoi groupe", "un seul envoi", "un seul colis"], {
+  famille: "commande",
+  voirAussi: ["suivi-commande", "modifier-commande", "livraison"],
+  formules: ["un seul et meme envoi", "un seul et meme colis", "le meme envoi", "le meme colis", "commandes ensemble", "expedier ensemble", "expedies ensemble", "envoyer ensemble", "envoyes ensemble"],
+});
+
+r.fait("regrouper-commandes", "procedure", `
+  Le regroupement de deux commandes en un seul envoi se fait par le service client : contactez-le **au plus vite** au **${TELEPHONE}** ou à **${EMAIL}**, en indiquant **les deux numéros de commande**. Tant que la première n'est pas encore expédiée, l'équipe peut voir s'il est possible de réunir les articles dans un même colis ; une commande déjà partie ne peut plus être regroupée.`, { liens: [PAGES.contact] });
+
 // ─── Livraison ─────────────────────────────────────────────────────────────
 
 r.concept("livraison", "Livraison", ["livraison", "livrer", "livre", "expedition", "expedier", "envoi", "envoyer", "frais de port", "frais de livraison", "frais d envoi", "transporteur", "transporteurs", "colis", "dpd", "colissimo", "geodis", "livraison gratuite", "livraison offerte", "franco de port", "port offert", "port gratuit"], {
@@ -198,3 +207,15 @@ r.concept("disponibilite", "Disponibilité des produits", ["stock", "en stock", 
 
 r.fait("disponibilite", "condition", `
   La disponibilité de chaque article est indiquée sur sa fiche produit. Si un produit est épuisé, le service client peut vous dire quand il sera de retour en stock : **${TELEPHONE}** ou **${EMAIL}**.`);
+
+// Pas d'alias « poids » seul : « le même poids de sucre que de fruits » parle
+// d'une recette, pas d'un article.
+r.concept("poids-produit", "Poids des articles", ["poids du produit", "poids de l article", "poids du colis"], {
+  famille: "catalogue",
+  lien: PAGES.contact,
+  voirAussi: ["livraison", "zone-livraison"],
+  formules: ["le poids", "quel poids", "son poids", "leur poids", "poids du", "combien pese", "combien ca pese", "ca pese combien", "il pese combien", "elle pese combien", "pese t il", "pese t elle"],
+});
+
+r.fait("poids-produit", "dimension", `
+  Le **poids** de chaque article est indiqué sur sa fiche produit, juste à côté du prix. Pour un article dont la fiche ne l'indique pas, ou pour le poids d'un colis complet, le service client vous renseigne au **${TELEPHONE}** ou à **${EMAIL}**.`);

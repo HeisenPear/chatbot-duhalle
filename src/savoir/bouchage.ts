@@ -396,6 +396,23 @@ r.concept("boucheuse-universelle", "Capsuleuse boucheuse universelle", ["capsule
 r.fait("boucheuse-universelle", "definition", `
   La **capsuleuse boucheuse universelle** pose aussi bien les **bouchons en liège ou en plastique** que les **capsules couronne** : un seul appareil pour le vin, le cidre et la bière.`, { source: PAGES.boucheuses.url, liens: [PAGES.boucheuseUniverselle] });
 
+r.concept("deformation-bouchon", "Bouchon comprimé ou déformé au bouchage", ["bouchon deforme", "deformer les bouchons", "bouchon ecrase", "bouchon plisse", "pli sur le bouchon", "bouchon froisse", "bouchon comprime", "compression du bouchon", "bouchon aplati"], {
+  famille: "boucheuse",
+  lien: PAGES.boucheuses,
+  voirAussi: ["controle-bouchage", "repos-bouchage", "bouchon-liege"],
+});
+
+r.fait("deformation-bouchon", "condition", `
+  Un bouchon en liège est toujours **comprimé** pour entrer dans le goulot, puis il se plaque contre le verre : c'est ce qui le rend étanche. Une fois retiré, il garde la forme du col, ce qui est normal. En revanche, un bouchon **plissé, déchiré, fendu ou profondément marqué** n'est pas normal : arrêtez la série et contrôlez le bouchon et la boucheuse avant de continuer.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.fait("deformation-bouchon", "raison", `
+  Un bouchon qui sort **plissé ou déformé** de la boucheuse est souvent trop sec ou trop dur, d'un diamètre supérieur à celui admis par l'appareil, ou pincé par des mors ou un embout encrassés ou usés. Une bouteille mal centrée ou un levier abaissé par à-coups peuvent aussi le marquer. Utilisez des bouchons sains au bon diamètre, nettoyez les mors ou l'embout, centrez la bouteille et abaissez le levier d'un **geste franc et continu**.`, { source: SAVOIR_FAIRE, liens: [PAGES.boucheuses] });
+
+r.fait(["boucheuse-universelle", "deformation-bouchon"], "condition", `
+  Le bouchon est **comprimé**, pas abîmé : c'est le principe de tout bouchage au liège. Sur la **capsuleuse boucheuse universelle**, le bouchon (24 à 26 mm de diamètre) est réduit dans un **embout conique** puis poussé par le piston dans le goulot. Une fois en place, il **reste comprimé** contre le verre, ce qui assure l'étanchéité ; laissez les bouteilles debout 24 à 48 heures avant de les coucher.
+
+  Un bouchon **plissé, déchiré, enfoncé de travers ou qui dépasse** n'est pas normal : vérifiez le diamètre et l'état du bouchon (sec, souple, sans fissure), la propreté de l'embout, le centrage de la bouteille et le réglage de hauteur, puis faites un essai. Si le défaut persiste, contactez le service client.`, { source: PAGES.boucheuseUniverselle.url, liens: [PAGES.boucheuseUniverselle, PAGES.contact] });
+
 // ─── Capsules couronne et capsuleuses ──────────────────────────────────────
 
 r.concept("capsule-couronne", "Capsules couronne", ["capsule", "capsules", "capsule couronne", "capsules couronne", "capsule metal", "capsules metal", "capsule 26", "capsule 29", "capsules 26 mm", "capsules 29 mm", "26 mm", "29 mm", "capsulage"], {
@@ -432,7 +449,7 @@ r.fait("capsuleuse", "gamme", `
   - **capsuleuse** standard ;
   - **capsuleuse manuelle Super Pro** à base acier, plateau réglable, livrée avec deux bagues (26 et 29 mm) ;
   - **capsuleuse sur trépied**, actionnée par levier, très stable ;
-  - **capsuleuse boucheuse universelle**, qui pose aussi les bouchons liège et plastique.`, {
+  - **capsuleuse boucheuse universelle**, qui pose aussi les bouchons liège et plastique (têtes prévues pour les capsules de 29 mm).`, {
   source: PAGES.bouchonsCidre.url,
   liens: [PAGES.capsuleuse, PAGES.capsuleuseSuperPro, PAGES.capsuleuseTrepied],
 });
@@ -442,3 +459,29 @@ r.fait("capsuleuse", "procedure", `
 
 r.fait("capsuleuse", "condition", `
   Une capsuleuse n'accepte les capsules de **26 et 29 mm** que si sa fiche prévoit les deux diamètres et que les têtes ou bagues correspondantes sont fournies ou disponibles. Vérifiez aussi la bague de la bouteille : le volume du flacon ne suffit pas à déterminer le diamètre.`, { liens: [PAGES.capsuleuse, PAGES.capsules29Or, PAGES.capsules26Or] });
+
+// Sans ce concept, « régler la hauteur » était lu comme un paiement (« régler »).
+r.concept("reglage-hauteur", "Régler la hauteur du plateau", ["regler la hauteur", "reglable en hauteur", "hauteur du plateau", "regler le plateau", "plateau reglable", "monter le plateau", "descendre le plateau", "hauteur du socle", "regler le socle", "socle reglable", "hauteur de la bague", "regler la bague", "hauteur de la tete", "regler la tete", "disque en acier"], {
+  famille: "bouchage",
+  voirAussi: ["capsule-couronne", "capsuleuse", "boucheuse-universelle"],
+});
+
+r.fait("reglage-hauteur", "procedure", `
+  Pour régler la hauteur d'une capsuleuse ou d'une boucheuse sur pied :
+  1. Montez d'abord la **tête ou la bague** qui correspond à la fermeture : capsule de 26 mm, capsule de 29 mm ou bouchon.
+  2. Posez sur le plateau une bouteille **identique à celles de la série** (même hauteur, même col), bien centrée sous la tête.
+  3. Selon le modèle, remontez le **plateau (socle)** ou descendez la **tête** jusqu'à ce qu'elle arrive juste au-dessus de la capsule, levier relevé, puis bloquez le réglage.
+  4. Faites un essai : en abaissant le levier, la capsule doit être sertie régulièrement tout autour du col, sans forcer.
+
+  Pour de petites bouteilles, le plateau doit être nettement remonté. Si la course du réglage ne suffit pas pour vos bouteilles, contactez le service client plutôt que d'improviser une cale.`, { source: SAVOIR_FAIRE, liens: [PAGES.capsuleuse, PAGES.contact] });
+
+r.fait(["capsuleuse", "reglage-hauteur"], "procedure", `
+  Sur les capsuleuses Duhallé, le réglage de hauteur dépend du modèle :
+  - **capsuleuse standard** : c'est la **hauteur de la bague** (la tête de sertissage) qui se règle ; un aimant y maintient la capsule ;
+  - **capsuleuse Super Pro** et **capsuleuse sur trépied** : c'est la **hauteur du socle**, le plateau où repose la bouteille, qui se règle ;
+  - **capsuleuse boucheuse universelle** : la hauteur se règle grâce à son **disque en acier**, prévu pour les petites comme les grandes bouteilles.
+
+  Réglez avec une bouteille de la série posée au centre : la tête doit arriver juste au-dessus de la capsule, puis la sertir sans forcer. Pour des bouteilles de **25 cl**, vérifiez aussi le diamètre de la bague : c'est souvent une capsule de **26 mm**, à poser avec la tête de 26 mm.`, { source: PAGES.bouchonsCidre.url, liens: [PAGES.capsuleuse, PAGES.capsuleuseSuperPro, PAGES.capsuleuseTrepied] });
+
+r.fait(["boucheuse-universelle", "reglage-hauteur"], "procedure", `
+  Sur la **capsuleuse boucheuse universelle**, la hauteur se règle grâce à son **disque en acier** (voir la notice) : il adapte l'appareil aux petites comme aux grandes bouteilles. Réglez-le avec une bouteille de la série posée bien au centre, pour que l'embout arrive juste au-dessus du goulot, puis faites un essai avant de lancer la série. Ses têtes amovibles sont prévues pour les **capsules de 29 mm** et les bouchons plastique : pour des capsules de 26 mm, fréquentes sur les petites bouteilles, demandez confirmation au service client.`, { source: PAGES.boucheuseUniverselle.url, liens: [PAGES.boucheuseUniverselle, PAGES.contact] });

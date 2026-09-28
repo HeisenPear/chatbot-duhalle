@@ -33,11 +33,11 @@ Cas particuliers :
 - **Rien de sûr** : l'assistant ne devine pas, il propose des pistes ou renvoie vers le service client.
 - **Trace** : chaque réponse porte une `trace` qui dit pourquoi (type lu, concepts, faits retenus).
 
-Aujourd'hui : **184 concepts** et **327 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
+Aujourd'hui : **189 concepts** et **338 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
 
 ### Mesure de la qualité
 
-- **Banc** (`test/banc.test.ts`) : 177 questions formulées comme les clients les posent, avec la réponse attendue. Tout doit passer.
+- **Banc** (`test/banc.test.ts`) : 184 questions formulées comme les clients les posent, avec la réponse attendue. Tout doit passer.
 - **Jeu inédit** (`test/inedit.test.ts`) : 25 questions écrites **après** le réglage, qu'on ne règle jamais une par une. Il est mesuré à **68 %** de premières réponses idéales, et les écarts restent en général dans le bon sujet. Quand un jeu inédit a servi à corriger, il rejoint le banc et on en écrit un nouveau. Les trois premiers jeux, mesurés à 57 %, 57 % puis 77 %, ont fait progresser les règles.
 
 ---
@@ -199,7 +199,7 @@ API :
 ```http
 POST /api/chat        {"message": "Quel bouchon pour un vin de garde ?", "contexte": {…}}
 GET  /api/accueil     message d'accueil et questions de départ
-GET  /api/sante       {"ok": true, "concepts": 184, "faits": 327}
+GET  /api/sante       {"ok": true, "concepts": 189, "faits": 338}
 ```
 
 La réponse de `/api/chat` contient `texte` (gras, listes, paragraphes), `liens`, `suggestions`, `contexte` (à renvoyer avec la question suivante pour les relances) et `trace`.

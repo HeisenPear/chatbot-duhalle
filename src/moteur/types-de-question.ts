@@ -48,7 +48,7 @@ export const MARQUES_DE_TYPE: readonly MarqueDeType[] = [
   {
     type: "valeur",
     motif:
-      / (?:quelle (?:taille|dimension|longueur|hauteur|temperature|contenance|capacite|quantite|humidite|dose|cadence)|quel (?:niveau|diametre|format|volume|poids|calibre|taux|degre|nombre|dosage)|combien de|combien en faut|dimensions?|diametres?|tailles?|mesures?|mm|cm|contenance|capacite|doses?|dosages?|temperatures?|humidite|cadence|puissance|watts?|quelle puissance|combien de litres|combien de places) /,
+      / (?:quelle (?:est la )?(?:taille|dimension|longueur|hauteur|temperature|contenance|capacite|quantite|humidite|dose|cadence)|quel (?:est le )?(?:niveau|diametre|format|volume|poids|calibre|taux|degre|nombre|dosage)|combien de|combien en faut|dimensions?|diametres?|tailles?|mesures?|mm|cm|contenance|capacite|doses?|dosages?|temperatures?|humidite|cadence|puissance|watts?|quelle puissance|combien de litres|combien de places) /,
     signal: "une valeur : « quelle taille », « quel diamètre », « combien de »",
   },
   {

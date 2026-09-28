@@ -1,5 +1,5 @@
 // L'entreprise Duhallé, sa boutique et son service client.
-import { EMAIL, TELEPHONE } from "./coordonnees";
+import { EMAIL, HORAIRES, TELEPHONE } from "./coordonnees";
 import { PAGES } from "./liens";
 import { rubrique, SAVOIR_FAIRE } from "./outils";
 
@@ -56,17 +56,15 @@ r.fait("duhalle", "lieu", `
 
 // ─── Le service client ─────────────────────────────────────────────────────
 
-r.concept("service-client", "Contacter le service client", ["service client", "contact", "contacter", "telephone", "numero de telephone", "numero", "joindre", "appeler", "email", "e mail", "mail", "adresse mail", "courriel", "sav", "service apres vente", "horaires", "standard", "ecrire"], {
+r.concept("service-client", "Contacter le service client", ["service client", "contact", "contacter", "telephone", "numero de telephone", "numero", "joindre", "appeler", "email", "e mail", "mail", "adresse mail", "courriel", "sav", "service apres vente", "horaires", "heures d ouverture", "jours d ouverture", "standard", "ecrire"], {
   lien: PAGES.contact,
-  formules: ["vous joindre", "vous contacter", "vous appeler", "vous ecrire", "vous telephoner"],
+  formules: ["vous joindre", "vous contacter", "vous appeler", "vous ecrire", "vous telephoner", "etes vous ouvert", "etes vous ouverts", "vous etes ouvert", "vous etes ouverts", "ouvert le samedi", "ouverts le samedi", "ouvert le week end", "ouverts le week end"],
 });
 
 r.fait("service-client", "definition", `
   Notre service client est **gratuit** et répond à toutes vos questions sur les produits et les commandes :
-  - par téléphone au **${TELEPHONE}** ;
-  - par e-mail à **${EMAIL}**.
-
-  Les horaires d'ouverture sont indiqués sur la page Contact du site.`, { liens: [PAGES.contact] });
+  - par téléphone au **${TELEPHONE}**, du **lundi au jeudi** de ${HORAIRES.lundiJeudi}, et le **vendredi** de ${HORAIRES.vendredi} ;
+  - par e-mail à **${EMAIL}**, y compris en dehors de ces horaires.`, { liens: [PAGES.contact] });
 
 // ─── Avis, fidélité, promotions ────────────────────────────────────────────
 

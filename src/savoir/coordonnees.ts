@@ -7,6 +7,12 @@ import { PAGES } from "./liens";
 export const TELEPHONE = "02 47 53 00 26";
 export const EMAIL = "contact@duhalle-boutique.fr";
 
+/** Horaires du service client, relevés le 28/09/2026 sur la page Contact et le pied de page du site. */
+export const HORAIRES = {
+  lundiJeudi: "9h à 12h et de 14h à 18h",
+  vendredi: "9h à 12h et de 14h à 16h",
+} as const;
+
 /** Seuils de livraison offerte en France continentale, par transporteur. */
 export const LIVRAISON_OFFERTE = {
   dpd: "69 €",

@@ -214,13 +214,28 @@ const QUESTIONS_ORALES_3: Array<[string, string[]]> = [
   ["huile de cade utilisation", ["huile-cade.usage"]],
 ];
 
+/**
+ * Questions réelles relevées dans la base D1 (week-end des 26 et 27/09/2026,
+ * puis le 28/09), telles que les clients les ont tapées. Toutes sauf le
+ * contact recevaient une réponse hors sujet avant correction.
+ */
+const QUESTIONS_REELLES: Array<[string, string[]]> = [
+  ["d’après un site Castorama les commentaires des clients sont souvent négatif ils mettent sur un problème de stabilité et de robustesse et l’inclinaison vers l’avant des bouteilles", ["avis-clients+stabilite-casier.condition"]],
+  ["Bonjour j ai reçu cette encapsuleuse aujourd'hui, comment fait on pour régler la hauteur ? J ai des bouteilles de 25 cl", ["capsuleuse+reglage-hauteur.procedure"]],
+  ["Comment fait on pour régler la hauteur du plateau pour les petites bouteilles", ["reglage-hauteur.procedure"]],
+  ["La capsuleuse boucheuse universelle déforme-t-elle les bouchons après leur insertion dans le goulot de la bouteille ?", ["boucheuse-universelle+deformation-bouchon.condition"]],
+  ["Comment contacter le service client ?", ["service-client.definition"]],
+  ["le poids", ["poids-produit.dimension"]],
+  ["Bonjour, je viens d'effectuer une commande d'un chauffe cire. J'avais également effectué une commande pour la cire le 25 septembre. En regardant le suivi de commande de la commande de cire, je constate qu'elle n'a toujours pas été expédiée. Est-il possible de faire un seul et même envoi ?", ["regrouper-commandes.procedure"]],
+];
+
 describe("le banc de questions", () => {
   it.each(QUESTIONS)("« %s » → %s", (question, attendu) => {
     const reponse = assistant.repondre(question);
     expect(reponse.trace.faits[0]).toBe(attendu);
   });
 
-  it.each([...QUESTIONS_ORALES, ...QUESTIONS_ORALES_2, ...QUESTIONS_ORALES_3])("« %s » → %j", (question, acceptables) => {
+  it.each([...QUESTIONS_ORALES, ...QUESTIONS_ORALES_2, ...QUESTIONS_ORALES_3, ...QUESTIONS_REELLES])("« %s » → %j", (question, acceptables) => {
     expect(acceptables).toContain(assistant.repondre(question).trace.faits[0]);
   });
 });

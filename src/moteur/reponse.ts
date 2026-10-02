@@ -200,6 +200,24 @@ export class ConstructeurDeReponse {
       plan = PLAN_PAR_DEFAUT;
       faits = this.selectionner(candidats, plan, false, false, null);
     }
+    // Une mise en garde (loi, sécurité) accompagne la réponse dès que son
+    // concept est cité, même si la question porte surtout sur autre chose.
+    // Pas dans une relance : elle a déjà été dite.
+    if (!options.doitToucher) {
+      const dits = new Set(faits.map((f) => f.fait.id));
+      const sujets = new Set(faits.flatMap((f) => f.fait.concepts));
+      // Pas de mise en garde si la réponse parle déjà de ce sujet : elle l'a dite.
+      const garde = candidats
+        .filter(
+          (c) =>
+            c.fait.avertissement &&
+            !dits.has(c.fait.id) &&
+            c.fait.concepts.every((id) => cites.includes(id)) &&
+            !c.fait.concepts.some((id) => sujets.has(id)),
+        )
+        .sort((a, b) => b.score - a.score)[0];
+      if (garde) faits = [...faits, garde];
+    }
     return { faits, plan, liens: this.liens(faits, cites) };
   }
 
@@ -241,7 +259,11 @@ export class ConstructeurDeReponse {
     );
     // Le principal d'abord, puis les compléments dans l'ordre du plan.
     retenus.sort((a, b) => (a === principal ? -1 : b === principal ? 1 : plan.indexOf(a.aspect) - plan.indexOf(b.aspect)));
-    return retenus.flatMap((g) => g.faits).slice(0, MAX_FAITS);
+    // Un même énoncé écrit pour plusieurs aspects (« procédure » et « condition »)
+    // ne s'affiche qu'une fois.
+    const dits = new Set<string>();
+    const sansDoublon = retenus.flatMap((g) => g.faits).filter((f) => !dits.has(f.fait.enonce) && !!dits.add(f.fait.enonce));
+    return sansDoublon.slice(0, MAX_FAITS);
   }
 
   /** Deux concepts sont liés si l'un est dans la lignée de l'autre. */

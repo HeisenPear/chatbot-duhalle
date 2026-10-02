@@ -50,9 +50,9 @@ r.fait(["bouchage", "cidre"], "choix", `
 
   Le choix dépend d'abord de la **bague du goulot**, de la pression attendue et de la durée de conservation. Les capsules se posent avec une capsuleuse compatible.`, { liens: [PAGES.capsules29Or, PAGES.capsulesOpercule, PAGES.bouchonsPlastiqueCidre] });
 
-r.concept("pomme", "Les pommes à cidre", ["pomme", "pommes", "pommes a cidre", "variete de pomme", "varietes de pommes", "quelles pommes", "pommes douces", "pommes ameres", "pommes acides", "fruits"], {
+r.concept("pomme", "Les pommes à cidre", ["pomme", "pommes", "pommes a cidre", "variete de pomme", "varietes de pommes", "quelles pommes", "pommes douces", "pommes ameres", "pommes acides"], {
   famille: "cidre",
-  formules: ["laver les pommes avant de les broyer", "laver les pommes avant broyage", "garder les pommes avant pressage", "conserver les pommes avant de les presser"],
+  formules: ["fruits a cidre", "fruits pour le cidre", "fruits du cidre", "laver les pommes avant de les broyer", "laver les pommes avant broyage", "garder les pommes avant pressage", "conserver les pommes avant de les presser"],
 });
 
 r.fait("pomme", "choix", `

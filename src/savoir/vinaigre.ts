@@ -1,4 +1,5 @@
 // Le vinaigre maison et les vinaigriers en grès fabriqués au Portugal.
+import { EMAIL, TELEPHONE } from "./coordonnees";
 import { PAGES } from "./liens";
 import { rubrique, SAVOIR_FAIRE } from "./outils";
 
@@ -47,10 +48,25 @@ r.fait("mere-vinaigre", "definition", `
 r.fait("mere-vinaigre", "raison", `
   Une pellicule lisse et gélatineuse à la surface peut être une nouvelle mère, ce qui est normal. En revanche, des taches duveteuses, colorées ou une odeur anormale évoquent une contamination : ne confondez pas les deux et écartez le lot en cas de doute.`, { source: SAVOIR_FAIRE });
 
+const COULEURS = ["noir", "noire", "blanc", "blanche", "rouge", "bleu", "bleue", "vert", "verte", "gris", "grise", "jaune", "rose", "marron", "beige", "orange", "violet", "violette", "marine"];
+/** « existe en noir », « disponible en rouge » : une demande de coloris. */
+const demandesDeCouleur = COULEURS.flatMap((c) => [`existe en ${c}`, `existe t il en ${c}`, `existe t elle en ${c}`, `disponible en ${c}`, `en ${c} aussi`, `vinaigrier ${c}`, `vinaigriers ${c}`]);
+
 r.concept("vinaigrier", "Vinaigriers", ["vinaigrier", "vinaigriers", "vinaigrier en gres", "vinaigrier gres", "jarre a vinaigre", "pot a vinaigre", "tonneau a vinaigre", "vinaigrier chene", "vinaigrier en chene", "gres", "ustensiles en gres", "poterie"], {
   famille: "vinaigre",
   lien: PAGES.vinaigriers,
 });
+
+r.concept("coloris", "Couleurs et coloris", ["coloris"], {
+  famille: "catalogue",
+  formules: demandesDeCouleur,
+});
+
+r.fait("coloris", "gamme", `
+  Les coloris et finitions disponibles sont indiqués sur la **fiche de chaque produit**. Si la couleur que vous cherchez n'y figure pas, le service client peut vous confirmer si elle existe : **${TELEPHONE}** ou **${EMAIL}**.`, { liens: [PAGES.contact] });
+
+r.fait(["vinaigrier", "coloris"], "gamme", `
+  Dans la gamme actuelle, les vinaigriers en grès existent en **rouge** (2,5 L), **gris anthracite** (3,5 L), **grès naturel**, **bleu Provence**, **jaune safran** ou « **à l'ancienne** » (4 L), et **grès naturel** ou **bleu nuit** (5 L, en forme de tonneau). Le vinaigrier en **chêne** (3 L) a la teinte du bois. Il n'y a pas de modèle noir : le plus sombre est le **gris anthracite**. Pour une demande particulière, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`, { liens: [PAGES.vinaigriers, PAGES.contact] });
 
 r.fait("vinaigrier", "definition", `
   Les vinaigriers Duhallé sont en **grès**, fabriqués artisanalement au **Portugal** par une entreprise à taille humaine. Le grès protège le vinaigre de la lumière et des écarts de température. Ils sont équipés d'un **robinet en bois** et d'un **bouchon en liège**, et certains modèles sont livrés avec leur **tabouret en bois**.`, { liens: [PAGES.vinaigriers] });
@@ -90,9 +106,25 @@ r.concept("moucherons-vinaigrier", "Moucherons dans le vinaigrier", ["moucheron"
 r.fait("moucherons-vinaigrier", "condition", `
   Couvrez l'ouverture d'une **toile fine respirante**, nettoyez immédiatement les coulures autour du robinet et éloignez fruits mûrs et déchets. Vérifiez que la protection ne laisse aucun passage, mais ne remplacez pas cette aération par une fermeture hermétique.`, { source: SAVOIR_FAIRE });
 
-r.concept("robinet-vinaigrier", "Robinet du vinaigrier", ["robinet", "robinet en bois", "robinet qui fuit", "le robinet coule", "robinet vinaigrier"], {
+r.concept("robinet-vinaigrier", "Robinet du vinaigrier", ["robinet", "robinets", "robinet en bois", "robinets en bois", "robinet qui fuit", "le robinet coule", "robinet vinaigrier", "changer le robinet", "remplacer le robinet"], {
   famille: "vinaigrier",
 });
+
+r.fait("robinet-vinaigrier", "condition", `
+  Si le robinet ne fonctionne pas :
+  - **il ne coule pas** : ouvrez-le en grand et vérifiez que le vinaigrier est posé assez haut (sur son tabouret) ; un dépôt ou un morceau de mère peut obstruer l'intérieur, retirez le robinet et rincez-le à l'eau claire ;
+  - **il est dur ou bloqué** : ne forcez pas sur le grès, humidifiez le bois et tournez doucement.
+
+  Si le problème persiste, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+
+// Concept à part : sinon un fait « choix » capterait « le robinet goutte », l'aspect choix passant avant la condition dans le plan par défaut.
+r.concept("choix-robinet", "Robinet de remplacement ou de rechange", [], {
+  famille: "robinet-vinaigrier",
+  formules: ["taille du robinet", "taille de robinet", "taille de mon robinet", "diametre du robinet", "diametre de robinet", "dimension du robinet", "dimensions du robinet", "choisir son robinet", "choisir le robinet", "choisir un robinet", "quel robinet", "quels robinets", "bon robinet", "robinet adapte", "robinet compatible", "robinet de rechange", "robinets de rechange", "robinet de remplacement", "robinets de remplacement"],
+});
+
+r.fait("choix-robinet", "choix", `
+  Un **robinet en bois**, comme celui livré avec les vinaigriers Duhallé, convient très bien : il est naturel, ne rouille pas et gonfle pour devenir étanche. Évitez les robinets en métal non adapté, car l'acidité du vinaigre attaque les métaux. Le point décisif est la **taille** : la partie du robinet qui s'engage doit correspondre au trou du vinaigrier, d'où l'intérêt de mesurer ce trou avant de commander. En cas de doute, indiquez le modèle de votre vinaigrier au service client, au **${TELEPHONE}** ou à **${EMAIL}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
 
 r.fait("robinet-vinaigrier", "condition", `
   Un **robinet en bois** qui fuit un peu au début est normal : le bois doit gonfler. Faites-le tremper dans l'eau quelques heures avant de le remettre en place. Si la fuite persiste, contactez le service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
@@ -119,10 +151,25 @@ r.concept("stockage-vinaigre", "Conserver le vinaigre soutiré", ["conserver le 
 r.fait("stockage-vinaigre", "entretien", `
   Conservez le vinaigre soutiré dans une bouteille propre, compatible avec l'acidité et bien fermée, à l'abri de la lumière et de la chaleur. Étiquetez la date et les éventuels aromates ; jetez le produit si l'aspect ou l'odeur devient anormal.`, { source: SAVOIR_FAIRE });
 
-r.concept("bouchon-vinaigrier", "Bouchon de vinaigrier", ["bouchon de vinaigrier", "bouchon vinaigrier", "bouchon de rechange", "bouchon pour vinaigrier", "32 28"], {
+r.concept("bouchon-vinaigrier", "Bouchon de vinaigrier", ["bouchon de vinaigrier", "bouchon vinaigrier", "bouchon de rechange", "bouchon pour vinaigrier", "32 28", "bouchon perce", "bouchons perces", "bouchon perce conique", "bouchon conique pour vinaigrier"], {
   famille: "vinaigrier",
   lien: PAGES.bouchonVinaigrier,
 });
 
 r.fait("bouchon-vinaigrier", "definition", `
   Duhallé propose un **bouchon en liège conique de rechange pour vinaigrier**, de 32 x 28 mm.`, { source: PAGES.bondes.url, liens: [PAGES.bouchonVinaigrier] });
+
+r.fait("bouchon-vinaigrier", "dimension", `
+  Le **bouchon percé en liège, de forme conique**, de rechange pour vinaigrier mesure **32 x 28 mm** (grand diamètre 32 mm, petit diamètre 28 mm) : il convient à un trou de **28 à 32 mm**. Pour un trou plus petit ou plus grand, mesurez-le et comparez avec les tailles de bondes coniques (28/24, 30/26, 35/31, 38/34 mm…), ou demandez conseil au service client au **${TELEPHONE}**.`, { source: PAGES.bondes.url, liens: [PAGES.bouchonVinaigrier, PAGES.bondes, PAGES.contact] });
+
+const CHOIX_DU_BOUCHON_DE_VINAIGRIER = `
+  Pour choisir le bouchon de votre vinaigrier, **mesurez le diamètre du trou** à l'endroit où le bouchon vient se coincer : il doit se situer entre le petit et le grand diamètre du bouchon conique. Le bouchon percé de rechange (**32 x 28 mm**) convient à un trou de 28 à 32 mm. Un trou de **25 mm** est trop petit pour lui : une bonde conique **28/24 mm** le ferme, mais elle n'est pas percée ; si le bouchon doit laisser passer le robinet, indiquez le modèle de votre vinaigrier au service client, au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+r.fait("bouchon-vinaigrier", "choix", CHOIX_DU_BOUCHON_DE_VINAIGRIER, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonVinaigrier, PAGES.bondes, PAGES.contact] });
+
+// Même texte pour « le trou de mon vinaigrier fait 30 mm » : croisé avec le trou à boucher, il passe devant les faits généraux.
+r.fait(["trou-bouchon", "vinaigrier"], "choix", CHOIX_DU_BOUCHON_DE_VINAIGRIER, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonVinaigrier, PAGES.bondes, PAGES.contact] });
+r.fait(["trou-bouchon", "vinaigrier"], "dimension", CHOIX_DU_BOUCHON_DE_VINAIGRIER, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonVinaigrier, PAGES.bondes, PAGES.contact] });
+
+r.fait("bouchon-vinaigrier", "procedure", `
+  Pour remplacer le bouchon du vinaigrier : retirez l'ancien en le tournant doucement, nettoyez et séchez le trou, puis enfoncez le nouveau bouchon conique **à la main, sans forcer ni frapper**, jusqu'à ce qu'il tienne fermement. Le bouchon percé de rechange mesure **32 x 28 mm** : il convient à un trou de 28 à 32 mm. Pour un autre diamètre, mesurez le trou et choisissez une bonde conique adaptée, ou demandez conseil au service client au **${TELEPHONE}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonVinaigrier, PAGES.bondes, PAGES.contact] });

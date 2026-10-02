@@ -193,6 +193,15 @@ describe("sécurité", () => {
     expect(anonymiser("livrez au 12 rue des Lilas à Rouen")).toBe("livrez au [adresse]");
     expect(anonymiser("site https://example.com/client/42")).toBe("site [lien]");
     expect(anonymiser("bouchon 45 x 24 ou 38 x 24")).toBe("bouchon 45 x 24 ou 38 x 24");
+    // Signatures : le nom en fin de message ou accolé à l'e-mail ne doit pas être conservé.
+    expect(anonymiser("Mon colis est perdu. Merci Christophe Godier - christophe@exemple.fr")).toBe("Mon colis est perdu. Merci [nom] - [e-mail]");
+    expect(anonymiser("Pouvez-vous me rappeler ? Cordialement, Marie Dupont")).toBe("Pouvez-vous me rappeler ? Cordialement, [nom]");
+    expect(anonymiser("Jean-Pierre Martin, jp@exemple.fr")).toBe("[nom], [e-mail]");
+    expect(anonymiser("Bonne journée. Anne-Sophie De La Fontaine")).toBe("Bonne journée. [nom]");
+    // Sans signature, rien ne change.
+    expect(anonymiser("Merci beaucoup")).toBe("Merci beaucoup");
+    expect(anonymiser("Merci, quel bouchon pour un vin de garde ?")).toBe("Merci, quel bouchon pour un vin de garde ?");
+    expect(anonymiser("Quel bouchon Duhallé pour du cidre ?")).toBe("Quel bouchon Duhallé pour du cidre ?");
   });
 });
 

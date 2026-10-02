@@ -28,6 +28,13 @@ export interface MarqueDeType {
 
 export const MARQUES_DE_TYPE: readonly MarqueDeType[] = [
   {
+    // « Dois-je annuler et refaire ma commande, ou comment faire ? » demande une
+    // marche à suivre, même si un mot de prix (« frais d'envoi ») s'y glisse.
+    type: "procedure",
+    motif: / ou comment (?:faire|proceder|s y prendre|m y prendre|je fais|on fait|dois je faire|doit on faire) /,
+    signal: "une marche à suivre : « …, ou comment faire ? »",
+  },
+  {
     type: "prix",
     motif:
       / (?:prix|tarifs?|combien (?:coute|coutent|ca coute|ca fait|vaut|valent|ca vaut)|coute|coutent|cout|couts|cher|chere|chers|onereux|frais (?:de port|de livraison|d envoi|d expedition|de transport)|gratuit|gratuite|gratuits|offerte?s?|payant|payante|euros?) /,
@@ -81,7 +88,7 @@ export const MARQUES_DE_TYPE: readonly MarqueDeType[] = [
   {
     type: "gamme",
     motif:
-      / (?:vendez vous|vendez|avez vous|vous avez|proposez vous|vous proposez|proposez|faites vous|vous faites|existe t il|y a t il|quels (?:sont les |types? de |modeles? de |sortes? de )?|quelles (?:sont les |sortes? de )?|gamme|catalogue|la liste|quoi comme|que vendez) /,
+      / (?:vendez vous|vendez|avez vous|vous avez|proposez vous|vous proposez|proposez|faites vous|vous faites|existe t il|existe t elle|existent ils|existe en|existent en|disponibles? en|autres? (?:couleurs?|coloris)|quelles? couleurs?|quels? coloris|y a t il|quels (?:sont les |types? de |modeles? de |sortes? de )?|quelles (?:sont les |sortes? de )?|gamme|catalogue|la liste|quoi comme|que vendez) /,
     signal: "une gamme : « vendez-vous », « avez-vous », « quels… », « quelles… »",
   },
   {

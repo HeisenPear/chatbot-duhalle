@@ -26,6 +26,16 @@ export function anonymiser(question: string): string {
       /\b(je m['’]appelle|mon nom est|moi(?:,|\s)+c['’]est)\s+[\p{L}\p{M}'’-]+(?:\s+[\p{L}\p{M}'’-]+)?/giu,
       "$1 [nom]",
     )
+    // Une signature : des noms propres en fin de message après une formule de politesse
+    // (« Merci Christophe Godier »), ou accolés à l'adresse e-mail déjà masquée.
+    .replace(
+      /\b([Mm]erci(?: d['’]avance| beaucoup)?|[Cc]ordialement|[Bb]ien cordialement|[Cc]dlt|[Ss]alutations|[Bb]ien à vous|[Bb]onne journée|[Bb]onne soirée)([\s,.!:;-]*)(?:[A-ZÀ-Ý][\p{L}'’-]+)(?:\s+[A-ZÀ-Ý][\p{L}'’-]+){0,3}(\s*[-–—,:]?\s*\[e-mail\])?\s*$/gu,
+      "$1$2[nom]$3",
+    )
+    .replace(
+      /(?!(?:Merci|Cordialement|Bonjour|Bonsoir|Salutations|Cdlt)\b)(?:[A-ZÀ-Ý][\p{L}'’-]+)(?:\s+[A-ZÀ-Ý][\p{L}'’-]+){1,3}(\s*[-–—,:]?\s*)(?=\[e-mail\])/gu,
+      "[nom]$1",
+    )
     // Six chiffres ou plus : un format de bouchon (« 45 x 24 ») reste lisible.
     .replace(/\+?\d[\d\s.\-/]*\d/g, (n) => (n.replace(/\D/g, "").length >= 6 ? "[numéro]" : n))
     .replace(/\s+/g, " ")

@@ -33,11 +33,12 @@ Cas particuliers :
 - **Rien de sûr** : l'assistant ne devine pas, il propose des pistes ou renvoie vers le service client.
 - **Trace** : chaque réponse porte une `trace` qui dit pourquoi (type lu, concepts, faits retenus).
 
-Aujourd'hui : **189 concepts** et **338 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
+Aujourd'hui : **204 concepts** et **381 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
 
 ### Mesure de la qualité
 
 - **Banc** (`test/banc.test.ts`) : 186 questions formulées comme les clients les posent, avec la réponse attendue. Tout doit passer.
+- **Questions réelles** (`test/clients-reels.test.ts`) : les questions posées par les vrais clients (lues dans la base D1), puis des questions **voisines** (autres formulations, cas proches) pour que la réponse vise plus large que la phrase vue. Chaque lot relu y est ajouté.
 - **Jeu inédit** (`test/inedit.test.ts`) : 25 questions écrites **après** le réglage, qu'on ne règle jamais une par une. Il est mesuré à **68 %** de premières réponses idéales, et les écarts restent en général dans le bon sujet. Quand un jeu inédit a servi à corriger, il rejoint le banc et on en écrit un nouveau. Les trois premiers jeux, mesurés à 57 %, 57 % puis 77 %, ont fait progresser les règles.
 
 ---
@@ -134,11 +135,20 @@ r.concept("muselet", "Muselets", ["muselet", "muselets", "agrafe de bouchon"], {
 r.fait(["bouchon", "vin-de-garde"], "choix", `Pour un vin de garde, …`);
 ```
 
+**Une mise en garde** (loi, sécurité) se marque avec `avertissement: true` : elle accompagne toute réponse qui cite son concept, même quand la question porte surtout sur autre chose (aujourd'hui : la distillation à domicile, interdite sans autorisation).
+
+```ts
+r.fait("distillation", "condition", `En France, la distillation à domicile est interdite…`, { avertissement: true });
+```
+
+**Un même énoncé peut être rattaché à plusieurs aspects** (par exemple « procédure » et « condition ») pour être trouvé quel que soit le type de la question : la réponse ne l'affiche qu'une fois.
+
 Les aspects possibles sont : `definition`, `usage`, `gamme`, `choix`, `dimension`, `procedure`, `duree`, `moment`, `condition`, `raison`, `erreur`, `entretien`, `lieu`, `prix`.
 
 Règles de la maison :
 - **Vouvoiement, pas d'emoji, jamais de mention de Lafitte.** Les tests le vérifient.
 - **Pas d'alias qui désigne deux concepts** : un test le signale.
+- **Un mot courant n'est pas un alias** : « maison », « couleur », « fruits » rattacheraient à tort la question à un autre sujet. Utilisez des `formules`, qui exigent l'expression entière.
 - Évitez les alias faits d'un mot trop général (« produit », « vin », « temps ») et les alias qui contiennent le nom d'un autre concept.
 - Après une modification, lancez `npm test`. Si une question du banc change de réponse, vérifiez que la nouvelle est meilleure avant de mettre le banc à jour.
 
@@ -178,6 +188,7 @@ Le site n'était pas accessible depuis l'environnement de développement. Les in
 - **Paiement** : carte bancaire, PayPal, virement et 4 fois sans frais.
 - Les **horaires** du service client (`HORAIRES` dans `src/savoir/coordonnees.ts`) : du lundi au jeudi 9h-12h et 14h-18h, le vendredi 9h-12h et 14h-16h, identiques sur la page Contact et le pied de page du site au 28/09/2026.
 - Les **URL** des pages et des produits (`src/savoir/liens.ts`), relevées le 24/09/2026.
+- Ajoutés le 02/10/2026 à partir des questions réelles, à relire : la **procédure en cas de colis abîmé** (réserves sur le bon du livreur, photos), l'**e-mail de confirmation** après paiement, les conseils en cas de **paiement refusé**, la **facture** (compte client ou service client, facture au nom d'une entreprise), les **options de livraison** (point relais, express, samedi : renvoyées à la validation du panier et au service client), les **pièces vendues à part** (bondes et bouchon de rechange du vinaigrier seulement), le **tableau des bondes** pour un trou donné (tiré des tailles 28/24 à 38/34 mm), l'absence de **vinaigrier noir** (tirée de la gamme listée), et la **mention sur la distillation à domicile**.
 - Les **caractéristiques produits** (formats de bouchons, catégories, contenances…), reprises des titres et descriptions indexés.
 
 Les faits de **savoir-faire général** (étapes de la mise en bouteille, du cidre, du vinaigre, conserves…) portent la source « Savoir-faire général ». Ils méritent une relecture par l'équipe Duhallé.
@@ -199,7 +210,7 @@ API :
 ```http
 POST /api/chat        {"message": "Quel bouchon pour un vin de garde ?", "contexte": {…}}
 GET  /api/accueil     message d'accueil et questions de départ
-GET  /api/sante       {"ok": true, "concepts": 189, "faits": 338}
+GET  /api/sante       {"ok": true, "concepts": 204, "faits": 381}
 ```
 
 La réponse de `/api/chat` contient `texte` (gras, listes, paragraphes), `liens`, `suggestions`, `contexte` (à renvoyer avec la question suivante pour les relances) et `trace`.

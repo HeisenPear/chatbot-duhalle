@@ -1,5 +1,6 @@
 // Le bouchage : bouchons et bondes en liège, boucheuses, capsules couronne
 // et capsuleuses. Le cœur de métier de Duhallé.
+import { TELEPHONE } from "./coordonnees";
 import { PAGES } from "./liens";
 import { rubrique, SAVOIR_FAIRE } from "./outils";
 
@@ -264,7 +265,7 @@ r.fait("bouchon-tete", "definition", `
 
 // ─── Les bondes ────────────────────────────────────────────────────────────
 
-r.concept("bonde", "Bondes en liège", ["bonde", "bondes", "bonde en liege", "bonde conique", "bouchon de fut", "bouchon de tonneau", "bouchon de dame jeanne", "bouchon de bonbonne", "bouchon de bocal", "gros bouchon", "grand bouchon", "bouchon grand diametre", "bouchon col large", "bouchon large"], {
+r.concept("bonde", "Bondes en liège", ["bonde", "bondes", "bonde en liege", "bonde conique", "bouchon de fut", "bouchon de tonneau", "bouchon de dame jeanne", "bouchon de bonbonne", "bouchon de marie jeanne", "bouchon de bocal", "gros bouchon", "grand bouchon", "bouchon grand diametre", "bouchon col large", "bouchon large"], {
   famille: "bouchon",
   lien: PAGES.bondes,
 });
@@ -280,6 +281,31 @@ r.fait("bonde", "choix", `
 
 r.fait(["bonde", "contenant"], "gamme", `
   Oui : pour fermer une **dame-jeanne**, une **bonbonne** ou un **fût**, Duhallé propose des bondes coniques en liège, de **28/24 mm** pour les petits cols jusqu'à **120/115 mm** pour les bonbonnes à col large. Mesurez le diamètre intérieur du col : il doit se situer entre le petit et le grand diamètre de la bonde.`, { liens: [PAGES.bondes, PAGES.bondesLot3] });
+
+r.concept("trou-bouchon", "Bouchon pour un trou donné", ["trou", "trous", "orifice", "orifices", "diametre du trou", "diametre de l orifice"], {
+  famille: "bonde",
+  lien: PAGES.bondes,
+  voirAussi: ["bonde", "bouchon-vinaigrier", "contenant"],
+  // « un bouchon … un trou de 25 mm » : sans formules, « trou » et « bouchon » seraient pris pour les lenticelles.
+  formules: [
+    "un trou de", "le trou de", "du trou", "trou de mon", "trou de ma", "trou de la", "trou de l", "trou mesure", "trou fait", "correspond a un trou", "convient a un trou", "pour un trou", "pour mon trou",
+    // « un col de 38 mm », « un goulot de 30 mm » : le diamètre dit qu'il s'agit d'une bonde (« goulot de la bouteille » n'en est pas une).
+    ...Array.from({ length: 109 }, (_, i) => i + 22).flatMap((n) => [`col de ${n}`, `col mesure ${n}`, `col fait ${n}`, `goulot de ${n}`, `goulot mesure ${n}`, `goulot fait ${n}`, `orifice de ${n}`, `ouverture de ${n}`]),
+  ],
+});
+
+r.fait("trou-bouchon", "dimension", `
+  Un bouchon conique convient à un trou dont le diamètre se situe **entre son petit et son grand diamètre**. Pour les bondes en liège Duhallé (grand / petit diamètre) :
+  - **28/24 mm** : trou de 24 à 28 mm, par exemple **25 mm** ;
+  - **30/26 mm** : trou de 26 à 30 mm ;
+  - **32/28 mm** : trou de 28 à 32 mm ;
+  - **35/31 mm** : trou de 31 à 35 mm ;
+  - **38/34 mm** : trou de 34 à 38 mm.
+
+  Pour de plus grands cols, il existe aussi des bondes **55/50**, **100/95** et **120/115 mm**.`, { source: PAGES.bondes.url, liens: [PAGES.bondes, PAGES.bondesLot3] });
+
+r.fait("trou-bouchon", "choix", `
+  Pour trouver le bouchon d'un trou, **mesurez son diamètre intérieur** avec un pied à coulisse ou une règle, à l'endroit où le bouchon vient se coincer. Choisissez ensuite la bonde conique dont le petit diamètre est **plus petit** et le grand diamètre **plus grand** que cette mesure : elle s'enfonce sans forcer et tient fermement. Un trou de 25 mm correspond ainsi à une bonde **28/24 mm**. Les bondes ne couvrent pas tous les diamètres (par exemple en dessous de 24 mm ou entre 38 et 50 mm) : dans ce cas, contactez le service client. Si le bouchon doit être **percé** (passage d'un robinet, d'un tube), précisez-le au service client, au **${TELEPHONE}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.bondes, PAGES.bondesLot3] });
 
 // ─── Les boucheuses ────────────────────────────────────────────────────────
 

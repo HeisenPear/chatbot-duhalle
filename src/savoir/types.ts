@@ -102,6 +102,11 @@ export interface Fait {
   readonly source: string;
   /** Date ISO de la dernière vérification. */
   readonly verifieLe: string;
+  /**
+   * Une mise en garde (loi, sécurité) : elle accompagne toute réponse qui cite
+   * son concept, même quand la question porte surtout sur autre chose.
+   */
+  readonly avertissement?: boolean;
 }
 
 export interface BaseDeSavoir {

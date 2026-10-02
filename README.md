@@ -95,7 +95,7 @@ Deux codes sont prêts dans le dossier `oxatis/`.
 2. Collez le code **une seule fois** dans le bloc HTML du `<head>` du site, **et dans celui du site mobile** si Oxatis en a un séparé.
 3. Enregistrez, puis ouvrez le site : la bulle **« Une question ? »** apparaît en bas à droite, au-dessus de la pastille des cookies.
 
-**Chaque version du widget a sa propre adresse** (`/v/<version>.js`), qui ne change plus et reste en ligne. Publier une nouvelle version ne touche donc pas au site : il garde la précédente. Pour passer à la nouvelle, attendez la fin du déploiement Cloudflare, puis recopiez la balise du fichier `oxatis/1-script-chatbot.html` dans Oxatis (ordinateur et mobile). Vérifiez après l'enregistrement que le bloc se termine bien par `</script>` : un bloc trop long est coupé par Oxatis, et une balise coupée rend la page blanche.
+**Chaque version du widget a sa propre adresse** (`/v/<version>.js`), qui ne change plus et reste en ligne (sauf une version reconnue défectueuse, retirée). Publier une nouvelle version ne touche donc pas au site : il garde la précédente. Pour passer à la nouvelle, attendez la fin du déploiement Cloudflare, puis recopiez la balise du fichier `oxatis/1-script-chatbot.html` dans Oxatis (ordinateur et mobile). Vérifiez après l'enregistrement que le bloc se termine bien par `</script>` : un bloc trop long est coupé par Oxatis, et une balise coupée rend la page blanche.
 
 Après 6 secondes sur une page, une petite carte au-dessus de la bulle invite le client à poser sa question, avec un message et une question adaptés à la page (cidre, cire, bouchons, conserves…, voir `src/widget/invitations.ts`). Elle apparaît sur deux pages au plus par visite, jamais au panier ni pendant la commande, et plus du tout une fois fermée ou le conseiller ouvert ; une pastille « 1 » reste ensuite sur la bulle.
 
@@ -204,6 +204,8 @@ npm run typecheck   # types du Worker et du widget
 npm run build       # compile une nouvelle version public/v/<version>.js et son empreinte (à commiter)
 npm run dev         # Worker en local sur http://localhost:8787 (page de démonstration)
 ```
+
+**Le widget compilé ne contient que de l'ASCII.** Les pages Oxatis ne sont pas en UTF-8 : un navigateur qui lit le fichier avec l'encodage de la page (Windows-1252) abîme chaque accent, et un accent dans une expression régulière fait planter tout le script (« Range out of order in character class »), donc plus de bulle. esbuild échappe les accents des textes mais pas ceux des expressions régulières. `npm run build` refuse donc tout caractère non ASCII et dit où il se trouve ; dans `src/widget/`, écrivez `\u0300` ou `\u00e9`, jamais le caractère. `test/widget-ascii.test.mjs` le vérifie aussi, en compilant le fichier lu en Windows-1252. Les en-têtes de `public/_headers` annoncent en plus `charset=utf-8`.
 
 API :
 

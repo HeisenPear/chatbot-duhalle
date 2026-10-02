@@ -23,12 +23,26 @@ const resultat = await build({
   minify: true,
   legalComments: "none",
   banner: {
-    js: "/* Chatbot Duhallé — widget compilé depuis src/widget/widget.ts (npm run build). Ne pas modifier à la main. */",
+    js: "/* Chatbot Duhalle - widget compile depuis src/widget/widget.ts (npm run build). Ne pas modifier a la main. */",
   },
   write: false,
   logLevel: "info",
 });
 const code = resultat.outputFiles[0].contents;
+
+// Les pages Oxatis ne sont pas en UTF-8 : un navigateur qui lit ce fichier comme du Windows-1252
+// transforme « é » en « Ã© » et tout caractère accentué d'une expression régulière fait planter
+// le script entier (« Range out of order in character class »). esbuild échappe les accents des
+// chaînes mais pas ceux des expressions régulières : on refuse donc tout octet non ASCII.
+const texte = Buffer.from(code).toString("latin1");
+const fautif = /[^\x00-\x7f]/.exec(texte);
+if (fautif) {
+  const debut = Math.max(0, fautif.index - 40);
+  throw new Error(
+    `Le widget compilé contient un caractère non ASCII (position ${fautif.index}) : « ${texte.slice(debut, fautif.index + 40).replace(/\n/g, " ")} ». ` +
+      "Écrivez-le avec une séquence d'échappement (\\u0300, \\u00e9) dans src/widget/.",
+  );
+}
 
 const version = createHash("sha256").update(code).digest("hex").slice(0, 12);
 const empreinte = `sha384-${createHash("sha384").update(code).digest("base64")}`;

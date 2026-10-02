@@ -368,7 +368,7 @@ r.fait("refermentation-bouteille", "condition", `
 
 // ─── Œnologie : fûts, soufre, mesure ───────────────────────────────────────
 
-r.concept("contenant", "Fûts et dames-jeannes", ["fut", "futs", "tonneau", "tonneaux", "barrique", "bonbonne", "bonbonnes", "dame jeanne", "dames jeannes", "damejeanne", "cuve", "fut plastique", "fut alimentaire", "futaille"], {
+r.concept("contenant", "Fûts et dames-jeannes", ["fut", "futs", "tonneau", "tonneaux", "barrique", "bonbonne", "bonbonnes", "dame jeanne", "dames jeannes", "damejeanne", "marie jeanne", "maries jeannes", "mariejeanne", "cuve", "fut plastique", "fut alimentaire", "futaille"], {
   famille: "vin",
   lien: PAGES.futs,
   voirAussi: ["bonde", "oenologie"],
@@ -385,6 +385,69 @@ r.fait("contenant", "entretien", `
   source: PAGES.oenologie.url,
   liens: [PAGES.rinceFut, PAGES.suiffeur],
 });
+
+r.concept("barboteur", "Barboteur de fermentation", ["barboteur", "barboteurs", "bulleur", "bonde de fermentation", "bonde a eau", "bonde hydraulique", "sas de fermentation", "fermeture hydraulique", "soupape de fermentation", "airlock"], {
+  // Au même niveau que le contenant (et non dessous) : une question sur « la marie-jeanne avec le barboteur » cite les deux.
+  famille: "vin",
+  voirAussi: ["contenant", "bonde"],
+});
+
+r.fait("barboteur", "definition", `
+  Le **barboteur** (ou sas de fermentation) est un petit dispositif rempli d'eau qui laisse **sortir le gaz carbonique** produit par la fermentation sans laisser **entrer l'air**. Il se pose sur une dame-jeanne ou un fût, dans une bonde percée prévue pour lui.`, { source: SAVOIR_FAIRE });
+
+r.fait("barboteur", "duree", `
+  Le barboteur reste en place pendant toute la **fermentation active** : tant que des bulles sortent régulièrement. Quand elles s'espacent puis s'arrêtent pendant plusieurs jours, la fermentation est terminée : vous pouvez alors soutirer, puis fermer le contenant avec une bonde pleine. Gardez de l'eau propre dans le barboteur et contrôlez son niveau.`, { source: SAVOIR_FAIRE });
+
+r.fait("barboteur", "condition", `
+  Le barboteur ne sert que pendant une **fermentation**, car il évacue le gaz qu'elle produit. Pour une simple **macération de fruits dans de l'alcool**, il n'y a pas de fermentation : une bonde pleine, ou un couvercle étanche, suffit.`, { source: SAVOIR_FAIRE });
+
+r.fait("contenant", "condition", `
+  Oui, une **dame-jeanne** convient pour faire **fermenter** ou **stocker** du vin. Pendant la fermentation, ne la remplissez pas à ras bord (**trois quarts au plus**, pour la mousse) et fermez-la avec une bonde percée équipée d'un **barboteur**, jamais hermétiquement. Une fois la fermentation terminée, remplissez-la à ras pour limiter l'air, puis fermez avec une **bonde pleine**.`, { source: SAVOIR_FAIRE, liens: [PAGES.bonbonne20, PAGES.bondes] });
+
+r.concept("barboteur-silencieux", "Barboteur qui ne bulle plus", ["barboteur qui ne bulle plus"], {
+  famille: "barboteur",
+  formules: ["ne bulle plus", "bulle plus", "ne barbote plus", "plus de bulles", "n a plus de bulles", "arret des bulles", "ne fait plus de bulles"],
+});
+
+// « definition » (question sans marque) et « raison » (« pourquoi ») suffisent : un énoncé répété dans d'autres aspects laisserait entrer des faits voisins.
+for (const aspect of ["definition", "raison"] as const) {
+  r.fait("barboteur-silencieux", aspect, `
+    Un barboteur qui **ne bulle plus** signifie le plus souvent que la fermentation est **terminée**. Si vous la croyez inachevée (vin encore sucré, mise en route récente), elle est peut-être **bloquée** : température trop basse, moût trop sucré ou levures épuisées. Vérifiez aussi l'**étanchéité de la bonde** : s'il y a une fuite d'air, le gaz ne passe plus par le barboteur. Contrôlez la densité avant de soutirer.`, { source: SAVOIR_FAIRE });
+}
+
+// Rattaché aux aspects « procédure » et « condition » : « faut-il un barboteur pour faire du cidre ? » se lit comme une procédure.
+for (const aspect of ["procedure", "condition"] as const) {
+  r.fait(["cidre", "barboteur"], aspect, `
+  Pour le cidre en dame-jeanne ou en fût, un **barboteur** est utile pendant la fermentation : il laisse sortir le gaz sans laisser entrer l'air. Ne fermez **jamais hermétiquement** un contenant qui fermente : la pression peut le faire éclater. Retirez le barboteur quand les bulles s'arrêtent.`, { source: SAVOIR_FAIRE });
+}
+
+r.fait(["contenant", "barboteur"], "condition", `
+  Oui, une **dame-jeanne (marie-jeanne) en verre** convient pour faire fermenter ou macérer des fruits. Ne la remplissez pas à ras bord : **trois quarts au plus**, car la mousse et les fruits montent. Pendant la **fermentation**, fermez-la avec une bonde percée équipée d'un **barboteur**, et laissez-le en place jusqu'à l'arrêt des bulles. Pour une simple **macération dans de l'alcool**, aucun barboteur : une bonde pleine suffit.`, { source: SAVOIR_FAIRE, liens: [PAGES.bonbonne20, PAGES.bondes] });
+
+r.concept("maceration-fruits", "Macération de fruits", ["macerer", "macerent", "macere"], {
+  famille: "vin",
+  voirAussi: ["barboteur", "contenant"],
+  formules: ["macerer les fruits", "macerer des fruits", "faire macerer", "maceration de fruits", "maceration des fruits", "fruits dans l alcool", "fruits a l alcool", "fruits dans du verre", "fruits dans une dame jeanne", "liqueur de fruits", "faire une liqueur", "faire de la liqueur", "fruits a l eau de vie", "cerises a l eau de vie", "fruits dans l eau de vie"],
+});
+
+r.fait("maceration-fruits", "procedure", `
+  Pour faire macérer des fruits dans l'alcool, une **dame-jeanne (marie-jeanne) en verre propre** convient très bien, de préférence à large ouverture. Mettez des fruits **sains, lavés et bien séchés**, entièrement couverts d'alcool, sans remplir à ras bord. Fermez avec une **bonde pleine** ou un couvercle étanche, conservez à l'abri de la lumière et remuez de temps en temps. Il n'y a pas de fermentation : **aucun barboteur** n'est nécessaire. Pour une liqueur, on filtre ensuite la macération et on ajoute un sirop de sucre, selon la recette.`, { source: SAVOIR_FAIRE, liens: [PAGES.bonbonne20, PAGES.bondes] });
+
+r.fait("maceration-fruits", "duree", `
+  La durée d'une macération dépend de la **recette** : de quelques semaines à plusieurs mois, le contenant restant fermé. Le **barboteur** n'a d'utilité que si les fruits **fermentent** (avec du sucre et des levures, par exemple) : on le laisse alors jusqu'à l'arrêt des bulles. Pour une macération dans l'alcool, vous n'en avez pas besoin.`, { source: SAVOIR_FAIRE });
+
+r.concept("distillation", "Distillation et eaux-de-vie", ["distillation", "distiller", "distillerie", "alambic", "alambics", "schnaps", "gnole", "bouilleur de cru"], {
+  famille: "catalogue",
+  formules: ["faire de l eau de vie", "faire son eau de vie", "faire mon eau de vie", "fabriquer de l eau de vie", "produire de l eau de vie", "faire de la gnole", "faire sa gnole", "faire de l alcool", "faire son alcool", "produire de l alcool"],
+});
+
+// Un seul énoncé, rattaché à « condition » (mise en garde) et à « gamme » (« vendez-vous des alambics ? ») :
+// le moteur ne l'affiche qu'une fois.
+const SUR_LA_DISTILLATION = `
+  En France, la **distillation à domicile est interdite sans autorisation** de l'administration des douanes : je ne peux donc ni vous conseiller sur la distillation, ni vous présenter de matériel pour cela. En revanche, je peux vous renseigner sur la fermentation des fruits, leur macération dans l'alcool, le choix d'un contenant et sa fermeture.`;
+
+r.fait("distillation", "condition", SUR_LA_DISTILLATION, { source: SAVOIR_FAIRE, avertissement: true });
+r.fait("distillation", "gamme", SUR_LA_DISTILLATION, { source: SAVOIR_FAIRE });
 
 r.concept("oenologie", "Soufre, mèches et rince-fûts", ["soufre", "souffre", "soufrer", "meche", "meches", "meche soufree", "meches soufrees", "mechage", "sulfite", "sulfites", "sulfiter", "sulfitage", "so2", "metabisulfite", "rince fut", "rince futs", "suiffeur", "assainir", "oenologie"], {
   famille: "vin",

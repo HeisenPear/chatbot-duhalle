@@ -23,6 +23,8 @@ interface OptionsDeConcept {
 }
 
 interface OptionsDeFait {
+  /** Une mise en garde qui accompagne toute réponse citant son concept. */
+  avertissement?: boolean;
   liens?: Lien[];
   /** Par défaut, la source de la rubrique. */
   source?: string;
@@ -60,6 +62,7 @@ export function rubrique(sourceParDefaut: string): Rubrique {
         aspect,
         enonce: enonce.trim().replace(/\n[ \t]+/g, "\n"),
         ...(options.liens ? { liens: options.liens } : {}),
+        ...(options.avertissement ? { avertissement: true } : {}),
         source: options.source ?? sourceParDefaut,
         verifieLe: VERIFIE_LE,
       });

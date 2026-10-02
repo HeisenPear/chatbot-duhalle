@@ -63,6 +63,9 @@ r.fait("casier", "gamme", `
 r.fait("casier", "choix", `
   Choisissez d'abord selon le **nombre de bouteilles, leur diamètre, leur longueur et leur poids**, puis selon la place disponible et la fixation. Les casiers en acier plastifié offrent le plus de capacité ; le polystyrène isole davantage ; le bois privilégie l'esthétique. Vérifiez spécialement le diamètre des bouteilles champenoises : elles sont souvent plus larges et lourdes qu'une bordelaise de 75 cl.`, { liens: [PAGES.casier60, PAGES.casierPolystyrene16, PAGES.casierBois12] });
 
+r.fait("casier", "dimension", `
+  Les **dimensions** (hauteur, largeur, profondeur), le **nombre de places** et le **poids** de chaque casier sont indiqués sur sa fiche produit. Avant de commander, mesurez l'emplacement prévu, en tenant compte de la plinthe, des prises et de l'espace pour sortir les bouteilles. Pour une question sur un modèle précis, le service client vous répond au **${TELEPHONE}**.`, { liens: [PAGES.casiers, PAGES.contact] });
+
 r.fait("casier", "condition", `
   Une bouteille de champagne peut être stockée dans un casier uniquement si ses **diamètre, longueur et poids** sont compatibles avec chaque logement et si le casier est stable ou fixé comme prévu. Ne forcez pas une bouteille plus large dans une alvéole conçue pour une bordelaise.`, { source: SAVOIR_FAIRE });
 

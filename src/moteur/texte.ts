@@ -227,6 +227,11 @@ export function corriger(racine: string, vocabulaire: ReadonlySet<string>): stri
   let meilleureDistance = max + 1;
   for (let longueur = racine.length - max; longueur <= racine.length + max; longueur++) {
     for (const { mot: candidat, lettres: lettresDuCandidat } of index.parLongueur.get(longueur) ?? []) {
+      // Une faute ne touche pas à la fois la première et la dernière lettre : sans
+      // l'une des deux en commun, inutile de calculer la distance. Sans perte pour
+      // une faute ; seules deux fautes, une à chaque bout d'un mot de 9 lettres ou
+      // plus, échappent à la correction.
+      if (candidat[0] !== racine[0] && candidat[candidat.length - 1] !== racine[racine.length - 1]) continue;
       const plafond = Math.min(max, meilleureDistance);
       if (ecartDeLettres(lettres, lettresDuCandidat, plafond) > plafond) continue;
       const d = distanceEdition(racine, candidat, plafond);

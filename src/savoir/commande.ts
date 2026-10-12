@@ -234,25 +234,36 @@ r.concept("livraison", "Livraison", ["livraison", "delivraison", "livrer", "livr
   famille: "boutique-en-ligne",
   voirAussi: ["suivi-commande", "paiement"],
   // « De combien sont les frais ? » : dans une boutique en ligne, ce sont les frais de port.
-  formules: ["sont les frais", "combien en payant", "et en payant", "combien si je paie", "combien si je paye", "quel est le montant des frais", "les frais supplementaires", "frais en plus", "frais en sus"],
+  formules: ["combien de temps pour recevoir", "combien de temps pour etre livre", "combien de temps pour etre livree", "sous combien de temps", "dans combien de temps je recois", "dans combien de temps je serai livre", "delai pour recevoir", "delai de reception", "delai d acheminement", "sont les frais", "combien en payant", "et en payant", "combien si je paie", "combien si je paye", "quel est le montant des frais", "les frais supplementaires", "frais en plus", "frais en sus"],
 });
 
 r.fait("livraison", "prix", `
   La livraison est **offerte** en France continentale à partir de :
-  - **${LIVRAISON_OFFERTE.dpd}** d'achat avec DPD ;
-  - **${LIVRAISON_OFFERTE.colissimo}** d'achat avec Colissimo ;
-  - **${LIVRAISON_OFFERTE.geodis}** d'achat avec Geodis.
+  - **${LIVRAISON_OFFERTE.dpd}** d'achat avec DPD et **${LIVRAISON_OFFERTE.colissimo}** avec Colissimo, pour les articles qui ne sont ni lourds ni volumineux ;
+  - **${LIVRAISON_OFFERTE.geodis}** d'achat avec Geodis, pour tous les produits, à l'exception des pressoirs, qui sont exclus de la livraison offerte.
 
-  En dessous de ces montants, les frais de port sont calculés dans votre panier selon le transporteur choisi. La livraison offerte ne s'applique pas à certains articles lourds ou volumineux.`);
+  En dessous de ces montants, les frais de port sont calculés dans votre panier selon le transporteur choisi.`);
 
 r.fait("livraison", "definition", `
-  Duhallé expédie ses commandes avec **DPD**, **Colissimo** et **Geodis** (pour les colis lourds ou volumineux). Vous choisissez le transporteur au moment de valider votre panier, et la livraison est offerte au-delà d'un certain montant d'achat.`);
+  Duhallé expédie ses commandes avec **DPD**, **Colissimo** et **Geodis** (pour les colis lourds ou volumineux). Vous choisissez le transporteur au moment de valider votre panier, et la livraison est offerte au-delà d'un certain montant d'achat : de **${LIVRAISON_OFFERTE.dpd}** à **${LIVRAISON_OFFERTE.geodis}** selon le transporteur et les produits.`);
 
 r.fait("livraison", "condition", `
-  La livraison offerte est valable en **France continentale**. Pour la Corse et les DOM-TOM, les frais dépendent du poids du colis : contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** pour obtenir un devis. Pour une livraison à l'étranger, contactez également le service client.`);
+  Pour la Corse, les DOM-TOM, la Belgique, la Suisse ou un autre pays, les frais et la possibilité de livrer dépendent du poids du colis et de la destination : contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**. La livraison offerte, elle, est valable en **France continentale**.`);
 
-r.fait("livraison", "duree", `
-  Les délais de livraison dépendent du transporteur choisi ; ils vous sont indiqués au moment de valider votre commande. Pour une commande urgente ou pour savoir où en est un envoi, contactez le service client au **${TELEPHONE}**.`);
+// Délai donné par l'équipe Duhallé le 12/10/2026.
+const DELAI_DE_LIVRAISON = `
+  La livraison prend en général **2 à 5 jours ouvrés**. En période de forte activité, les délais peuvent être **allongés**. Pour une commande urgente ou pour savoir où en est un envoi, contactez le service client au **${TELEPHONE}**.`;
+
+r.fait("livraison", "duree", DELAI_DE_LIVRAISON);
+
+// « Les pressoirs sont-ils livrés gratuitement ? » cite le pressoir ET la livraison : ce fait croisé passe devant les faits du pressoir.
+// Les pressoirs sont exclus de la livraison offerte (équipe Duhallé, 12/10/2026).
+const PRESSOIRS_ET_LIVRAISON_OFFERTE = `
+  Les **pressoirs** sont **exclus de la livraison offerte**, quel que soit le montant de votre panier : leurs frais de port sont calculés dans votre panier selon le transporteur choisi. Pour connaître le coût pour votre adresse, ajoutez le pressoir à votre panier, ou contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["prix", "condition", "definition", "raison"] as const) {
+  r.fait(["pressoir", "livraison"], aspect, PRESSOIRS_ET_LIVRAISON_OFFERTE, { liens: [PAGES.contact] });
+}
 
 // Défini après la livraison : « le transport gratuit n'apparaît pas » parle des modes proposés, pas des délais.
 // Des formules et non des alias : les mots courants (« pas de livraison gratuite ») disparaissent des alias,
@@ -263,7 +274,7 @@ r.concept("livraison-offerte-absente", "Livraison offerte non proposée", ["opti
 });
 
 const LIVRAISON_OFFERTE_ABSENTE = `
-  La livraison offerte apparaît parmi les modes de livraison quand votre panier atteint le montant du transporteur (**${LIVRAISON_OFFERTE.dpd}** avec DPD, **${LIVRAISON_OFFERTE.colissimo}** avec Colissimo, **${LIVRAISON_OFFERTE.geodis}** avec Geodis) pour une adresse en France continentale. Si seule une option payante est proposée, vérifiez le **montant de votre panier** (sans les frais de port), le **transporteur** et l'**adresse** de livraison : certains articles lourds ou volumineux sont exclus de la livraison offerte. Si tout est en règle et que l'option offerte n'apparaît pas, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avec une capture de votre panier.`;
+  La livraison offerte apparaît parmi les modes de livraison quand votre panier atteint le montant du transporteur (**${LIVRAISON_OFFERTE.dpd}** avec DPD et **${LIVRAISON_OFFERTE.colissimo}** avec Colissimo, hors articles lourds et volumineux ; **${LIVRAISON_OFFERTE.geodis}** avec Geodis, pour tous les produits sauf les pressoirs) pour une adresse en France continentale. Si seule une option payante est proposée, vérifiez le **montant de votre panier** (sans les frais de port), le **transporteur** et l'**adresse** de livraison : les articles lourds ou volumineux relèvent du seuil Geodis, et les pressoirs sont exclus de la livraison offerte. Si tout est en règle et que l'option offerte n'apparaît pas, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avec une capture de votre panier.`;
 
 for (const aspect of ["condition", "raison", "prix", "procedure"] as const) {
   r.fait("livraison-offerte-absente", aspect, LIVRAISON_OFFERTE_ABSENTE, { liens: [PAGES.contact] });
@@ -282,15 +293,42 @@ for (const aspect of ["raison", "condition", "procedure"] as const) {
   r.fait("transporteur-propose", aspect, TRANSPORTEUR_PROPOSE, { liens: [PAGES.contact] });
 }
 
-r.concept("zone-livraison", "Livraison hors France continentale", ["corse", "dom tom", "dom", "tom", "outre mer", "martinique", "guadeloupe", "reunion", "guyane", "etranger", "international", "belgique", "suisse", "luxembourg", "europe", "espagne", "allemagne", "italie", "angleterre"], {
+r.concept("zone-livraison", "Livraison hors France continentale", ["corse", "dom tom", "dom", "tom", "outre mer", "martinique", "guadeloupe", "reunion", "guyane", "etranger", "international", "luxembourg", "europe", "espagne", "allemagne", "italie", "angleterre"], {
   famille: "livraison",
+  voirAussi: ["livraison-belgique", "livraison-suisse"],
 });
+
+// Belgique et Suisse ont chacune leur réponse (équipe Duhallé, 12/10/2026) : la Belgique dépend des produits du panier,
+// la Suisse ajoute des frais de douane. Les deux renvoient vers le service client.
+r.concept("livraison-belgique", "Livraison en Belgique", ["belgique", "bruxelles", "anvers", "namur", "charleroi"], {
+  famille: "livraison",
+  voirAussi: ["livraison-suisse", "livraison"],
+});
+
+const LIVRAISON_EN_BELGIQUE = `
+  La livraison en **Belgique** dépend des **produits** de votre panier : selon leur poids et leurs dimensions, elle est proposée ou non, et ses frais varient. Les modes de livraison disponibles pour votre adresse s'affichent au moment de valider votre panier. Si aucune livraison n'est proposée pour votre adresse, contactez le **service client** au **${TELEPHONE}** ou à **${EMAIL}**, en indiquant les produits souhaités et votre adresse : l'équipe cherchera une solution.`;
+
+for (const aspect of ["condition", "prix", "procedure", "duree"] as const) {
+  r.fait("livraison-belgique", aspect, LIVRAISON_EN_BELGIQUE, { liens: [PAGES.contact] });
+}
+
+r.concept("livraison-suisse", "Livraison en Suisse", ["suisse", "suisses", "geneve", "lausanne", "zurich", "berne", "fribourg", "neuchatel", "lugano"], {
+  famille: "livraison",
+  voirAussi: ["livraison-belgique", "livraison"],
+});
+
+const LIVRAISON_EN_SUISSE = `
+  Pour une livraison en **Suisse**, des **frais de douane** s'ajoutent, et la livraison dépend des **produits** de votre panier. Contactez donc **systématiquement le service client** avant de commander, au **${TELEPHONE}** ou à **${EMAIL}**, en indiquant les produits souhaités et votre adresse : l'équipe vous dira si la livraison est possible et à quelles conditions.`;
+
+for (const aspect of ["condition", "prix", "procedure", "duree"] as const) {
+  r.fait("livraison-suisse", aspect, LIVRAISON_EN_SUISSE, { liens: [PAGES.contact] });
+}
 
 r.fait("zone-livraison", "prix", `
   Pour la Corse, les DOM-TOM et l'étranger, les frais de port dépendent du **poids du colis** et de la destination, et la livraison offerte ne s'applique pas : contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** pour obtenir un devis.`);
 
 r.fait("zone-livraison", "condition", `
-  Pour une livraison en Corse, dans les DOM-TOM ou à l'étranger, les frais dépendent du poids du colis et de la destination : contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** pour un devis.`);
+  Pour une livraison en Corse, dans les DOM-TOM ou à l'étranger, les frais dépendent du poids du colis et de la destination : contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** pour un devis. Hors Union européenne (la Suisse par exemple), des **frais de douane** s'ajoutent.`);
 
 r.concept("point-relais", "Livraison en point relais", ["point relais", "points relais", "relais colis", "mondial relay", "pickup", "livraison en relais", "retrait en relais"], {
   famille: "livraison",
@@ -311,7 +349,7 @@ r.concept("options-livraison", "Livraison express ou à jour précis", ["livrais
 
 for (const aspect of ["condition", "duree", "moment"] as const) {
   r.fait("options-livraison", aspect, `
-    Les délais et les options de livraison (livraison rapide ou express, jour de livraison) dépendent du **transporteur** et s'affichent au moment de valider votre panier. Pour une commande **urgente** ou une livraison à une date précise, contactez le service client **avant de commander** au **${TELEPHONE}** ou à **${EMAIL}**.`, { liens: [PAGES.contact] });
+    La livraison prend en général **2 à 5 jours ouvrés**, davantage en période de forte activité. Les options de livraison (livraison rapide ou express, jour de livraison) dépendent du **transporteur** et s'affichent au moment de valider votre panier. Pour une commande **urgente** ou une livraison à une date précise, contactez le service client **avant de commander** au **${TELEPHONE}** ou à **${EMAIL}**.`, { liens: [PAGES.contact] });
 }
 
 // ─── Paiement ──────────────────────────────────────────────────────────────

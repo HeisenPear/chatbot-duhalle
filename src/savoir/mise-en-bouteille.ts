@@ -450,7 +450,9 @@ for (const aspect of ["definition", "gamme", "dimension", "choix", "condition"] 
 }
 
 const ROBINET_DE_FUT = `
-  Pour les **fûts alimentaires blancs** Duhallé, le robinet plastique se rachète à part (pièce détachée) : un modèle pour les fûts de **5, 10, 15 et 20 L**, un autre pour les fûts de **25 et 50 L** (la fiche de ce dernier annonce aussi le 100 L : vérifiez avant de commander). Les fûts de 5 à 100 L sont déjà livrés avec leur robinet. Le **diamètre** ou le filetage du robinet n'est pas indiqué sur les fiches : pour une cote précise, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** en précisant la référence du robinet. Pour les fûts en bois, Duhallé propose aussi des robinets en bois de frêne (6 pouces et 7½ pouces).`;
+  Pour les **fûts alimentaires blancs** Duhallé, le robinet plastique se rachète à part (pièce détachée) : un modèle pour les fûts de **5, 10, 15 et 20 L**, un autre pour les fûts de **25 et 50 L** (la fiche de ce dernier annonce aussi le 100 L : vérifiez avant de commander). Les fûts de 5 à 100 L sont déjà livrés avec leur robinet.
+
+  Pour les **fûts de macération**, le robinet existe en deux tailles : le **petit robinet** mesure **4,2 cm** de diamètre et le **grand robinet 4,8 cm** (cotes données par l'équipe Duhallé le 12/10/2026). Le modèle adapté à chaque fût est indiqué sur sa fiche ; en cas de doute, précisez la référence au service client, au **${TELEPHONE}** ou à **${EMAIL}**. Pour les fûts en bois, Duhallé propose aussi des robinets en bois de frêne (6 pouces et 7½ pouces), dont le diamètre est indiqué sur la fiche de chaque robinet.`;
 
 // Pas d'aspect « choix » : il ferait revenir, sur une question de diamètre, le choix du robinet de vinaigrier.
 for (const aspect of ["gamme", "dimension", "condition", "definition"] as const) {
@@ -581,8 +583,9 @@ const MUSTIMETRE = `
 
   Pour mesurer : remplissez l'éprouvette du moût à contrôler, plongez-y doucement le mustimètre sans qu'il touche les parois, puis lisez la graduation au niveau de la surface du liquide.`;
 
+/** Échelle donnée par l'équipe Duhallé le 12/10/2026. */
 const ECHELLE_DU_MUSTIMETRE = `
-  L'**échelle de graduation exacte** du mustimètre (valeurs minimale et maximale de densité) n'est pas dans ma base : elle est indiquée sur sa notice. Avant de l'acheter pour suivre une fermentation jusqu'à une densité proche de 0,990 à 1,000, demandez la confirmation de l'échelle au service client, au **${TELEPHONE}** ou à **${EMAIL}** : mieux vaut vérifier qu'elle descend assez bas.`;
+  L'**échelle de densité** du mustimètre Duhallé va de **0,98 à 1,30**. Elle couvre aussi bien un moût très sucré (densité élevée) qu'un vin sec en fin de fermentation, dont la densité est proche de 0,990 à 1,000. Pour la lecture, plongez-le dans une éprouvette graduée de 250 ml (vendue séparément).`;
 
 for (const aspect of ["definition", "usage", "gamme", "procedure"] as const) {
   r.fait("mustimetre", aspect, MUSTIMETRE, { source: PAGES.mustimetre.url, liens: [PAGES.mustimetre, PAGES.mesure] });
@@ -598,7 +601,7 @@ r.concept("eprouvette", "Éprouvette graduée", ["eprouvette", "eprouvettes", "e
 });
 
 const EPROUVETTE = `
-  L'**éprouvette graduée de 250 ml** de Duhallé est en plastique alimentaire blanc, avec un bec verseur et un pied qui la tient stable. Elle sert à plonger l'alcoomètre, le mustimètre ou le pèse-cidre. Sa **hauteur** n'est pas indiquée sur sa fiche : pour la cote exacte, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+  L'**éprouvette graduée de 250 ml** de Duhallé est en plastique alimentaire blanc, avec un bec verseur et un pied qui la tient stable. Elle sert à plonger l'alcoomètre, le mustimètre ou le pèse-cidre. Elle mesure **29 cm de hauteur** (cote donnée par l'équipe Duhallé le 12/10/2026).`;
 
 for (const aspect of ["definition", "usage", "dimension", "gamme", "choix"] as const) {
   r.fait("eprouvette", aspect, EPROUVETTE, { source: PAGES.eprouvette.url, liens: [PAGES.eprouvette, PAGES.contact] });

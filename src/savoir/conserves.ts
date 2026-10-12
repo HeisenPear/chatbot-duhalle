@@ -197,9 +197,9 @@ r.concept("cuillere-confiture", "Cuillère à confiture avec crochet", ["cuiller
   lien: PAGES.cuillereConfiture,
 });
 
-/** Fiche relevée le 12/10/2026 : tout inox, manche long, crochet ; aucune longueur n'est indiquée. */
+/** Fiche relevée le 12/10/2026 : tout inox, manche long, crochet ; la longueur (19 cm) vient de l'équipe Duhallé. */
 const CUILLERE_A_CONFITURE = `
-  La **cuillère inox pour pot à confiture** du Comptoir de la Conserve est entièrement en inox. Son manche long permet d'atteindre la confiture au fond du pot, et son **crochet** se fixe sur le rebord pour que les gouttes ne coulent pas sur le verre. Sa **longueur** n'est pas indiquée sur la fiche : pour la cote exacte, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+  La **cuillère inox pour pot à confiture** du Comptoir de la Conserve est entièrement en inox et mesure **19 cm** de long. Son manche permet d'atteindre la confiture au fond du pot, et son **crochet** se fixe sur le rebord pour que les gouttes ne coulent pas sur le verre.`;
 
 for (const aspect of ["definition", "dimension", "gamme", "usage", "choix"] as const) {
   r.fait("cuillere-confiture", aspect, CUILLERE_A_CONFITURE, { source: PAGES.cuillereConfiture.url, liens: [PAGES.cuillereConfiture, PAGES.contact] });
@@ -320,7 +320,7 @@ r.concept("grille-hachoir", "Grilles de hachoir", ["grille de hachoir", "grilles
 
 /** Fiches relevées le 12/10/2026 : grilles de rechange n°10 et Reber n°12 en fonte étamée, trous de 6, 8 ou 10 mm. */
 const GRILLES_DE_HACHOIR = `
-  Les **grilles de rechange** des hachoirs (hachoir en fonte n°10 et hachoir Reber n°12) se vendent à part, en acier perforé étamé, avec des trous de 6, 8 ou 10 mm selon la grille. La fiche du hachoir en fonte n°10 mentionne une grille perforée en acier de 4,5 cm avec un diamètre de 6,8 cm ; le diamètre extérieur et celui du trou central ne sont pas détaillés pour chaque modèle. Indiquez la référence de votre hachoir au service client, au **${TELEPHONE}** ou à **${EMAIL}**, pour obtenir ces cotes. Si votre question porte sur une autre grille, précisez le produit.`;
+  Les **grilles de rechange** des hachoirs (hachoir en fonte n°10 et hachoir Reber n°12) se vendent à part, en acier perforé étamé, avec des trous de 6, 8 ou 10 mm selon la grille. Le **diamètre des grilles** de hachoir est compris entre **6,8 et 7 cm** selon le modèle (cote donnée par l'équipe Duhallé le 12/10/2026). Le diamètre du trou central n'est pas indiqué dans ma base : pour l'obtenir, indiquez la référence de votre hachoir au service client, au **${TELEPHONE}** ou à **${EMAIL}**. Si votre question porte sur une autre grille, précisez le produit.`;
 
 for (const aspect of ["definition", "dimension", "gamme", "choix", "condition"] as const) {
   r.fait("grille-hachoir", aspect, GRILLES_DE_HACHOIR, { source: PAGES.hachoirFonte.url, liens: [PAGES.hachoirFonte, PAGES.contact] });

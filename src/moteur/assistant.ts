@@ -47,6 +47,16 @@ export interface Trace {
   readonly plan: readonly string[];
 }
 
+/**
+ * Une question proposée en bouton, avec le concept dont sa réponse parle : le
+ * moteur ne propose pas ce qui vient d'être demandé, et les tests vérifient que
+ * chaque question donne bien la réponse attendue.
+ */
+export interface QuestionProposee {
+  readonly question: string;
+  readonly concept: string;
+}
+
 /** Les réglages du domaine : coordonnées pour les réponses de repli, questions de départ. */
 export interface Reglages {
   readonly telephone: string;
@@ -54,6 +64,23 @@ export interface Reglages {
   readonly contact: Lien;
   /** Questions proposées à l'ouverture du chat et après une question non comprise. */
   readonly questionsDeDepart: readonly string[];
+  /**
+   * VENTE ADDITIONNELLE — les questions les plus posées et les plus utiles,
+   * proposées en fin de réponse même quand elles ne portent pas sur le sujet du
+   * client : il s'intéresse peut-être à un autre produit.
+   */
+  readonly vitrine?: readonly QuestionProposee[];
+  /**
+   * Les compléments d'un sujet : ce qu'on achète avec lui (boucheuse avec les
+   * bouchons, robinet avec le vinaigrier…). Rangés par concept ; les membres
+   * d'une famille héritent des compléments de leur famille.
+   */
+  readonly complements?: Readonly<Record<string, readonly QuestionProposee[]>>;
+  /**
+   * Les sujets après lesquels on ne propose aucun produit : un client dont le
+   * colis est abîmé ou le paiement refusé n'a pas la tête à acheter.
+   */
+  readonly sansVente?: readonly string[];
   /**
    * Le concept qui répond aux questions sans sujet mais au type clair
    * (« c'est cher ? », « vous vendez quoi ? ») : la racine du catalogue.
@@ -103,6 +130,9 @@ const REFERENCE_BRUTE = /\b[a-z]{0,3}\d{5,}[a-z0-9]*\b/gi;
 const SEUIL_RECHERCHE = 0.6;
 /** Entre ce seuil et le précédent, on propose des pistes sans répondre. */
 const SEUIL_PISTES = 0.3;
+/** Boutons proposés après une réponse : ceux du sujet d'abord, puis les compléments et la vitrine. */
+const MAX_SUGGESTIONS = 4;
+const MAX_SUJET = 2;
 
 export class Assistant {
   private readonly detecteur: DetecteurDeConcepts;
@@ -223,16 +253,37 @@ export class Assistant {
     };
   }
 
-  /** « Voir aussi » : les concepts proches des concepts cités, puis leurs déclinaisons. */
+  /**
+   * Les questions proposées après une réponse : d'abord le sujet (« voir aussi »,
+   * déclinaisons), puis les compléments du sujet, puis la vitrine des questions
+   * les plus utiles. Jamais plus de MAX_SUGGESTIONS, jamais le sujet qu'on vient de traiter.
+   */
   private suggestions(cites: readonly string[], faits: readonly FaitRetenu[]): string[] {
     const exclus = new Set([...cites, ...faits.flatMap((f) => f.fait.concepts)]);
-    const out: string[] = [];
+    const sujet: Concept[] = [];
     const ajouter = (c: Concept | undefined) => {
-      if (c && !exclus.has(c.id) && !out.includes(c.libelle)) out.push(c.libelle);
+      if (c && !exclus.has(c.id) && !sujet.some((s) => s.libelle === c.libelle)) sujet.push(c);
     };
     for (const id of cites) this.detecteur.concept(id)?.voirAussi?.forEach((v) => ajouter(this.detecteur.concept(v)));
     for (const id of cites) this.detecteur.enfants(id).forEach(ajouter);
-    return out.slice(0, 3);
+
+    const { vitrine = [], complements = {}, sansVente = [] } = this.reglages;
+    // Le sujet réellement traité (les concepts des faits retenus), puis celui de la question : « le diamètre du
+    // robinet du fût » peut citer le robinet de vinaigrier, mais c'est le fût qu'on a répondu.
+    const traites = [...new Set([...faits.flatMap((f) => f.fait.concepts), ...cites])];
+    const lignee = [...new Set(traites.flatMap((id) => this.detecteur.lignee(id).map((c) => c.id)))];
+    const proposees = [...lignee.flatMap((id) => complements[id] ?? []), ...vitrine];
+    if (proposees.length === 0 || lignee.some((id) => sansVente.includes(id))) return sujet.slice(0, 3).map((c) => c.libelle);
+
+    const gardes = sujet.slice(0, MAX_SUJET);
+    const out = gardes.map((c) => c.libelle);
+    for (const { question, concept } of proposees) {
+      if (out.length >= MAX_SUGGESTIONS) break;
+      // Une question sur le sujet lui-même (ou sur sa famille), ou sur un bouton déjà proposé, n'apprend rien au client.
+      if (lignee.includes(concept) || exclus.has(concept) || gardes.some((c) => c.id === concept) || out.includes(question)) continue;
+      out.push(question);
+    }
+    return out;
   }
 
   /**

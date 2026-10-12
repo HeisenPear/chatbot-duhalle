@@ -380,12 +380,17 @@ r.fait("paiement-4x", "definition", `
 r.concept("paiement-refuse", "Paiement refusé ou impossible", ["paiement refuse", "paiement echoue", "paiement impossible", "carte refusee", "carte bancaire refusee", "erreur de paiement", "probleme de paiement", "paiement bloque"], {
   famille: "paiement",
   voirAussi: ["paiement", "paiement-4x"],
-  formules: ["paiement ne passe pas", "paiement ne fonctionne pas", "paiement a ete refuse", "carte ne passe pas", "carte n est pas acceptee", "ma carte est refusee", "impossible de payer", "je n arrive pas a payer", "n arrive pas a payer"],
+  // « Valider un paiement » : l'étape que le client ne franchit pas, le plus souvent l'authentification de sa banque.
+  formules: ["paiement ne passe pas", "paiement ne fonctionne pas", "paiement a ete refuse", "carte ne passe pas", "carte n est pas acceptee", "ma carte est refusee", "impossible de payer", "je n arrive pas a payer", "n arrive pas a payer",
+    "valider un paiement", "valider mon paiement", "valider le paiement", "valider ce paiement", "n arrive pas a valider", "impossible de valider", "ne peux pas valider", "ne parviens pas a valider", "bouton valider ne fonctionne pas", "bouton valider ne marche pas", "bouton payer ne fonctionne pas", "bouton payer ne marche pas",
+    "impossible de finaliser", "n arrive pas a finaliser", "ne peux pas finaliser", "commande ne passe pas", "n arrive pas a commander", "impossible de commander", "ne peux pas commander", "ne parviens pas a commander", "probleme pour commander", "erreur au paiement", "erreur lors du paiement"],
 });
 
 for (const aspect of ["procedure", "condition", "erreur"] as const) {
   r.fait("paiement-refuse", aspect, `
-    Si votre paiement est refusé : vérifiez les informations de la carte, son **plafond** et l'**authentification** demandée par votre banque (code reçu par SMS ou validation dans son application). Essayez une autre carte ou un autre moyen de paiement : **PayPal**, **virement** ou **paiement en 4 fois sans frais**. Si le problème persiste, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** en indiquant votre numéro de commande si elle a été enregistrée.`, { liens: [PAGES.contact] });
+    Si votre paiement est refusé ou ne se valide pas : vérifiez les informations de la carte, son **plafond** et l'**authentification** demandée par votre banque (code reçu par SMS ou validation dans son application) : le paiement n'est validé qu'une fois cette étape terminée. Essayez une autre carte ou un autre moyen de paiement : **PayPal**, **virement** ou **paiement en 4 fois sans frais**.
+
+    Si c'est la **validation du panier** qui bloque avant le paiement, vérifiez que les champs obligatoires sont remplis (adresse de livraison, téléphone) et qu'un mode de livraison est choisi, puis essayez un autre navigateur. Si le problème persiste, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** en indiquant le message affiché (une capture d'écran aide) et votre numéro de commande si elle a été enregistrée : l'équipe vous aidera à finaliser votre commande.`, { liens: [PAGES.contact] });
 }
 
 // ─── Retours, produits abîmés ──────────────────────────────────────────────

@@ -345,6 +345,19 @@ export const QUESTIONS_CLIENTS: Array<[string, string]> = [
   ["quand ma commande part-elle ?", "commande-en-attente.moment"],
   ["j'ai besoin de bouchons pour demain", "bouchon.choix"],
   ["le produit est en rupture de stock, que faire ?", "disponibilite.condition"],
+
+  // Lot du 12 octobre (après la mise en ligne) : le client qui n'arrive pas à valider reçoit de l'aide, pas la marche à suivre pour commander
+  ["comment faire pour valider un paiement", "paiement-refuse.procedure"],
+  ["je n arrive pas a valider mon panier", "paiement-refuse.erreur"],
+  ["Paiement en 4 fois", "paiement-4x.definition"],
+  ["Où trouver une mère de vinaigre ?", "demarrer-vinaigre.lieu"],
+  // Voisines : un blocage à la commande ou au paiement, et la question « comment » qui reste une marche à suivre
+  ["le bouton valider ne fonctionne pas", "paiement-refuse.erreur"],
+  ["je n'arrive pas à commander", "paiement-refuse.erreur"],
+  ["impossible de finaliser ma commande", "paiement-refuse.erreur"],
+  ["comment valider ma commande ?", "commande.procedure"],
+  ["comment valider mon panier", "commande.procedure"],
+  ["comment passer commande", "commande.procedure"],
 ];
 
 describe("les questions réelles des clients et leurs voisines", () => {

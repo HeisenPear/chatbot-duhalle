@@ -42,6 +42,22 @@ r.fait("controle-bouchage", "erreur", `
 r.fait("bouchage", "gamme", `
   Pour le bouchage, Duhallé propose des **bouchons en liège** pour le vin, des **bondes** pour fûts et bonbonnes, des **boucheuses manuelles**, des **capsules couronne** et des **capsuleuses** pour le cidre et la bière, et des **bouchons plastique** pour le cidre.`);
 
+r.concept("facilite-bouchage", "Boucher le plus simplement", ["boucher facilement", "boucher simplement"], {
+  famille: "bouchage",
+  formules: ["plus facile pour boucher", "plus simple pour boucher", "plus pratique pour boucher", "facile a boucher", "simple a boucher", "le plus facile pour boucher", "plus facile a boucher", "plus simple a boucher", "boucher sans machine"],
+});
+
+const BOUCHER_LE_PLUS_SIMPLEMENT = `
+  Le plus simple dépend de ce que vous bouchez :
+  - un **fût, une dame-jeanne ou un bocal** : une **bonde en liège**, qui s'enfonce à la main ;
+  - quelques bouteilles de vin, sans machine : le **bouchon conique** (33 x 23 x 19 mm), qui s'enfonce aussi à la main, pour un vin à boire assez vite ;
+  - une mise en bouteille en série : une **boucheuse manuelle** (à un ou deux leviers) avec des bouchons en liège 38 x 24 ou 45 x 24 mm, pour un bouchage régulier ;
+  - le cidre et la bière : des **capsules couronne** posées à la **capsuleuse**.`;
+
+for (const aspect of ["choix", "procedure", "gamme"] as const) {
+  r.fait("facilite-bouchage", aspect, BOUCHER_LE_PLUS_SIMPLEMENT, { source: SAVOIR_FAIRE, liens: [PAGES.bondes, PAGES.boucheuses, PAGES.bouchonsCidre] });
+}
+
 r.concept("repos-bouchage", "Après le bouchage", ["apres le bouchage", "apres bouchage", "bouteilles debout", "laisser debout", "coucher les bouteilles", "coucher", "reposer", "repos", "garder debout", "stocker debout", "vin qui perle", "bouchon qui remonte", "bouchon qui ressort", "bouteille qui fuit", "bouteilles qui fuient", "bouchon qui fuit", "fuite au bouchon"], {
   famille: "bouchage",
 });
@@ -82,17 +98,19 @@ r.fait("bouchon", "choix", `
 r.fait(["bouchon", "bouteille"], "condition", `
   La compatibilité ne se déduit pas du seul volume de la bouteille. Avant de choisir, vérifiez le **profil intérieur et le diamètre du goulot**, le type de boisson (tranquille ou sous pression), la durée de garde visée et la plage acceptée par la boucheuse. En cas de bouteille ancienne, récupérée ou sans référence, faites un essai sur un petit lot ou demandez confirmation au service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin, PAGES.contact] });
 
-r.concept("bouchon-liege", "Bouchons en liège", ["bouchon en liege", "bouchons en liege", "bouchon liege", "bouchons liege", "bouchon de liege", "liege", "liege du portugal", "chene liege", "conserver les bouchons", "stocker les bouchons", "garder les bouchons", "ranger les bouchons", "tremper les bouchons", "trempage"], {
+r.concept("bouchon-liege", "Bouchons en liège", ["bouchon en liege", "bouchons en liege", "bouchon liege", "bouchons liege", "bouchon de liege", "liege", "liege du portugal", "chene liege", "conserver les bouchons", "stocker les bouchons", "garder les bouchons", "ranger les bouchons", "tremper les bouchons"], {
   famille: "bouchon",
   lien: PAGES.bouchonsVin,
   voirAussi: ["bouchon-naturel", "bouchon-colmate", "taille-bouchon"],
+  // « combien de temps conserver le vin pour ces bouchons ? » : la fiche d'un bouchon précis est sous les yeux du client.
+  formules: ["vin pour ces bouchons", "vin avec ces bouchons", "vin avec ce bouchon", "vin pour ce bouchon", "garde pour ces bouchons", "garde avec ces bouchons", "conservation pour ces bouchons", "conservation avec ces bouchons"],
 });
 
 r.fait("bouchon-liege", "definition", `
   Le **liège** est l'écorce du chêne-liège, récoltée sans abattre l'arbre. Matière **naturelle, recyclable et compostable**, il est souple et élastique : comprimé dans le goulot, il reprend sa forme et assure l'étanchéité, tout en laissant le vin évoluer lentement. C'est le bouchage préféré des viticulteurs. Les bouchons Duhallé sont en **liège du Portugal**.`, { liens: [PAGES.articleFabricationLiege, PAGES.articleIdeesRecuesLiege] });
 
 r.fait("bouchon-liege", "condition", `
-  Les bouchons en liège Duhallé s'utilisent **à sec** : inutile de les faire tremper avant le bouchage. Les bouchons colmatés sont traités « super-glisse » pour glisser facilement dans la boucheuse et le goulot.`);
+  Les bouchons en liège Duhallé pour bouteilles de vin s'utilisent **à sec** : inutile de les faire tremper avant le bouchage (seul le bouchon en liège du robinet de vinaigrier se trempe, 24 heures). Les bouchons colmatés sont traités « super-glisse » pour glisser facilement dans la boucheuse et le goulot.`);
 
 r.fait("bouchon-liege", "entretien", `
   Conservez les bouchons non utilisés dans leur **sachet fermé**, dans un endroit **sec, propre et sans odeurs** (produits ménagers, fioul, peinture) : le liège absorbe les odeurs. Refermez soigneusement un sachet entamé et suivez la durée indiquée par le fournisseur ; sans fiche du lot, ne promettez pas une durée précise.`, { source: SAVOIR_FAIRE });
@@ -147,8 +165,11 @@ r.concept("gout-bouchon", "Goût transmis par le bouchon", ["gout de bouchon", "
 r.fait("gout-bouchon", "condition", `
   Un défaut dit « goût de bouchon » peut donner des odeurs de carton humide ou de moisi, mais toute odeur anormale ne vient pas forcément du liège. Isolez la bouteille, comparez avec une autre du lot et demandez un diagnostic avant de conclure sur toute une série.`, { source: SAVOIR_FAIRE });
 
-r.fait("bouchon-liege", "duree", `
-  La durée de conservation d'un vin bouché dépend du **vin**, de la qualité du liège, de la longueur, du goulot, de la pose et de la cave. Un 45 mm en liège naturel est destiné aux vins de garde ; un 38 mm colmaté de catégorie 5 ou 6 aux vins à boire jeunes. Duhallé ne publie pas encore d'**années de garde garanties par référence** : pour un engagement chiffré, demandez la fiche technique du lot au service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin, PAGES.contact] });
+const DUREE_DE_CONSERVATION_AVEC_UN_BOUCHON = `
+  La durée de conservation d'un vin bouché dépend du **vin**, de la qualité du liège, de la longueur, du goulot, de la pose et de la cave. Un 45 mm en liège naturel est destiné aux vins de garde ; un 38 mm colmaté de catégorie 5 ou 6 aux vins à boire jeunes. Duhallé ne publie pas encore d'**années de garde garanties par référence** : pour un engagement chiffré, demandez la fiche technique du lot au service client.`;
+
+r.fait("bouchon-liege", "duree", DUREE_DE_CONSERVATION_AVEC_UN_BOUCHON, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin, PAGES.contact] });
+
 
 r.concept("lenticelles", "Les lenticelles du liège", ["lenticelle", "lenticelles", "pores du liege", "trous dans le bouchon", "petits trous", "porosite"], {
   famille: "bouchon-liege",
@@ -274,13 +295,16 @@ r.fait("bonde", "definition", `
   La **bonde** est un gros bouchon en liège de forme **conique**, qui ferme à la main un fût, une dame-jeanne, une bonbonne, un bocal ou une bouteille à col large. Les bondes Duhallé, en liège du Portugal, mesurent **33 mm de haut**.`, { source: PAGES.bondes.url });
 
 r.fait("bonde", "dimension", `
-  Bondes coniques (grand diamètre / petit diamètre, hauteur 33 mm) : **28/24**, **30/26**, **32/28**, **35/31**, **38/34**, **55/50**, **100/95** et **120/115 mm** (bonbonnes à col large). Elles sont vendues à l'unité, ou en **lot de 3** (30, 35 et 38 mm).`, { source: PAGES.bondes.url, liens: [PAGES.bondes, PAGES.bondesLot3] });
+  Bondes coniques (grand diamètre / petit diamètre, hauteur 33 mm) : **28/24**, **30/26**, **32/28**, **35/31**, **38/34**, **45/40**, **55/50**, **70/65**, **90/85**, **100/95** et **120/115 mm** (bonbonnes à col large). Il n'existe pas de bonde standard au-delà de 120 mm (12 cm) : pour un trou plus grand, contactez le service client. Elles sont vendues à l'unité, ou en **lot de 3** (30, 35 et 38 mm).`, { source: PAGES.bondes.url, liens: [PAGES.bondes, PAGES.bondesLot3] });
 
 r.fait("bonde", "choix", `
   Pour choisir une bonde, mesurez le **diamètre intérieur** du col : il doit être compris entre le petit diamètre (en bas) et le grand diamètre (en haut) de la bonde, pour qu'elle s'enfonce sans forcer et tienne fermement. En cas d'hésitation, le lot de 3 bondes (30, 35 et 38 mm) couvre les cols les plus courants.`, { source: SAVOIR_FAIRE, liens: [PAGES.bondes, PAGES.bondesLot3] });
 
 r.fait(["bonde", "contenant"], "gamme", `
   Oui : pour fermer une **dame-jeanne**, une **bonbonne** ou un **fût**, Duhallé propose des bondes coniques en liège, de **28/24 mm** pour les petits cols jusqu'à **120/115 mm** pour les bonbonnes à col large. Mesurez le diamètre intérieur du col : il doit se situer entre le petit et le grand diamètre de la bonde.`, { liens: [PAGES.bondes, PAGES.bondesLot3] });
+
+/** Les diamètres de 2 à 15 cm, et quelques demi-centimètres courants (« 2,5 » : la normalisation lit la virgule comme le client). */
+const CENTIMETRES = [...Array.from({ length: 14 }, (_, i) => String(i + 2)), "2,5", "3,5", "4,5", "5,5"];
 
 r.concept("trou-bouchon", "Bouchon pour un trou donné", ["trou", "trous", "orifice", "orifices", "diametre du trou", "diametre de l orifice"], {
   famille: "bonde",
@@ -291,6 +315,8 @@ r.concept("trou-bouchon", "Bouchon pour un trou donné", ["trou", "trous", "orif
     "un trou de", "le trou de", "du trou", "trou de mon", "trou de ma", "trou de la", "trou de l", "trou mesure", "trou fait", "correspond a un trou", "convient a un trou", "pour un trou", "pour mon trou",
     // « un col de 38 mm », « un goulot de 30 mm » : le diamètre dit qu'il s'agit d'une bonde (« goulot de la bouteille » n'en est pas une).
     ...Array.from({ length: 109 }, (_, i) => i + 22).flatMap((n) => [`col de ${n}`, `col mesure ${n}`, `col fait ${n}`, `goulot de ${n}`, `goulot mesure ${n}`, `goulot fait ${n}`, `orifice de ${n}`, `ouverture de ${n}`]),
+    // « un bouchon conique de 13 cm » : les clients comptent aussi en centimètres.
+    ...CENTIMETRES.flatMap((cm) => [`bouchon conique de ${cm} cm`, `bouchon de ${cm} cm`, `col de ${cm} cm`]),
   ],
 });
 
@@ -300,12 +326,13 @@ r.fait("trou-bouchon", "dimension", `
   - **30/26 mm** : trou de 26 à 30 mm ;
   - **32/28 mm** : trou de 28 à 32 mm ;
   - **35/31 mm** : trou de 31 à 35 mm ;
-  - **38/34 mm** : trou de 34 à 38 mm.
+  - **38/34 mm** : trou de 34 à 38 mm ;
+  - **45/40 mm** : trou de 40 à 45 mm.
 
-  Pour de plus grands cols, il existe aussi des bondes **55/50**, **100/95** et **120/115 mm**.`, { source: PAGES.bondes.url, liens: [PAGES.bondes, PAGES.bondesLot3] });
+  Pour de plus grands cols, il existe aussi des bondes **55/50**, **70/65**, **90/85**, **100/95** et **120/115 mm** (12 cm au maximum).`, { source: PAGES.bondes.url, liens: [PAGES.bondes, PAGES.bondesLot3] });
 
 r.fait("trou-bouchon", "choix", `
-  Pour trouver le bouchon d'un trou, **mesurez son diamètre intérieur** avec un pied à coulisse ou une règle, à l'endroit où le bouchon vient se coincer. Choisissez ensuite la bonde conique dont le petit diamètre est **plus petit** et le grand diamètre **plus grand** que cette mesure : elle s'enfonce sans forcer et tient fermement. Un trou de 25 mm correspond ainsi à une bonde **28/24 mm**. Les bondes ne couvrent pas tous les diamètres (par exemple en dessous de 24 mm ou entre 38 et 50 mm) : dans ce cas, contactez le service client. Si le bouchon doit être **percé** (passage d'un robinet, d'un tube), précisez-le au service client, au **${TELEPHONE}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.bondes, PAGES.bondesLot3] });
+  Pour trouver le bouchon d'un trou, **mesurez son diamètre intérieur** avec un pied à coulisse ou une règle, à l'endroit où le bouchon vient se coincer. Choisissez ensuite la bonde conique dont le petit diamètre est **plus petit** et le grand diamètre **plus grand** que cette mesure : elle s'enfonce sans forcer et tient fermement. Un trou de 25 mm correspond ainsi à une bonde **28/24 mm**. Les bondes ne couvrent pas tous les diamètres (par exemple en dessous de 24 mm, entre 38 et 40 mm ou entre 45 et 50 mm) : dans ce cas, contactez le service client. Si le bouchon doit être **percé** (passage d'un robinet, d'un tube), précisez-le au service client, au **${TELEPHONE}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.bondes, PAGES.bondesLot3] });
 
 // ─── Les boucheuses ────────────────────────────────────────────────────────
 
@@ -456,6 +483,9 @@ r.fait("capsule-couronne", "dimension", `
 
 r.fait("capsule-couronne", "gamme", `
   Capsules couronne en métal : **29 mm** or ou rouge, en sacs de 200 ou 1000 ; **26 mm** or, en sac de 200 ; et capsules **29 mm à opercule incorporé**, or ou rouge, par 150 ou 1000, pour le cidre artisanal.`, { source: PAGES.bouchonsCidre.url, liens: [PAGES.capsules29Or, PAGES.capsules26Or, PAGES.capsulesOpercule] });
+
+r.fait("capsule-couronne", "condition", `
+  D'après leur fiche, les capsules couronne en métal de 29 mm conviennent à la **pasteurisation** comme à la **stérilisation**, ce qui n'est pas le cas des bouchons mécaniques à rondelle en polyéthylène (50 °C au maximum).`, { source: PAGES.bouchonsCidre.url, liens: [PAGES.capsules29Or] });
 
 r.concept("capsule-opercule", "Capsules à opercule", ["opercule", "capsule a opercule", "capsules a opercule", "opercule incorpore", "capsule avec joint"], {
   famille: "capsule-couronne",

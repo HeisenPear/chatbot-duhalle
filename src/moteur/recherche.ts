@@ -29,6 +29,8 @@ const B = 0.6;
 
 export class RechercheDansLesFaits {
   private readonly documents: Document[] = [];
+  /** Pour chaque racine, les documents qui la contiennent : on ne lit que ceux-là, pas toute la base. */
+  private readonly postings = new Map<string, Array<{ doc: number; tf: number }>>();
   private readonly df = new Map<string, number>();
   private readonly vocabulaire: Set<string>;
   private readonly longueurMoyenne: number;
@@ -43,9 +45,13 @@ export class RechercheDansLesFaits {
       ajouter(fait.enonce, 1);
       for (const id of fait.concepts) ajouter(aliasParConcept.get(id) ?? "", POIDS_ALIAS);
       let longueur = 0;
+      const numero = this.documents.length;
       for (const [r, n] of tf) {
         longueur += n;
         this.df.set(r, (this.df.get(r) ?? 0) + 1);
+        const liste = this.postings.get(r);
+        if (liste) liste.push({ doc: numero, tf: n });
+        else this.postings.set(r, [{ doc: numero, tf: n }]);
       }
       this.documents.push({ fait, tf, longueur });
     }
@@ -67,18 +73,23 @@ export class RechercheDansLesFaits {
     const poids = mots.map((m) => ({ m, idf: this.df.has(m) ? this.idf(m) : this.idf("\u0000") }));
     const masse = poids.reduce((s, p) => s + p.idf, 0);
 
-    const resultats: FaitTrouve[] = [];
-    for (const doc of this.documents) {
-      let score = 0;
-      let retrouve = 0;
-      for (const { m, idf } of poids) {
-        const tf = doc.tf.get(m);
-        if (!tf) continue;
-        retrouve += idf;
-        score += idf * ((tf * (K1 + 1)) / (tf + K1 * (1 - B + (B * doc.longueur) / this.longueurMoyenne)));
+    // Les mêmes sommes qu'en lisant toute la base, mais seuls les documents qui contiennent
+    // au moins un mot de la question sont lus (une question de mots inventés n'en lit aucun).
+    const scores = new Map<number, { score: number; retrouve: number }>();
+    for (const { m, idf } of poids) {
+      for (const { doc: numero, tf } of this.postings.get(m) ?? []) {
+        const doc = this.documents[numero]!;
+        const cumul = scores.get(numero) ?? { score: 0, retrouve: 0 };
+        cumul.retrouve += idf;
+        cumul.score += idf * ((tf * (K1 + 1)) / (tf + K1 * (1 - B + (B * doc.longueur) / this.longueurMoyenne)));
+        scores.set(numero, cumul);
       }
-      if (score > 0) resultats.push({ fait: doc.fait, confiance: retrouve / masse, score });
     }
+    // Dans l'ordre de la base : à confiance et score égaux, le premier fait reste devant.
+    const resultats: FaitTrouve[] = [...scores.keys()]
+      .sort((a, b) => a - b)
+      .map((numero) => ({ fait: this.documents[numero]!.fait, confiance: scores.get(numero)!.retrouve / masse, score: scores.get(numero)!.score }))
+      .filter((r) => r.score > 0);
     resultats.sort((a, b) => b.confiance - a.confiance || b.score - a.score);
     return resultats.slice(0, limite);
   }

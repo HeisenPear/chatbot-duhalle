@@ -2,7 +2,7 @@
 // L'ASSISTANT : de la question du client à la réponse.
 //
 //   Politesse ? → Type de question → Concepts cités (+ relance) → Faits → Texte
-//                                         ↘ aucun concept : recherche plein texte
+//                                         ↘ aucun concept : anglais ? recherche plein texte
 //                                                          ↘ rien de sûr : service client
 //
 // Le chatbot ne fait QUE répondre. Il n'a accès ni aux comptes, ni aux
@@ -14,7 +14,7 @@ import { TYPES_DE_QUESTION } from "../savoir/types";
 import { DetecteurDeConcepts } from "./concepts";
 import { RechercheDansLesFaits } from "./recherche";
 import { ConstructeurDeReponse, type FaitRetenu } from "./reponse";
-import { normaliser } from "./texte";
+import { normaliser, racines } from "./texte";
 import { lireTypeDeQuestion } from "./types-de-question";
 
 /** Ce que le widget renvoie avec la question suivante, pour les relances. */
@@ -69,6 +69,35 @@ const REMERCIEMENT = /^(?:(?:merci|thanks|parfait|super|genial|top|cool|nickel|o
 const AU_REVOIR = /^(?:au revoir|bonne (?:journee|soiree|fin de journee)|a bientot|a plus|bye|ciao)(?: .*)?$/;
 const IDENTITE = /\b(?:qui es tu|tu es qui|t es qui|robot|bot|chatbot|es tu humain|etes vous humain|es tu une personne|chatgpt|intelligence artificielle|une ia|l ia)\b/;
 const HUMAIN = /\b(?:parler a (?:un|une|quelqu)|un humain|une vraie personne|une personne|un conseiller|une conseillere|joindre quelqu un)\b/;
+/**
+ * Un client en colère : injure, reproche fait au chatbot, départ chez un concurrent.
+ * Aucun de ces messages n'est une question sur un produit : y répondre par la
+ * procédure « pour commander » (comme avant) aggrave la situation. On s'excuse,
+ * sans commenter l'injure, et on offre l'équipe.
+ */
+const INSULTE =
+  /\b(?:connard|connards|connasse|salope|salopes|pute|putes|putain|merde|enculer|enculez|encule|enculee|nique|niquer|ntm|fdp|abruti|abrutis|debile|debiles|imbecile|imbeciles|idiot|idiote|idiots|cretin|cretins|batard|batards|bordel|couille|couilles|branle|branler|foutre|ta gueule|va te faire|vas te faire|allez vous faire)\b/;
+// Seulement des reproches à la deuxième personne : « je ne sais rien faire » est un débutant, pas un mécontent.
+const REPROCHE =
+  /\b(?:(?:tu|vous|t) ne? ?(?:ser[st]?|servez) a rien|vous ne connaiss(?:ez|az) pas (?:les )?produits|vous ne connaiss(?:ez|az) rien|vous ne savez rien|tu ne sais rien|tu sais rien|vous ne comprenez rien|tu ne comprends rien|tu comprends rien|n importe quoi|a cote de la plaque|hors sujet|rien a voir avec ma question|pas ma question|ne repond\w* pas a ma question|repondez pas a ma question|(?:vous etes|tu es|t es) nul(?:le)?s?|bot nul|service nul|je vais acheter ailleurs|j achete ailleurs|j irai ailleurs|je vais voir ailleurs)\b/;
+/** Mots anglais courants : assez de ces mots, et la phrase est en anglais. */
+const MOTS_ANGLAIS = new Set(
+  (
+    "can could would will shall should may might must please hello hi hey thanks thank ask question questions upload image images picture pictures photo photos " +
+    "send sent order orders shipping ship delivery deliver price prices cost wine bottle bottles cork corks stopper help need want have has had how what where " +
+    "when which who why is are was were do does did you your yours my mine it its the this that these those there with for to of in at if and not no yes ok " +
+    "okay english speak language much many buy sell pay payment free open hours contact phone email address account password invoice refund return product " +
+    "products size diameter use used i we us our they their"
+  ).split(" "),
+);
+/** Les mots-outils anglais qui n'existent pas en français : au moins un, en plus des mots courants, pour qu'une phrase soit anglaise (« photo image » est français). */
+const MOTS_OUTILS_ANGLAIS = new Set("the you your is are can do does did i it my we to of for with how what where when please thanks thank would could will have has and if in at this that there".split(" "));
+/** Un pronom qui renvoie à la réponse précédente : « faut-il le tremper ? », « et ça coûte combien ? ». */
+const ANAPHORE = /\b(?:le|la|les|l|ca|cela|il|elle|ils|elles)\b/;
+/** Un message qui commence par un article ou un déterminant ouvre un nouveau sujet (« la poignée ? ») : ce n'est pas une suite. */
+const DEBUT_DE_SUJET = /^(?:le|la|les|l|un|une|des|du|de|ce|cet|cette|ces) /;
+/** Une référence de commande ou de colis (cinq chiffres ou plus) : la valeur n'importe pas, la forme oui. */
+const REFERENCE_BRUTE = /\b[a-z]{0,3}\d{5,}[a-z0-9]*\b/gi;
 
 /** Sous cette confiance, la recherche plein texte ne répond pas : on redirige. */
 const SEUIL_RECHERCHE = 0.6;
@@ -100,10 +129,14 @@ export class Assistant {
     return ids.length > 0 ? { concepts: ids, type: typeValide } : null;
   }
 
-  repondre(message: string, precedent: Contexte | null = null): Reponse {
+  repondre(brut: string, precedent: Contexte | null = null): Reponse {
+    // « commande 1234567 » et « commande [référence] » (la forme enregistrée) se lisent pareil.
+    const message = brut.replace(REFERENCE_BRUTE, " reference ");
     const forme = normaliser(message);
     const politesse = this.politesse(forme);
     if (politesse) return politesse;
+    // Que des lettres isolées (« e », « u ») : inutile de chercher, on invite à préciser.
+    if (!/[a-z0-9]{2,}/.test(forme)) return this.inconnu([], null, null, true);
 
     const marque = lireTypeDeQuestion(forme);
     let type = marque?.type ?? null;
@@ -112,8 +145,8 @@ export class Assistant {
     let doitToucher: Set<string> | undefined;
 
     if (precedent) {
-      if (cites.length === 0 && type !== null) {
-        // « et combien de temps ? », « comment faire ? » : on parle encore de la même chose.
+      if (cites.length === 0 && (type !== null || this.estUneSuite(message, forme))) {
+        // « et combien de temps ? », « comment faire ? », « faut-il le tremper ? » : on parle encore de la même chose.
         cites = [...precedent.concepts];
         relance = true;
       } else if (cites.length > 0 && RELANCE.test(forme)) {
@@ -127,7 +160,8 @@ export class Assistant {
 
     // « C'est cher ? », « vous vendez quoi ? » : un type clair sans sujet vise le catalogue entier.
     const racine = this.reglages.conceptRacine;
-    if (cites.length === 0 && racine && (type === "prix" || type === "gamme" || type === "lieu")) {
+    // Une valeur demandée sans sujet (« quelle dimension fait-il ? ») renvoie aussi à la fiche produit.
+    if (cites.length === 0 && racine && (type === "prix" || type === "gamme" || type === "lieu" || (type === "valeur" && racines(message).length <= 2))) {
       cites = [racine];
     }
 
@@ -142,6 +176,10 @@ export class Assistant {
         });
       }
     }
+
+    // Une question en anglais ne se retrouve pas dans une base en français : on le dit,
+    // plutôt que de proposer au hasard un fait qui partage un mot avec elle.
+    if (cites.length === 0 && this.estAnglais(forme)) return this.anglais();
 
     // Aucun concept reconnu (ou rien à en dire) : recherche dans le texte des faits.
     const trouves = this.recherche.chercher(message);
@@ -212,6 +250,33 @@ export class Assistant {
     return new Set(ids.flatMap((id) => this.detecteur.lignee(id).map((c) => c.id)));
   }
 
+  /**
+   * « Faut-il le tremper ? » : peu de mots utiles et un pronom qui renvoie à la
+   * réponse précédente. Sans ce pronom, une question courte n'est pas une suite.
+   */
+  private estUneSuite(message: string, forme: string): boolean {
+    const utiles = racines(message).length;
+    return utiles >= 1 && utiles <= 2 && ANAPHORE.test(forme) && !DEBUT_DE_SUJET.test(forme);
+  }
+
+  private estAnglais(forme: string): boolean {
+    const mots = forme.split(" ").filter(Boolean);
+    const anglais = mots.filter((m) => MOTS_ANGLAIS.has(m)).length;
+    return anglais >= 2 && anglais / mots.length >= 0.5 && mots.some((m) => MOTS_OUTILS_ANGLAIS.has(m));
+  }
+
+  private anglais(): Reponse {
+    const { telephone, email, contact } = this.reglages;
+    return {
+      nature: "politesse",
+      texte: `Je ne réponds qu'en français. Posez-moi votre question en français, ou contactez notre service client au **${telephone}** ou à **${email}**.\n\nI can only answer in French. Please ask your question in French, or contact our customer service by phone (**${telephone}**) or by e-mail (**${email}**).`,
+      liens: [contact],
+      suggestions: [...this.reglages.questionsDeDepart],
+      contexte: { concepts: [], type: null },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [] },
+    };
+  }
+
   private politesse(forme: string): Reponse | null {
     const { telephone, email, contact, questionsDeDepart } = this.reglages;
     const simple = (nature: Nature, texte: string, liens: Lien[] = [], suggestions = questionsDeDepart): Reponse => ({
@@ -223,10 +288,24 @@ export class Assistant {
       trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [] },
     });
 
-    if (forme === "" || SALUTATION.test(forme)) {
+    // « Bonjour, U » : une salutation suivie d'une lettre égarée reste une salutation.
+    const sansLettresSeules = forme.replace(/\b[a-z]\b/g, " ").replace(/\s+/g, " ").trim();
+    if (forme === "" || SALUTATION.test(forme) || (sansLettresSeules !== forme && SALUTATION.test(sansLettresSeules))) {
       return simple(
         "accueil",
         "Bonjour et bienvenue chez Duhallé. Je réponds à vos questions sur nos produits et sur le savoir-faire du bouchage, de la mise en bouteille, du cidre, du vinaigre et des conserves maison. Que puis-je faire pour vous ?",
+      );
+    }
+    // « Anglaise », « do you speak English ? » : on répond dans les deux langues.
+    if ((forme.split(" ").length <= 2 && /\b(?:anglais|anglaise|english)\b/.test(forme)) || /\b(?:parlez vous|speak|en) (?:anglais|english)\b/.test(forme)) {
+      return this.anglais();
+    }
+    if (INSULTE.test(forme) || REPROCHE.test(forme)) {
+      return simple(
+        "politesse",
+        `Je suis désolé de ne pas avoir su vous aider. Je suis un programme qui répond d'après notre base de connaissances, et il m'arrive de passer à côté d'une question. Vous pouvez la reformuler avec d'autres mots, ou vous adresser directement à l'équipe : **${telephone}** (service gratuit) ou **${email}**.`,
+        [contact],
+        [],
       );
     }
     if (REMERCIEMENT.test(forme)) {
@@ -252,11 +331,13 @@ export class Assistant {
     return null;
   }
 
-  private inconnu(pistes: readonly Concept[], type: TypeDeQuestion | null, signal: string | null): Reponse {
+  /** Un message sans mot utile (« e ») : on invite à poser la question en quelques mots. */
+  private inconnu(pistes: readonly Concept[], type: TypeDeQuestion | null, signal: string | null, vide = false): Reponse {
     const { telephone, email, contact, questionsDeDepart } = this.reglages;
     const libelles = [...new Set(pistes.map((c) => c.libelle))].slice(0, 3);
-    const texte =
-      libelles.length > 0
+    const texte = vide
+      ? "Je n'ai pas bien saisi votre message. Posez-moi votre question en quelques mots, par exemple l'une de celles-ci :"
+      : libelles.length > 0
         ? "Je ne suis pas certain d'avoir compris votre question. Parlez-vous de l'un de ces sujets ?"
         : `Je n'ai pas trouvé de réponse fiable à cette question dans ma base de connaissances. Vous pouvez la reformuler avec d'autres mots, ou contacter notre service client au **${telephone}** ou à **${email}** : l'équipe vous répondra avec plaisir.`;
     return {

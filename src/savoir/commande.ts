@@ -52,7 +52,35 @@ r.concept("piece-rechange", "Pièces de rechange", ["piece de rechange", "pieces
 });
 
 r.fait("piece-rechange", "gamme", `
-  Certaines pièces se vendent à part, par exemple les **bondes en liège** ou le **bouchon de rechange du vinaigrier**, mais pas toutes. Pour une pièce précise (robinet, poignée, couvercle, joint, tête…), indiquez le **modèle de l'appareil ou du produit** et la **pièce recherchée** au service client, au **${TELEPHONE}** ou à **${EMAIL}** : il vous dira si elle est disponible séparément.`, { liens: [PAGES.contact, PAGES.bondes] });
+  Certaines pièces se vendent à part : les **bondes en liège**, le **bouchon de rechange du vinaigrier**, les **robinets** (en bois pour les vinaigriers et les fûts en bois, en plastique pour les fûts alimentaires blancs), les **couvercles** de fûts, les **pattes de fixation** des casiers, les **grilles** de hachoir, les **rondelles en polyéthylène** des bouchons mécaniques, le tire-bouchon des bouchons Pratic… mais pas toutes. Pour une pièce précise (poignée, joint, tête…), indiquez le **modèle de l'appareil ou du produit** et la **pièce recherchée** au service client, au **${TELEPHONE}** ou à **${EMAIL}** : il vous dira si elle est disponible séparément.`, { liens: [PAGES.contact, PAGES.bondes] });
+
+// ─── Envoyer une photo ─────────────────────────────────────────────────────
+
+r.concept("envoi-photo", "Envoyer une photo ou un fichier", ["envoyer une photo", "envoyer des photos", "envoyer une image", "envoyer des images", "envoyer un fichier", "joindre une photo", "joindre une image", "joindre un fichier", "piece jointe", "pieces jointes"], {
+  exclusif: true,
+  famille: "boutique-en-ligne",
+  formules: ["envoyer la photo", "envoyer les photos", "envoyer une capture", "envoyer un document", "joindre un document", "telecharger une image", "telecharger une photo", "televerser", "ajouter une photo", "ajouter une image", "vous envoyer une photo", "vous envoyer une image", "vous envoyer des photos", "vous envoyer un fichier"],
+});
+
+const ENVOYER_UNE_PHOTO = `
+  Je ne peux pas recevoir d'images ni de fichiers dans cette discussion. Pour nous montrer un produit, un colis abîmé ou une pièce à identifier, envoyez vos **photos par e-mail** à **${EMAIL}** en indiquant votre numéro de commande et le produit concerné : l'équipe vous répondra. Vous pouvez aussi appeler le **${TELEPHONE}**.`;
+
+for (const aspect of ["definition", "procedure", "condition", "lieu"] as const) {
+  r.fait("envoi-photo", aspect, ENVOYER_UNE_PHOTO, { liens: [PAGES.contact] });
+}
+
+// La même réponse pour qui écrit en anglais : sans concept à part, la phrase anglaise ne citerait rien.
+// Sans famille : une suggestion « Voir aussi » ne doit jamais proposer un libellé anglais à un client français.
+r.concept("envoi-photo-en", "Sending a photo or a file", [], {
+  formules: ["upload an image", "upload a picture", "upload a photo", "upload image", "upload photo", "upload a file", "upload files", "upload pictures", "upload photos", "send an image", "send a picture", "send a photo", "send you a picture", "send you a photo", "send you an image", "send pictures", "send photos", "send images", "attach a file", "attach a photo", "attach an image", "attach a picture"],
+});
+
+const SEND_A_PHOTO = `
+  I cannot receive images or files in this chat. Please send your photos by e-mail to **${EMAIL}**, with your order number and the product concerned: our team will answer you. You can also call **${TELEPHONE}**. (Je ne peux pas recevoir d'images dans cette discussion : écrivez-nous par e-mail.)`;
+
+for (const aspect of ["definition", "procedure", "condition", "lieu"] as const) {
+  r.fait("envoi-photo-en", aspect, SEND_A_PHOTO, { liens: [PAGES.contact] });
+}
 
 r.fait("piece-rechange", "procedure", `
   Pour identifier une pièce de rechange, relevez la **marque, le modèle exact, les dimensions de la pièce, son mode de fixation** et, si possible, le numéro de série. Envoyez ces éléments avec des photos de l'appareil et de la pièce au service client ; une ressemblance visuelle seule ne garantit pas la compatibilité.`, { liens: [PAGES.contact] });
@@ -109,7 +137,11 @@ r.fait("facture-incorrecte", "procedure", `
 r.concept("suivi-commande", "Suivre ma commande", ["suivi", "suivi de commande", "suivre ma commande", "suivre mon colis", "numero de suivi", "etat de ma commande", "statut de ma commande", "colis pas recu", "colis non recu", "retard", "retard de livraison", "numero de commande", "commande pas arrivee", "commande pas recue", "commande en retard"], {
   famille: "commande",
   formules: ["ou en est ma commande", "ou en est mon colis", "je n ai pas recu", "pas recu", "toujours pas recu", "pas encore recu", "jamais recu", "quand vais je recevoir", "quand vais je etre livre", "en retard",
-    "ou est ma commande", "ou est mon colis", "mon colis n est pas arrive", "ma commande n est pas arrivee"],
+    "ou est ma commande", "ou est mon colis", "mon colis n est pas arrive", "ma commande n est pas arrivee",
+    // « quand je recevrai ma commande ? » : la date d'une commande précise, que seul le service client connaît.
+    "quand je recevrai", "quand je recevrais", "quand je vais recevoir", "quand puis je recevoir", "quand pourrai je recevoir", "quand recevrai je", "quand je serai livre", "quand je serais livre", "quand serai je livre", "quand arrive ma commande", "quand arrivera ma commande", "quand arrive mon colis", "quand arrivera mon colis", "quand vais je avoir ma commande",
+    // Le numéro seul, une fois masqué ou saisi : « commande 123456 » demande où en est la commande.
+    "commande reference", "ma commande reference", "commande n reference", "commande numero reference", "commande numero n reference"],
 });
 
 r.fait("suivi-commande", "procedure", `
@@ -118,15 +150,33 @@ r.fait("suivi-commande", "procedure", `
 r.concept("confirmation-commande", "Commande passée mais introuvable", ["confirmation de commande", "mail de confirmation", "e mail de confirmation", "email de confirmation", "commande introuvable"], {
   famille: "suivi-commande",
   voirAussi: ["suivi-commande", "paiement"],
-  formules: ["je ne la vois pas", "ne la vois pas", "ne la trouve pas", "n apparait pas dans mon compte", "n apparait pas dans mes commandes", "pas de confirmation", "rien recu par mail", "pas recu de mail", "pas recu d e mail", "pas de mail", "pas d e mail", "pas recu de courriel", "pas de courriel", "pas de mail de confirmation", "pas recu de mail de confirmation", "pas recu d e mail de confirmation", "pas recu de confirmation", "aucune confirmation", "aucun mail"],
+  formules: ["je ne la vois pas", "ne la vois pas", "ne la trouve pas", "n apparait pas dans mon compte", "n apparait pas dans mes commandes", "pas de confirmation", "rien recu par mail", "pas recu de mail", "pas recu d e mail", "pas de mail", "pas d e mail", "pas recu de courriel", "pas de courriel", "pas de mail de confirmation", "pas recu de mail de confirmation", "pas recu d e mail de confirmation", "pas recu de confirmation", "aucune confirmation", "aucun mail",
+    // « Avez-vous reçu le paiement ? », « commande valide » : le client veut savoir si c'est bien passé.
+    "recu le paiement", "recu mon paiement", "recu notre paiement", "recu le reglement", "recu mon reglement", "recu mon virement", "recu le virement", "paiement bien recu", "paiement est bien passe", "paiement est il bien passe", "paiement a bien ete", "paiement valide", "paiement accepte", "paiement pris en compte", "virement bien recu",
+    "commande valide", "commande validee", "commande bien validee", "commande enregistree", "commande bien enregistree", "commande est elle enregistree", "commande est elle bien enregistree", "commande est elle validee", "commande est elle bien validee", "commande a t elle ete enregistree", "commande a t elle bien ete enregistree", "virement est il bien arrive", "virement bien arrive", "virement est il arrive", "paiement est il bien arrive", "paiement est bien arrive", "paiement est il passe", "mon paiement est passe", "paiement bien passe", "paiement a t il ete accepte", "paiement a ete accepte", "commande bien passee", "commande est bien passee", "commande est elle bien passee", "commande a bien ete passee", "commande a bien ete prise en compte", "commande prise en compte", "commande confirmee", "etre sur que ma commande", "etre sur que la commande", "comment savoir si ma commande", "comment savoir si la commande"],
 });
 
-r.fait("confirmation-commande", "procedure", `
-  Après le paiement, vous recevez normalement un **e-mail de confirmation** (pensez à vérifier vos courriers indésirables) et votre commande apparaît dans votre compte client. Si vous ne voyez ni l'un ni l'autre, vérifiez que le paiement a bien été débité sur votre relevé, puis contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** en indiquant l'adresse e-mail utilisée pour commander.`, { liens: [PAGES.contact] });
+const CONFIRMER_UNE_COMMANDE = `
+  Je n'ai pas accès aux paiements ni aux commandes : je ne peux donc pas voir si un règlement est arrivé. Après le paiement, vous recevez normalement un **e-mail de confirmation** (pensez à vérifier vos courriers indésirables). Si vous avez un compte client, votre commande y apparaît ; **sans compte client**, c'est l'e-mail de confirmation qui fait foi. Si vous ne voyez ni l'un ni l'autre, vérifiez que le paiement a bien été débité sur votre relevé, puis contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** en indiquant l'adresse e-mail utilisée pour commander.`;
+
+r.fait("confirmation-commande", "procedure", CONFIRMER_UNE_COMMANDE, { liens: [PAGES.contact] });
 
 // Même texte, rattaché aussi à « commande » : quand la question cite les deux, il passe devant la procédure pour commander.
-r.fait(["confirmation-commande", "commande"], "procedure", `
-  Après le paiement, vous recevez normalement un **e-mail de confirmation** (pensez à vérifier vos courriers indésirables) et votre commande apparaît dans votre compte client. Si vous ne voyez ni l'un ni l'autre, vérifiez que le paiement a bien été débité sur votre relevé, puis contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** en indiquant l'adresse e-mail utilisée pour commander.`, { liens: [PAGES.contact] });
+r.fait(["confirmation-commande", "commande"], "procedure", CONFIRMER_UNE_COMMANDE, { liens: [PAGES.contact] });
+
+// Défini après la confirmation : « j'ai commandé sans compte, comment être sûr que c'est passé ? » parle de confirmation.
+// Des formules : sans leurs mots courants (« sans », « de »), ces expressions seraient celles du compte client.
+r.concept("commande-sans-compte", "Commander sans créer de compte", [], {
+  famille: "compte-client",
+  formules: ["commander sans compte", "commande sans compte", "commander sans creer de compte", "sans creer de compte", "sans compte client", "sans inscription", "sans m inscrire", "sans vous inscrire", "compte obligatoire", "compte client obligatoire", "obligatoire de creer un compte", "obligee de creer un compte"],
+});
+
+const COMMANDER_SANS_COMPTE = `
+  Oui, des clients passent commande **sans créer de compte client**. Dans ce cas, c'est l'**e-mail de confirmation** qui fait foi : conservez-le, et indiquez l'adresse e-mail utilisée si vous contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**. Un compte client permet en plus de retrouver ses commandes et ses factures en ligne.`;
+
+for (const aspect of ["condition", "procedure", "definition"] as const) {
+  r.fait("commande-sans-compte", aspect, COMMANDER_SANS_COMPTE, { liens: [PAGES.contact] });
+}
 
 r.concept("colis-introuvable", "Colis annoncé livré mais introuvable", ["colis perdu", "colis egare", "colis introuvable", "livreur", "lien de suivi"], {
   famille: "suivi-commande",
@@ -167,7 +217,9 @@ r.fait(["modifier-commande", "regrouper-commandes"], "procedure", `
 r.concept("commande-en-attente", "Commande en attente de préparation ou d'expédition", ["delai de preparation", "delai d expedition"], {
   famille: "suivi-commande",
   voirAussi: ["suivi-commande", "livraison"],
-  formules: ["en preparation", "preparation de ma commande", "preparation de la commande", "preparer ma commande", "preparer la commande", "prepare ma commande", "prepare la commande", "en attente de preparation", "toujours en attente", "en cours de preparation", "pas encore expedie", "pas encore expediee", "pas ete expedie", "pas ete expediee", "toujours pas expedie", "toujours pas expediee", "quand sera t elle expediee", "quand sera t il expedie"],
+  formules: ["en preparation", "preparation de ma commande", "preparation de la commande", "preparer ma commande", "preparer la commande", "prepare ma commande", "prepare la commande", "en attente de preparation", "toujours en attente", "en cours de preparation", "pas encore expedie", "pas encore expediee", "pas ete expedie", "pas ete expediee", "toujours pas expedie", "toujours pas expediee", "quand sera t elle expediee", "quand sera t il expedie",
+    // « quand ma commande sera envoyée ? » : la date de départ d'une commande précise.
+    "quand ma commande sera envoyee", "quand ma commande sera expediee", "quand sera envoyee ma commande", "quand sera expediee ma commande", "quand ma commande part", "quand ma commande partira", "quand mon colis part", "quand mon colis partira", "quand sera envoye mon colis", "quand va partir ma commande", "quand sera t elle envoyee", "quand ma commande sera t elle envoyee"],
 });
 
 r.fait("commande-en-attente", "moment", `
@@ -178,9 +230,11 @@ r.fait("commande-en-attente", "duree", `
 
 // ─── Livraison ─────────────────────────────────────────────────────────────
 
-r.concept("livraison", "Livraison", ["livraison", "livrer", "livre", "expedition", "expedier", "envoi", "envoyer", "frais de port", "frais de livraison", "frais d envoi", "transporteur", "transporteurs", "colis", "dpd", "colissimo", "geodis", "livraison gratuite", "livraison offerte", "franco de port", "port offert", "port gratuit"], {
+r.concept("livraison", "Livraison", ["livraison", "delivraison", "livrer", "livre", "expedition", "expedier", "envoi", "envoyer", "frais de port", "frais de livraison", "frais d envoi", "transporteur", "transporteurs", "colis", "dpd", "colissimo", "geodis", "livraison gratuite", "livraison offerte", "franco de port", "port offert", "port gratuit"], {
   famille: "boutique-en-ligne",
   voirAussi: ["suivi-commande", "paiement"],
+  // « De combien sont les frais ? » : dans une boutique en ligne, ce sont les frais de port.
+  formules: ["sont les frais", "combien en payant", "et en payant", "combien si je paie", "combien si je paye", "quel est le montant des frais", "les frais supplementaires", "frais en plus", "frais en sus"],
 });
 
 r.fait("livraison", "prix", `
@@ -199,6 +253,34 @@ r.fait("livraison", "condition", `
 
 r.fait("livraison", "duree", `
   Les délais de livraison dépendent du transporteur choisi ; ils vous sont indiqués au moment de valider votre commande. Pour une commande urgente ou pour savoir où en est un envoi, contactez le service client au **${TELEPHONE}**.`);
+
+// Défini après la livraison : « le transport gratuit n'apparaît pas » parle des modes proposés, pas des délais.
+// Des formules et non des alias : les mots courants (« pas de livraison gratuite ») disparaissent des alias,
+// qui deviendraient « livraison gratuite » tout court.
+r.concept("livraison-offerte-absente", "Livraison offerte non proposée", ["option payante", "options payantes"], {
+  famille: "livraison",
+  formules: ["transport gratuit", "cocher option payante", "cocher l option payante", "oblige de cocher", "seule option payante", "uniquement des options payantes", "livraison gratuite n apparait pas", "livraison offerte n apparait pas", "port offert n apparait pas", "pas de livraison gratuite", "pas de livraison offerte", "pas de port offert", "je paie la livraison", "je dois payer la livraison", "pourquoi payer la livraison", "pourquoi je paie la livraison", "pourquoi je paye la livraison", "je ne vois pas la livraison gratuite", "je ne vois pas la livraison offerte", "ne propose pas la livraison gratuite", "ne propose pas la livraison offerte"],
+});
+
+const LIVRAISON_OFFERTE_ABSENTE = `
+  La livraison offerte apparaît parmi les modes de livraison quand votre panier atteint le montant du transporteur (**${LIVRAISON_OFFERTE.dpd}** avec DPD, **${LIVRAISON_OFFERTE.colissimo}** avec Colissimo, **${LIVRAISON_OFFERTE.geodis}** avec Geodis) pour une adresse en France continentale. Si seule une option payante est proposée, vérifiez le **montant de votre panier** (sans les frais de port), le **transporteur** et l'**adresse** de livraison : certains articles lourds ou volumineux sont exclus de la livraison offerte. Si tout est en règle et que l'option offerte n'apparaît pas, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avec une capture de votre panier.`;
+
+for (const aspect of ["condition", "raison", "prix", "procedure"] as const) {
+  r.fait("livraison-offerte-absente", aspect, LIVRAISON_OFFERTE_ABSENTE, { liens: [PAGES.contact] });
+}
+
+r.concept("transporteur-propose", "Choix du transporteur", ["choix du transporteur", "changer de transporteur", "autre transporteur", "autres transporteurs", "proposition de transport", "mode de transport"], {
+  famille: "livraison",
+  formules: ["choisir le transporteur", "choisir mon transporteur", "autre que geodis", "autre que dpd", "autre que colissimo", "pas eu la proposition", "pas propose dpd", "pas propose colissimo", "uniquement geodis", "seulement geodis", "que geodis"],
+});
+
+const TRANSPORTEUR_PROPOSE = `
+  Les transporteurs proposés dépendent du **contenu de votre panier** (poids, dimensions) et de l'**adresse** de livraison : **Geodis** prend en charge les colis lourds ou volumineux, **DPD** et **Colissimo** les autres. Les modes disponibles s'affichent, avec leurs frais, au moment de valider votre panier. Pour demander un transporteur particulier, contactez le service client **avant de commander** au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+// Pas d'aspect « choix » : pour « quel transporteur utilisez-vous ? », le moteur descend aux concepts membres et ce fait capterait la réponse.
+for (const aspect of ["raison", "condition", "procedure"] as const) {
+  r.fait("transporteur-propose", aspect, TRANSPORTEUR_PROPOSE, { liens: [PAGES.contact] });
+}
 
 r.concept("zone-livraison", "Livraison hors France continentale", ["corse", "dom tom", "dom", "tom", "outre mer", "martinique", "guadeloupe", "reunion", "guyane", "etranger", "international", "belgique", "suisse", "luxembourg", "europe", "espagne", "allemagne", "italie", "angleterre"], {
   famille: "livraison",
@@ -301,7 +383,7 @@ r.concept("compte-client", "Mon compte client", ["compte client", "espace client
 });
 
 r.fait("compte-client", "condition", `
-  Je n'ai pas accès aux comptes clients. Pour vous connecter, créer un compte ou changer votre mot de passe, utilisez l'espace « Mon compte » de la boutique. Pour toute autre demande (données personnelles, newsletter), contactez le service client à **${EMAIL}**.`);
+  Je n'ai pas accès aux comptes clients. Pour vous connecter, créer un compte ou changer votre mot de passe, utilisez l'espace « Mon compte » de la boutique. Si la création du compte ne fonctionne pas, notez le message d'erreur affiché et contactez le service client à **${EMAIL}** : vous pouvez aussi passer commande sans créer de compte. Pour toute autre demande (données personnelles, newsletter), écrivez à la même adresse.`);
 
 const OBTENIR_UNE_FACTURE = `
   Pour obtenir une facture, connectez-vous à votre compte client sur la boutique, ou demandez-la au service client à **${EMAIL}** (ou au **${TELEPHONE}**) en indiquant votre **numéro de commande**. Si elle n'a pas été éditée, par exemple pour une commande plus ancienne, le service client peut la créer et vous l'envoyer. Pour une facture au nom d'une **entreprise ou d'une association**, précisez sa raison sociale, son adresse et, le cas échéant, son numéro de TVA.`;
@@ -309,9 +391,14 @@ const OBTENIR_UNE_FACTURE = `
 r.fait("facture", "procedure", OBTENIR_UNE_FACTURE, { liens: [PAGES.contact] });
 r.fait(["facture", "commande"], "procedure", OBTENIR_UNE_FACTURE, { liens: [PAGES.contact] });
 
-r.concept("disponibilite", "Disponibilité des produits", ["stock", "en stock", "disponible", "disponibles", "disponibilite", "rupture", "rupture de stock", "epuise", "reapprovisionnement", "retour en stock", "bientot disponible", "indisponible", "approvisionnement", "approvisionne", "reapprovisionne", "reassort"], {
+r.concept("disponibilite", "Disponibilité des produits", ["disponible", "disponibles", "disponibilite", "rupture", "rupture de stock", "epuise", "reapprovisionnement", "retour en stock", "bientot disponible", "indisponible", "approvisionnement", "approvisionne", "reapprovisionne", "reassort"], {
   famille: "catalogue",
-  formules: ["de nouveau disponible", "a nouveau disponible", "de retour en stock", "sera t il disponible", "sera t elle disponible"],
+  // Les mèches, l'hygromètre, un bouchon : le produit dit DE QUOI on parle, la disponibilité dit CE QU'ON DEMANDE.
+  exclusif: true,
+  // « stock » est une formule et non un alias : « stocker », « stockage » ont la même racine et parlaient de cave.
+  formules: ["stock", "stocks", "de nouveau disponible", "a nouveau disponible", "de retour en stock", "sera t il disponible", "sera t elle disponible", "seront ils disponibles", "seront elles disponibles",
+    "de nouveau commercialise", "de nouveau commercialisee", "de nouveau commercialises", "de nouveau commercialisees", "de nouveau en vente", "de nouveau en stock", "de nouveau propose", "de nouveau proposee", "remis en vente", "remise en vente", "remis en stock", "remise en stock", "reviendra en stock", "reviendront en stock", "revient en stock", "reviendra t il", "reviendra t elle",
+    "quand aurez vous", "quand avez vous de nouveau", "quand allez vous avoir", "quand allez vous recevoir", "quand recevrez vous", "quand serez vous reapprovisionne", "quand serez vous approvisionne", "n est plus disponible", "n est plus en stock", "plus en stock", "plus disponible", "en rupture"],
 });
 
 r.fait("disponibilite", "condition", `
@@ -323,7 +410,7 @@ r.concept("poids-produit", "Poids des articles", ["poids du produit", "poids de 
   famille: "catalogue",
   lien: PAGES.contact,
   voirAussi: ["livraison", "zone-livraison"],
-  formules: ["le poids", "quel poids", "son poids", "leur poids", "poids du", "poids d un", "poids d une", "poids de l", "poids de la", "poids de mon", "poids de ma", "poids des", "combien pese", "combien ca pese", "ca pese combien", "il pese combien", "elle pese combien", "pese t il", "pese t elle"],
+  formules: ["le poids", "quel poids", "son poids", "leur poids", "poids du", "poids d un", "poids d une", "poids de l", "poids de la", "poids de mon", "poids de ma", "poids des", "combien pese", "combien ca pese", "ca pese combien", "il pese combien", "elle pese combien", "pese t il", "pese t elle", "pas tres lourd", "pas trop lourd", "tres lourd", "assez lourd", "trop lourd", "c est lourd", "est ce lourd", "est il lourd", "est elle lourd", "est elle lourde", "est ce que c est lourd"],
 });
 
 r.fait("poids-produit", "dimension", `

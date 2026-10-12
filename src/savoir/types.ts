@@ -57,6 +57,15 @@ export interface Concept {
   readonly lien?: Lien;
   /** Concepts proches à proposer en « Voir aussi ». */
   readonly voirAussi?: readonly string[];
+  /**
+   * Quand ce concept est cité, ses faits répondent SEULS : les autres concepts de
+   * la question ne font que préciser de quel produit on parle. « Quand les mèches
+   * soufrées seront-elles de retour en stock ? » demande la disponibilité, pas le
+   * mode d'emploi des mèches. Sans fait de ce concept pour le type de la question
+   * (« avez-vous des bouchons en stock ? » demande la gamme), la réponse suit le
+   * cours normal.
+   */
+  readonly exclusif?: boolean;
 }
 
 // ───────────────────────────────────────────────────────────────────────────

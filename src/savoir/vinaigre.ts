@@ -83,7 +83,7 @@ r.fait("vinaigrier", "choix", `
   Choisissez la contenance selon votre consommation : **2,5 à 3,5 L** pour un usage familial, **4 à 5 L** si vous utilisez beaucoup de vinaigre ou avez souvent des restes de vin. Le **grès** est le plus facile à entretenir ; le **chêne** apporte des notes boisées au vinaigre.`, { source: SAVOIR_FAIRE, liens: [PAGES.vinaigriers] });
 
 r.fait("vinaigrier", "entretien", `
-  Avant la première utilisation, rincez le vinaigrier à l'eau claire, **sans produit vaisselle**. Faites tremper le **robinet en bois** dans l'eau quelques heures pour qu'il gonfle et devienne étanche. Pour le nettoyer, videz-le, rincez à l'eau chaude puis au vinaigre, et relancez-le avec une partie de la mère.`, { source: SAVOIR_FAIRE });
+  Avant la première utilisation, rincez le vinaigrier à l'eau claire, **sans produit vaisselle**. Faites tremper le **robinet en bois** dans l'eau quelques heures pour qu'il gonfle et devienne étanche, et son **bouchon en liège** pendant 24 heures (selon la fiche du robinet). Pour le nettoyer, videz-le, rincez à l'eau chaude puis au vinaigre, et relancez-le avec une partie de la mère.`, { source: SAVOIR_FAIRE });
 
 r.fait("vinaigrier", "condition", `
   Pendant l'acétification, ne fermez pas le vinaigrier **hermétiquement** : les bactéries ont besoin d'oxygène. Protégez plutôt l'ouverture avec une toile fine, propre et respirante, solidement fixée, afin de laisser passer l'air tout en bloquant les insectes.`, { source: SAVOIR_FAIRE });
@@ -124,18 +124,32 @@ r.concept("choix-robinet", "Robinet de remplacement ou de rechange", [], {
 });
 
 r.fait("choix-robinet", "choix", `
-  Un **robinet en bois**, comme celui livré avec les vinaigriers Duhallé, convient très bien : il est naturel, ne rouille pas et gonfle pour devenir étanche. Évitez les robinets en métal non adapté, car l'acidité du vinaigre attaque les métaux. Le point décisif est la **taille** : la partie du robinet qui s'engage doit correspondre au trou du vinaigrier, d'où l'intérêt de mesurer ce trou avant de commander. En cas de doute, indiquez le modèle de votre vinaigrier au service client, au **${TELEPHONE}** ou à **${EMAIL}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+  Pour remplacer le robinet de votre vinaigrier, Duhallé propose un **robinet en bois de 3 pouces (8 cm)**, en frêne du Jura. Un robinet en bois, comme celui livré avec les vinaigriers, convient très bien : il est naturel, ne rouille pas et gonfle pour devenir étanche. Évitez les robinets en métal non adapté, car l'acidité du vinaigre attaque les métaux. Le point décisif est la **taille** : la partie du robinet qui s'engage doit correspondre au trou du vinaigrier, d'où l'intérêt de mesurer ce trou avant de commander. Selon la fiche du robinet, son **bouchon en liège** doit tremper **24 heures dans l'eau** avant utilisation, pour assurer l'étanchéité. En cas de doute, indiquez le modèle de votre vinaigrier au service client, au **${TELEPHONE}** ou à **${EMAIL}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+
+// Concept à part, comme « choix-robinet » : sinon les faits de panne du robinet captent « est-il vendu avec son robinet ? ».
+r.concept("robinet-fourni", "Robinet livré avec le vinaigrier", [], {
+  famille: "robinet-vinaigrier",
+  exclusif: true,
+  formules: ["robinet est il fourni", "robinet est il inclus", "robinet fourni", "robinet inclus", "robinet livre", "livre avec un robinet", "livre avec son robinet", "vendu avec son robinet", "vendu avec le robinet", "vendu avec un robinet", "robinet avec le vinaigrier", "robinet avec vinaigrier", "robinet avec la jarre", "avec robinet bois", "fut vendu avec un robinet", "fut vendu avec son robinet", "fut fourni avec un robinet", "fut fourni avec son robinet", "fut robinet inclus", "fut robinet fourni"],
+});
+
+const ROBINET_FOURNI = `
+  Oui : les vinaigriers Duhallé en grès sont livrés avec leur **robinet en bois** et leur **bouchon en liège** ; certains modèles ont aussi leur **tabouret en bois**. Si le robinet est abîmé ou perdu, il se rachète à part : Duhallé propose un **robinet en bois de 3 pouces (8 cm)**, en frêne du Jura, pour les vinaigriers.`;
+
+for (const aspect of ["definition", "condition", "gamme"] as const) {
+  r.fait("robinet-fourni", aspect, ROBINET_FOURNI, { source: PAGES.vinaigriers.url, liens: [PAGES.vinaigriers] });
+}
 
 r.fait("robinet-vinaigrier", "condition", `
   Un **robinet en bois** qui fuit un peu au début est normal : le bois doit gonfler. Faites-le tremper dans l'eau quelques heures avant de le remettre en place. Si la fuite persiste, contactez le service client.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
 
 r.concept("entretien-robinet-vinaigrier", "Installer et nettoyer le robinet du vinaigrier", ["entretien du robinet de vinaigrier", "montage du robinet en bois"], {
   famille: "robinet-vinaigrier",
-  formules: ["nettoyer le robinet en bois", "laver le robinet en bois", "installer la bonde et le robinet"],
+  formules: ["nettoyer le robinet en bois", "laver le robinet en bois", "installer la bonde et le robinet", "preparer le robinet", "preparer le robinet du vinaigrier", "preparer le robinet en bois", "premiere utilisation du robinet", "avant d utiliser le robinet", "mise en service du robinet", "faut il tremper le robinet", "tremper le robinet", "monter le robinet", "poser le robinet", "installer le robinet"],
 });
 
 r.fait("entretien-robinet-vinaigrier", "procedure", `
-  Pour installer ou nettoyer le robinet, travaillez vinaigrier vide et soutenu, humidifiez le bois comme indiqué par la notice puis engagez-le **dans l'axe sans coup sec ni levier sur le grès**. Rincez le robinet à l'eau claire et au vinaigre, sans produit parfumé, et laissez-le sécher avant remontage.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+  Avant la première utilisation, faites tremper le **robinet en bois** quelques heures et son **bouchon en liège** 24 heures dans l'eau (selon la fiche du robinet) : le bois et le liège gonflent et deviennent étanches. Pour installer ou nettoyer le robinet, travaillez vinaigrier vide et soutenu, humidifiez le bois comme indiqué par la notice puis engagez-le **dans l'axe sans coup sec ni levier sur le grès**. Rincez le robinet à l'eau claire et au vinaigre, sans produit parfumé, et laissez-le sécher avant remontage.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
 
 r.concept("aromatisation-vinaigre", "Aromatiser le vinaigre", ["aromatiser le vinaigre", "vinaigre aromatise", "herbes dans le vinaigrier", "epices dans le vinaigrier"], {
   famille: "vinaigre",
@@ -172,4 +186,25 @@ r.fait(["trou-bouchon", "vinaigrier"], "choix", CHOIX_DU_BOUCHON_DE_VINAIGRIER, 
 r.fait(["trou-bouchon", "vinaigrier"], "dimension", CHOIX_DU_BOUCHON_DE_VINAIGRIER, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonVinaigrier, PAGES.bondes, PAGES.contact] });
 
 r.fait("bouchon-vinaigrier", "procedure", `
-  Pour remplacer le bouchon du vinaigrier : retirez l'ancien en le tournant doucement, nettoyez et séchez le trou, puis enfoncez le nouveau bouchon conique **à la main, sans forcer ni frapper**, jusqu'à ce qu'il tienne fermement. Le bouchon percé de rechange mesure **32 x 28 mm** : il convient à un trou de 28 à 32 mm. Pour un autre diamètre, mesurez le trou et choisissez une bonde conique adaptée, ou demandez conseil au service client au **${TELEPHONE}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonVinaigrier, PAGES.bondes, PAGES.contact] });
+  Pour remplacer le bouchon du vinaigrier : retirez l'ancien en le tournant doucement, nettoyez et séchez le trou, faites tremper le nouveau bouchon dans l'eau pendant **24 heures** (selon la fiche du robinet), puis enfoncez-le **à la main, sans forcer ni frapper**, jusqu'à ce qu'il tienne fermement. Le bouchon percé de rechange mesure **32 x 28 mm** : il convient à un trou de 28 à 32 mm. Pour un autre diamètre, mesurez le trou et choisissez une bonde conique adaptée, ou demandez conseil au service client au **${TELEPHONE}**.`, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonVinaigrier, PAGES.bondes, PAGES.contact] });
+
+const TREMPER_LE_BOUCHON_DU_VINAIGRIER = `
+  Oui. Selon la fiche du robinet, le **bouchon en liège du vinaigrier** doit tremper **24 heures dans l'eau** avant la première utilisation : il gonfle et assure l'étanchéité. Le robinet en bois peut aussi tremper quelques heures. Enfoncez ensuite le bouchon à la main, sans forcer ni frapper. (Les bouchons en liège pour bouteilles de vin, eux, s'utilisent à sec.)`;
+
+for (const aspect of ["condition", "raison", "entretien"] as const) {
+  r.fait("bouchon-vinaigrier", aspect, TREMPER_LE_BOUCHON_DU_VINAIGRIER, { source: PAGES.bouchonVinaigrier.url, liens: [PAGES.bouchonVinaigrier] });
+}
+
+// ─── Démarrer le vinaigre ──────────────────────────────────────────────────
+
+r.concept("demarrer-vinaigre", "Démarrer son vinaigre avec une mère", ["mere de depart", "mere pour demarrer", "acheter une mere", "vendre une mere", "premiere mere"], {
+  famille: "mere-vinaigre",
+  formules: ["ou trouver une mere", "ou acheter une mere", "vendez vous une mere", "vendez vous des meres", "vendez vous de la mere", "mere de vinaigre a vendre", "vendez vous de la mere de vinaigre"],
+});
+
+const DEMARRER_LE_VINAIGRE = `
+  Pour démarrer un vinaigre, il faut une **mère de vinaigre**. Je n'ai pas trace d'une mère vendue à part par la boutique ; pour savoir si l'on peut s'en procurer, demandez au service client au **${TELEPHONE}** ou à **${EMAIL}**. Vous pouvez aussi en demander un morceau à un proche qui fait son vinaigre, ou verser dans le vinaigrier un fond de **vinaigre de vin non pasteurisé** (« vivant ») avec du vin sain, peu soufré : une mère se forme alors d'elle-même, en trois semaines environ d'après la fiche d'un de nos vinaigriers. Alimentez-la ensuite régulièrement avec des fonds de bouteille de vin.`;
+
+for (const aspect of ["definition", "procedure", "choix", "lieu", "gamme"] as const) {
+  r.fait("demarrer-vinaigre", aspect, DEMARRER_LE_VINAIGRE, { source: SAVOIR_FAIRE, liens: [PAGES.vinaigriers, PAGES.contact] });
+}

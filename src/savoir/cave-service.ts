@@ -44,6 +44,9 @@ r.concept("hygrometrie", "Humidité de la cave", ["humidite", "hygrometrie", "hy
   famille: "cave",
 });
 
+r.fait("hygrometrie", "gamme", `
+  Duhallé propose un **hygromètre-thermomètre de cave** (température et humidité relative sur un même cadran, à fixer au mur ou à poser sur son support en bois) et des **thermomètres de cave**, analogiques ou muraux.`, { source: PAGES.casiers.url, liens: [PAGES.casiers] });
+
 r.fait("hygrometrie", "condition", `
   Une humidité de **70 à 80 %** est idéale : en dessous, les bouchons sèchent et laissent passer l'air ; au-dessus, les étiquettes moisissent. Un hygromètre permet de la surveiller. Dans une cave trop sèche, un bac de sable ou de gravier humide aide à remonter le taux ; dans une cave trop humide, aérez.`, { source: SAVOIR_FAIRE });
 
@@ -54,8 +57,8 @@ r.concept("casier", "Casiers range-bouteilles", ["casier", "casiers", "range bou
 
 r.fait("casier", "gamme", `
   Les casiers Duhallé :
-  - **acier plastifié noir**, fabriqués en Italie : 30 places (5 rangées de 6), 60 places (10 rangées de 6) et 144 places, légèrement inclinés vers l'avant, livrés avec leurs pattes de fixation murale ;
-  - **effet chromé** : 24 places (4 rangées de 6) et 48 places avec pattes de fixation murale ;
+  - **acier plastifié noir**, fabriqués en Italie : 30 places (5 rangées de 6), 60 places (10 rangées de 6), 90 places (15 rangées de 6, environ 63 x 151 x 26 cm) et 144 places, légèrement inclinés vers l'avant, livrés avec leurs pattes de fixation murale (également vendues à part comme pièces de rechange) ;
+  - **effet chromé** : 24 places (4 rangées de 6), 48 places et 72 places, avec pattes de fixation murale ;
   - **polystyrène** : 16 places réversible effet béton ciré, et 12 places en matière d'origine écologique, empilables ;
   - **bois** : 12 bouteilles (H 39 x L 34 x P 18 cm), livré monté ;
   - **Weinbox** transportable 12 bouteilles, et petit casier **Brindo** 3 bouteilles, modulable.`, { liens: [PAGES.casier30, PAGES.casier60, PAGES.casierPolystyrene16] });
@@ -64,7 +67,7 @@ r.fait("casier", "choix", `
   Choisissez d'abord selon le **nombre de bouteilles, leur diamètre, leur longueur et leur poids**, puis selon la place disponible et la fixation. Les casiers en acier plastifié offrent le plus de capacité ; le polystyrène isole davantage ; le bois privilégie l'esthétique. Vérifiez spécialement le diamètre des bouteilles champenoises : elles sont souvent plus larges et lourdes qu'une bordelaise de 75 cl.`, { liens: [PAGES.casier60, PAGES.casierPolystyrene16, PAGES.casierBois12] });
 
 r.fait("casier", "dimension", `
-  Les **dimensions** (hauteur, largeur, profondeur), le **nombre de places** et le **poids** de chaque casier sont indiqués sur sa fiche produit. Avant de commander, mesurez l'emplacement prévu, en tenant compte de la plinthe, des prises et de l'espace pour sortir les bouteilles. Pour une question sur un modèle précis, le service client vous répond au **${TELEPHONE}**.`, { liens: [PAGES.casiers, PAGES.contact] });
+  Les **dimensions** (hauteur, largeur, profondeur), le **nombre de places** et le **poids** de chaque casier sont indiqués sur sa fiche produit. Avant de commander, mesurez l'emplacement prévu, en tenant compte de la plinthe, des prises et de l'espace pour sortir les bouteilles. À titre d'exemple, le casier **90 places** mesure environ 63 x 151 x 26 cm (largeur x hauteur x profondeur). Pour une question sur un modèle précis, le service client vous répond au **${TELEPHONE}**.`, { liens: [PAGES.casiers, PAGES.contact] });
 
 r.fait("casier", "condition", `
   Une bouteille de champagne peut être stockée dans un casier uniquement si ses **diamètre, longueur et poids** sont compatibles avec chaque logement et si le casier est stable ou fixé comme prévu. Ne forcez pas une bouteille plus large dans une alvéole conçue pour une bordelaise.`, { source: SAVOIR_FAIRE });
@@ -74,7 +77,7 @@ r.concept("stabilite-casier", "Stabilité et inclinaison des casiers", ["stabili
   lien: PAGES.casiers,
   voirAussi: ["casier", "position-bouteilles", "cave"],
   // Formules et non alias : « un casier qui se fixe au mur » cherche un produit (la gamme).
-  formules: ["fixer le casier", "fixer mon casier", "fixer les casiers", "fixer un casier", "fixer au mur", "pattes de fixation"],
+  formules: ["fixer le casier", "fixer mon casier", "fixer les casiers", "fixer un casier", "fixer au mur", "pattes de fixation", "penchent vers l avant", "penche vers l avant", "penchent en avant", "inclinees vers l avant", "incline vers l avant", "inclinee vers l avant", "elles penchent", "bouteilles penchent", "bouteilles qui penchent", "tombent vers l avant", "basculent vers l avant", "bouteilles basculent"],
 });
 
 r.fait("stabilite-casier", "condition", `
@@ -83,7 +86,7 @@ r.fait("stabilite-casier", "condition", `
   - remplissez-les **du bas vers le haut** et, pour les vider, commencez par le haut ;
   - gardez 6 bouteilles de vin par niveau, sans forcer une bouteille plus large ou plus lourde qu'une bouteille de 75 cl.
 
-  Leurs montants en tubes de 15 mm et leurs tiges de renfort latéral assurent la rigidité de l'ensemble.`, { source: PAGES.casier30.url, liens: [PAGES.casier30, PAGES.casier60, PAGES.casier144] });
+  Leurs montants en tubes de 15 mm et leurs tiges de renfort latéral assurent la rigidité de l'ensemble. Des pattes de fixation de rechange se vendent aussi à part.`, { source: PAGES.casier30.url, liens: [PAGES.casier30, PAGES.casier60, PAGES.casier144] });
 
 r.fait("stabilite-casier", "raison", `
   Sur les casiers en acier plastifié, les bouteilles sont **légèrement inclinées vers l'avant** : c'est voulu. Les fils avant et arrière portent des **encoches** qui retiennent le goulot et le fond de chaque bouteille, si bien que les bouteilles restent maintenues vers le bas. Couchées ainsi, le goulot un peu plus bas, elles gardent le vin au contact du bouchon.`, { source: PAGES.casier30.url, liens: [PAGES.casier30, PAGES.casier60, PAGES.casier144] });
@@ -192,9 +195,11 @@ r.concept("choix-tire-bouchon-fragile", "Choisir pour un bouchon long ou fragile
 r.fait("choix-tire-bouchon-fragile", "choix", `
   Choisissez le **bilame** pour un bouchon vieux, long ou fragile : il l'extrait sans le percer et limite le risque d'effritement. Pour un bouchon récent et sain, un couteau de sommelier ou un modèle à levier est plus simple.`, { source: SAVOIR_FAIRE, liens: [PAGES.tireBouchonBilame] });
 
-r.concept("bouteille-ouverte", "Conserver une bouteille entamée", ["bouteille entamee", "bouteilles entamees", "bouteille ouverte", "bouteilles ouvertes", "vin ouvert", "garder un vin ouvert", "garder une bouteille ouverte", "conserver une bouteille ouverte", "reboucher une bouteille ouverte", "vide air", "pompe vide air", "pompe a vide", "enlever l air", "retirer l air", "pompe pour enlever l air", "pompe pour retirer l air", "sous vide", "bouchon verseur", "bouchon pratic", "bouchons pratic", "jerry"], {
+r.concept("bouteille-ouverte", "Conserver une bouteille entamée", ["bouteille entamee", "bouteilles entamees", "bouteille ouverte", "bouteilles ouvertes", "vin ouvert", "garder un vin ouvert", "garder une bouteille ouverte", "conserver une bouteille ouverte", "reboucher une bouteille ouverte", "vide air", "pompe vide air", "pompe a vide", "enlever l air", "retirer l air", "pompe pour enlever l air", "pompe pour retirer l air", "sous vide", "bouchon verseur", "jerry"], {
   famille: "service-vin",
   lien: PAGES.serviceDuVin,
+  // L'alias « bouchon de bouteille » du bouchon avale « bouteille » : ces expressions-là restent reconnues.
+  formules: ["bouchon pour bouteille entamee", "bouchon pour bouteilles entamees", "bouchon pour une bouteille entamee", "bouchon pour bouteille ouverte", "bouchon pour une bouteille ouverte", "bouchon pour refermer", "bouchon pour reboucher", "refermer une bouteille", "refermer la bouteille", "reboucher une bouteille", "reboucher la bouteille"],
 });
 
 r.fait("bouteille-ouverte", "choix", `
@@ -205,3 +210,17 @@ r.fait("bouteille-ouverte", "choix", `
 
 r.fait("bouteille-ouverte", "duree", `
   Une fois ouverte et rebouchée, une bouteille de vin se garde en général **quelques jours** au frais (2 à 5 jours selon le vin). En retirant l'air avec une pompe vide-air, vous prolongez sa fraîcheur.`, { source: SAVOIR_FAIRE, liens: [PAGES.videAir] });
+
+r.concept("bouchon-pratic", "Bouchons Pratic", ["bouchon pratic", "bouchons pratic", "pratic"], {
+  exclusif: true,
+  famille: "bouteille-ouverte",
+  lien: PAGES.bouchonsPratic,
+});
+
+/** Relevé le 12/10/2026 sur la fiche du produit : à faire valider par Duhallé (voir README). */
+const BOUCHONS_PRATIC = `
+  Les **bouchons Pratic** (plastique alimentaire blanc, réutilisables, diamètre **19 mm**) s'adaptent aux bouteilles de vin standard de 75 cl. Ils sont conçus pour **refermer une bouteille entamée** et se retirent avec leur petit tire-bouchon plastique (lot de 40 avec tire-bouchon, lot de 80 sans). La fiche annonce une conservation du vin de **10 à 12 mois** : pour une garde plus longue, utilisez plutôt un bouchon en liège (38 x 24 ou 45 x 24 mm) posé à la boucheuse.`;
+
+for (const aspect of ["definition", "dimension", "condition", "choix", "usage", "gamme"] as const) {
+  r.fait("bouchon-pratic", aspect, BOUCHONS_PRATIC, { source: PAGES.bouchonsPratic.url, liens: [PAGES.bouchonsPratic, PAGES.bouchonsVin] });
+}

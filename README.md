@@ -29,11 +29,15 @@ Pour chaque question, le moteur procède ainsi :
 4. Il assemble 1 à 3 faits selon le plan du type, avec des liens vers les pages du site et des questions suggérées.
 
 Cas particuliers :
-- **Relances** : « et combien de temps ? » ou « et pour le cidre ? » reprennent le sujet précédent.
+- **Relances** : « et combien de temps ? » ou « et pour le cidre ? » reprennent le sujet précédent, comme une question courte qui renvoie à la réponse précédente par un pronom (« faut-il le tremper ? »).
+- **Lettres isolées** : un « e » ou un « u » seul ne compte pas comme un mot. Un message qui n'en contient pas d'autre invite à poser la question en quelques mots ; « Bonjour, U » reste une salutation.
+- **Clients mécontents** : une injure, un reproche (« tu ne sers à rien », « je vais acheter ailleurs ») reçoit des excuses et les coordonnées de l'équipe, jamais la procédure pour commander. Seuls les reproches à la deuxième personne comptent : « je ne sais rien faire en vinification » reste une question de débutant.
+- **Anglais** : un message en anglais sans sujet reconnu reçoit une réponse dans les deux langues (le chatbot ne répond qu'en français) ; « upload an image » reçoit la réponse sur l'envoi de photos.
+- **Numéros de commande** : cinq chiffres ou plus se lisent comme « [référence] », la forme enregistrée dans la base : « commande 1234567 » et « commande [référence] » donnent la même réponse.
 - **Rien de sûr** : l'assistant ne devine pas, il propose des pistes ou renvoie vers le service client.
 - **Trace** : chaque réponse porte une `trace` qui dit pourquoi (type lu, concepts, faits retenus).
 
-Aujourd'hui : **204 concepts** et **381 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
+Aujourd'hui : **225 concepts** et **507 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
 
 ### Mesure de la qualité
 
@@ -147,7 +151,9 @@ Les aspects possibles sont : `definition`, `usage`, `gamme`, `choix`, `dimension
 
 Règles de la maison :
 - **Vouvoiement, pas d'emoji, jamais de mention de Lafitte.** Les tests le vérifient.
-- **Pas d'alias qui désigne deux concepts** : un test le signale.
+- **Pas d'alias qui désigne deux concepts** : un test le signale. Les mots courants disparaissent des alias (« pas de livraison gratuite » devient « livraison gratuite ») : une expression qui contient une négation ou un mot courant se déclare en `formules`.
+- **Un produit précis peut répondre seul** : `exclusif: true` sur un concept (la disponibilité, le mustimètre, le Larroseptol…) fait que ses faits répondent seuls quand il est cité, sans les faits des autres concepts de la phrase (« quand les mèches soufrées reviennent-elles en stock ? » ne rappelle pas le mode d'emploi des mèches). Sans fait de ce concept pour le type de la question, la réponse suit son cours.
+- **Une famille cousine ne répond pas à la place du produit** : un concept cité qui est la famille d'un autre concept cité ne fait pas descendre vers ses autres membres pour un choix.
 - **Un mot courant n'est pas un alias** : « maison », « couleur », « fruits » rattacheraient à tort la question à un autre sujet. Utilisez des `formules`, qui exigent l'expression entière.
 - Évitez les alias faits d'un mot trop général (« produit », « vin », « temps ») et les alias qui contiennent le nom d'un autre concept.
 - Après une modification, lancez `npm test`. Si une question du banc change de réponse, vérifiez que la nouvelle est meilleure avant de mettre le banc à jour.
@@ -189,6 +195,8 @@ Le site n'était pas accessible depuis l'environnement de développement. Les in
 - Les **horaires** du service client (`HORAIRES` dans `src/savoir/coordonnees.ts`) : du lundi au jeudi 9h-12h et 14h-18h, le vendredi 9h-12h et 14h-16h, identiques sur la page Contact et le pied de page du site au 28/09/2026.
 - Les **URL** des pages et des produits (`src/savoir/liens.ts`), relevées le 24/09/2026.
 - Ajoutés le 02/10/2026 à partir des questions réelles, à relire : la **procédure en cas de colis abîmé** (réserves sur le bon du livreur, photos), l'**e-mail de confirmation** après paiement, les conseils en cas de **paiement refusé**, la **facture** (compte client ou service client, facture au nom d'une entreprise), les **options de livraison** (point relais, express, samedi : renvoyées à la validation du panier et au service client), les **pièces vendues à part** (bondes et bouchon de rechange du vinaigrier seulement), le **tableau des bondes** pour un trou donné (tiré des tailles 28/24 à 38/34 mm), l'absence de **vinaigrier noir** (tirée de la gamme listée), et la **mention sur la distillation à domicile**.
+- Ajoutés le 12/10/2026 à partir des questions réelles, **relevés sur les fiches du site** (recherche sur duhalle-boutique.fr) et à relire : le **mustimètre** (utilisation, éprouvette de 250 ml ; l'**échelle de graduation n'est pas connue** : la réponse renvoie à la notice et au service client), l'**éprouvette** (la hauteur n'est pas indiquée), les **mèches soufrées** (références, pas de dosage), la recharge **Larroseptol** pour bonde aseptique, l'**huile de paraffine** (usages de la fiche ; elle n'est ni un médicament ni prévue pour l'isolation du vin ou une lampe), les **cols des dames-jeannes** (3,9 cm pour 15, 20 et 25 L, 3,5 cm pour 10 L, 2,8 cm pour 5 L, 11,7 cm pour les cols larges, 22 mm à vis pour 2 L), les bondes **45/40, 70/65 et 90/85 mm** ajoutées au tableau, le **barboteur** (convient de 1 à 50 L, 9 mm sans joint et 14 mm avec joint), les **robinets et couvercles de fûts** (fiches qui se contredisent sur les volumes compatibles), les **bouchons Pratic** (19 mm, réutilisables, 10 à 12 mois), les **bouchons mécaniques à rondelle polyéthylène** (ni stérilisation ni pasteurisation, 50 °C au maximum) et les **capsules couronne** 29 mm (pasteurisation et stérilisation), le **casier 90 places** (environ 63 x 151 x 26 cm) et le **casier chromé 72 places**, l'**hygromètre-thermomètre de cave**, la **cuillère à confiture** et les **grilles de hachoir**, le **bouchon et le robinet du vinaigrier à tremper 24 heures** (fiche du robinet), le **vin de noix** (bouchon colmaté 38 x 24 mm), la possibilité de **commander sans compte**, la **livraison offerte non proposée** et le **choix du transporteur** (Geodis pour les colis lourds ou volumineux).
+- Restent **à fournir par l'équipe**, car aucune page du site ne les donne : les **délais réels** de préparation, d'expédition et de livraison, les **frais** de point relais et de livraison en Belgique ou en Suisse, l'échelle du mustimètre, la hauteur de l'éprouvette, la longueur de la cuillère à confiture, le diamètre des robinets de fûts. Le **numéro de téléphone** diffère entre la page Contact (05 62 11 73 09, lundi au vendredi 8h30-13h et 13h30-17h30) et le reste du site (02 47 53 00 26) : à confirmer.
 - Les **caractéristiques produits** (formats de bouchons, catégories, contenances…), reprises des titres et descriptions indexés.
 
 Les faits de **savoir-faire général** (étapes de la mise en bouteille, du cidre, du vinaigre, conserves…) portent la source « Savoir-faire général ». Ils méritent une relecture par l'équipe Duhallé.
@@ -212,7 +220,7 @@ API :
 ```http
 POST /api/chat        {"message": "Quel bouchon pour un vin de garde ?", "contexte": {…}}
 GET  /api/accueil     message d'accueil et questions de départ
-GET  /api/sante       {"ok": true, "concepts": 204, "faits": 381}
+GET  /api/sante       {"ok": true, "concepts": 225, "faits": 507}
 ```
 
 La réponse de `/api/chat` contient `texte` (gras, listes, paragraphes), `liens`, `suggestions`, `contexte` (à renvoyer avec la question suivante pour les relances) et `trace`.

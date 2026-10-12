@@ -20,7 +20,7 @@ const INEDIT: Array<[string, string[]]> = [
   ["un bouchon de 45 c'est pour quoi", ["taille-bouchon.dimension", "taille-bouchon.raison"]],
   ["les bouchons doivent ils être mouillés avant de boucher", ["bouchon-liege.condition"]],
   ["quelle boucheuse pour de grosses séries", ["boucheuse.choix"]],
-  ["j'ai une dame jeanne de 20 litres, quel bouchon ?", ["bonde+contenant.gamme", "bonde.choix"]],
+  ["j'ai une dame jeanne de 20 litres, quel bouchon ?", ["bonde+contenant.gamme", "bonde.choix", "bonde+contenant.choix"]],
   ["comment fermer mes bouteilles de bière maison", ["capsule-couronne.dimension", "capsuleuse.procedure", "bouchage.definition"]],
   ["quelle est la différence entre la cire dure et la cire souple", ["cire-dure+cire-souple.choix"]],
   ["le cachetage à la cire protège-t-il le vin", ["cire.definition"]],

@@ -34,10 +34,11 @@ Cas particuliers :
 - **Clients mécontents** : une injure, un reproche (« tu ne sers à rien », « je vais acheter ailleurs ») reçoit des excuses et les coordonnées de l'équipe, jamais la procédure pour commander. Seuls les reproches à la deuxième personne comptent : « je ne sais rien faire en vinification » reste une question de débutant.
 - **Anglais** : un message en anglais sans sujet reconnu reçoit une réponse dans les deux langues (le chatbot ne répond qu'en français) ; « upload an image » reçoit la réponse sur l'envoi de photos.
 - **Numéros de commande** : cinq chiffres ou plus se lisent comme « [référence] », la forme enregistrée dans la base : « commande 1234567 » et « commande [référence] » donnent la même réponse.
+- **Boutons de suggestion et vente additionnelle** : après chaque réponse, au plus 4 boutons : le sujet d'abord (2 au plus), puis les **compléments** du produit dont on parle (la boucheuse avec les bouchons, le robinet avec le vinaigrier…), puis la **vitrine** des questions les plus fréquentes, même quand elles ne portent pas sur la demande du client, car il s'intéresse peut-être à un autre produit. Un sujet qui vient d'être traité n'est jamais reproposé, et un client dont la commande pose problème (colis abîmé, paiement refusé, commande bloquée) ne voit aucun produit. Tout est réglé dans `src/savoir/ventes.ts`, sans toucher au moteur ; les tests vérifient que chaque bouton mène à une vraie réponse.
 - **Rien de sûr** : l'assistant ne devine pas, il propose des pistes ou renvoie vers le service client.
 - **Trace** : chaque réponse porte une `trace` qui dit pourquoi (type lu, concepts, faits retenus).
 
-Aujourd'hui : **225 concepts** et **507 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
+Aujourd'hui : **227 concepts** et **519 faits**, répartis en 10 fichiers de rubriques : entreprise, commande (livraison, paiement, retours), mise en bouteille, bouchage, cire, cave et service du vin, cidre, vinaigre, conserves, droguerie.
 
 ### Mesure de la qualité
 
@@ -61,6 +62,7 @@ src/
     assistant.ts        orchestration, politesse, relances, repli
   savoir/               LA BASE DE CONNAISSANCES
     coordonnees.ts      téléphone, e-mail, seuils de livraison (à un seul endroit)
+    ventes.ts           les boutons de suggestion : questions de départ, vitrine, compléments
     liens.ts            les URL du site
     entreprise.ts, commande.ts, mise-en-bouteille.ts, bouchage.ts, cire.ts,
     cave-service.ts, cidre.ts, vinaigre.ts, conserves.ts, droguerie.ts
@@ -158,6 +160,8 @@ Règles de la maison :
 - Évitez les alias faits d'un mot trop général (« produit », « vin », « temps ») et les alias qui contiennent le nom d'un autre concept.
 - Après une modification, lancez `npm test`. Si une question du banc change de réponse, vérifiez que la nouvelle est meilleure avant de mettre le banc à jour.
 
+**Modifier les boutons de suggestion** (questions de départ, vitrine, compléments par produit) : tout est dans `src/savoir/ventes.ts`. Chaque question y est rangée avec le concept dont sa réponse parle, par exemple `q("Quelle boucheuse choisir ?", "boucheuse")` ; `npm test` vérifie que le chatbot y répond. Le widget affiche 5 boutons au plus.
+
 **Les questions posées** sont enregistrées, anonymisées, dans la base D1 `chatbot-duhalle` (table `questions_chatbot`, décrite dans `schema/questions_chatbot.sql`) : une ligne par question, avec son nombre d'occurrences et la nature de la dernière réponse. C'est la meilleure source pour savoir quels alias et quels faits ajouter. Les plus fréquentes restées sans réponse :
 
 ```sql
@@ -189,14 +193,15 @@ Le chatbot ajoute un script à une boutique en ligne : c'est le point à protég
 
 Le site n'était pas accessible depuis l'environnement de développement. Les informations commerciales viennent donc d'extraits indexés du site et sont à confirmer. Elles sont centralisées dans `src/savoir/coordonnees.ts` et `src/savoir/commande.ts` :
 
-- **Téléphone** `02 47 53 00 26` et **e-mail** `contact@duhalle-boutique.fr`. Un autre numéro (05 62 11 73 09) apparaît sur d'anciennes pages et dans des annuaires.
-- **Livraison offerte** en France continentale dès **69 €** avec DPD (un extrait indiquait 59 €), **79 €** avec Colissimo et **150 €** avec Geodis. Corse et DOM-TOM : sur devis.
+- **Téléphone** `02 47 53 00 26` et **e-mail** `contact@duhalle-boutique.fr` (le seul numéro à jour, confirmé par l'équipe le 12/10/2026 ; l'ancien numéro ne doit figurer nulle part dans le chatbot).
+- **Livraison offerte** en France continentale (seuils confirmés par l'équipe le 12/10/2026) : **69 €** avec DPD et **79 €** avec Colissimo, hors articles lourds et volumineux ; **150 €** avec Geodis pour tous les produits, sauf les pressoirs, exclus de la livraison offerte. Corse et DOM-TOM : sur devis. **Délai de livraison** : 2 à 5 jours ouvrés, allongé en période de forte activité. **Belgique** : selon les produits du panier ; **Suisse** : frais de douane, contact systématique du service client.
 - **Paiement** : carte bancaire, PayPal, virement et 4 fois sans frais.
 - Les **horaires** du service client (`HORAIRES` dans `src/savoir/coordonnees.ts`) : du lundi au jeudi 9h-12h et 14h-18h, le vendredi 9h-12h et 14h-16h, identiques sur la page Contact et le pied de page du site au 28/09/2026.
 - Les **URL** des pages et des produits (`src/savoir/liens.ts`), relevées le 24/09/2026.
 - Ajoutés le 02/10/2026 à partir des questions réelles, à relire : la **procédure en cas de colis abîmé** (réserves sur le bon du livreur, photos), l'**e-mail de confirmation** après paiement, les conseils en cas de **paiement refusé**, la **facture** (compte client ou service client, facture au nom d'une entreprise), les **options de livraison** (point relais, express, samedi : renvoyées à la validation du panier et au service client), les **pièces vendues à part** (bondes et bouchon de rechange du vinaigrier seulement), le **tableau des bondes** pour un trou donné (tiré des tailles 28/24 à 38/34 mm), l'absence de **vinaigrier noir** (tirée de la gamme listée), et la **mention sur la distillation à domicile**.
 - Ajoutés le 12/10/2026 à partir des questions réelles, **relevés sur les fiches du site** (recherche sur duhalle-boutique.fr) et à relire : le **mustimètre** (utilisation, éprouvette de 250 ml ; l'**échelle de graduation n'est pas connue** : la réponse renvoie à la notice et au service client), l'**éprouvette** (la hauteur n'est pas indiquée), les **mèches soufrées** (références, pas de dosage), la recharge **Larroseptol** pour bonde aseptique, l'**huile de paraffine** (usages de la fiche ; elle n'est ni un médicament ni prévue pour l'isolation du vin ou une lampe), les **cols des dames-jeannes** (3,9 cm pour 15, 20 et 25 L, 3,5 cm pour 10 L, 2,8 cm pour 5 L, 11,7 cm pour les cols larges, 22 mm à vis pour 2 L), les bondes **45/40, 70/65 et 90/85 mm** ajoutées au tableau, le **barboteur** (convient de 1 à 50 L, 9 mm sans joint et 14 mm avec joint), les **robinets et couvercles de fûts** (fiches qui se contredisent sur les volumes compatibles), les **bouchons Pratic** (19 mm, réutilisables, 10 à 12 mois), les **bouchons mécaniques à rondelle polyéthylène** (ni stérilisation ni pasteurisation, 50 °C au maximum) et les **capsules couronne** 29 mm (pasteurisation et stérilisation), le **casier 90 places** (environ 63 x 151 x 26 cm) et le **casier chromé 72 places**, l'**hygromètre-thermomètre de cave**, la **cuillère à confiture** et les **grilles de hachoir**, le **bouchon et le robinet du vinaigrier à tremper 24 heures** (fiche du robinet), le **vin de noix** (bouchon colmaté 38 x 24 mm), la possibilité de **commander sans compte**, la **livraison offerte non proposée** et le **choix du transporteur** (Geodis pour les colis lourds ou volumineux).
-- Restent **à fournir par l'équipe**, car aucune page du site ne les donne : les **délais réels** de préparation, d'expédition et de livraison, les **frais** de point relais et de livraison en Belgique ou en Suisse, l'échelle du mustimètre, la hauteur de l'éprouvette, la longueur de la cuillère à confiture, le diamètre des robinets de fûts. Le **numéro de téléphone** diffère entre la page Contact (05 62 11 73 09, lundi au vendredi 8h30-13h et 13h30-17h30) et le reste du site (02 47 53 00 26) : à confirmer.
+- Cotes données par l'équipe le 12/10/2026 (à relire dans leur formulation) : **mustimètre** de 0,98 à 1,30 ; **éprouvette** de 250 ml de 29 cm de hauteur ; **cuillère à confiture** de 19 cm ; **grilles de hachoir** de 6,8 à 7 cm de diamètre (le diamètre du trou central reste inconnu) ; **robinets de fûts de macération** : petit 4,2 cm, grand 4,8 cm ; diamètre des **robinets en bois** : sur la fiche de chaque robinet.
+- Restent **à fournir par l'équipe**, car aucune page du site ne les donne : le **délai de préparation** avant expédition, les **frais exacts** de point relais, de livraison en Belgique ou en Suisse (le chatbot renvoie au service client), le diamètre du trou central des grilles de hachoir.
 - Les **caractéristiques produits** (formats de bouchons, catégories, contenances…), reprises des titres et descriptions indexés.
 
 Les faits de **savoir-faire général** (étapes de la mise en bouteille, du cidre, du vinaigre, conserves…) portent la source « Savoir-faire général ». Ils méritent une relecture par l'équipe Duhallé.
@@ -220,7 +225,7 @@ API :
 ```http
 POST /api/chat        {"message": "Quel bouchon pour un vin de garde ?", "contexte": {…}}
 GET  /api/accueil     message d'accueil et questions de départ
-GET  /api/sante       {"ok": true, "concepts": 225, "faits": 507}
+GET  /api/sante       {"ok": true, "concepts": 227, "faits": 519}
 ```
 
 La réponse de `/api/chat` contient `texte` (gras, listes, paragraphes), `liens`, `suggestions`, `contexte` (à renvoyer avec la question suivante pour les relances) et `trace`.

@@ -78,7 +78,7 @@ const QUESTIONS: Array<[string, string]> = [
   // Commande et entreprise
   ["combien coûte la livraison ?", "livraison.prix"],
   ["livraison gratuite ?", "livraison.prix"],
-  ["vous livrez en belgique ?", "zone-livraison.condition"],
+  ["vous livrez en belgique ?", "livraison-belgique.procedure"],
   ["quels sont les moyens de paiement", "paiement.definition"],
   ["paiement en 4 fois ?", "paiement-4x.definition"],
   ["comment retourner un produit", "retour.procedure"],

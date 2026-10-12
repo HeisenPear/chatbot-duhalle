@@ -182,10 +182,12 @@ describe("ce que disent les fiches relevées le 12/10/2026", () => {
     expect(reponse.texte, question).toMatch(motif);
   };
 
-  it("n'invente pas l'échelle du mustimètre ni la hauteur de l'éprouvette", () => {
-    dit("quelle est l'échelle du mustimètre ?", /n'est pas dans ma base/);
-    dit("quel est la hauteur de l'éprouvette graduée 250Ml", /n'est pas indiquée sur sa fiche/);
-    dit("Quelle est la longueur de la cuillère avec crochet ?", /n'est pas indiquée sur la fiche/);
+  it("donne l'échelle du mustimètre, la hauteur de l'éprouvette et la longueur de la cuillère fournies par l'équipe", () => {
+    dit("quelle est l'échelle du mustimètre ?", /0,98 à 1,30/);
+    dit("Quelle est la graduation d’un mustimètre", /0,98 à 1,30/);
+    dit("quel est la hauteur de l'éprouvette graduée 250Ml", /29 cm de hauteur/);
+    dit("Quelle est la longueur de la cuillère avec crochet ?", /19 cm\*\* de long/);
+    dit("Quelle est la longueur de la cuillère pour pot à confiture ?", /19 cm\*\* de long/);
   });
 
   it("ne conseille pas l'huile de paraffine pour un usage que sa fiche ne prévoit pas", () => {
@@ -255,6 +257,8 @@ describe("les libellés des nouveaux concepts, tels qu'ils sont proposés en sug
     ["Cuillère à confiture avec crochet", /^cuillere-confiture\./],
     ["Grilles de hachoir", /^grille-hachoir\./],
     ["Boucher le plus simplement", /^facilite-bouchage\./],
+    ["Livraison en Belgique", /^livraison-belgique\./],
+    ["Livraison en Suisse", /^livraison-suisse\./],
   ];
 
   for (const [libelle, attendu] of LIBELLES) {

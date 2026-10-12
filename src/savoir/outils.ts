@@ -20,6 +20,7 @@ interface OptionsDeConcept {
   formules?: string[];
   lien?: Lien;
   voirAussi?: string[];
+  exclusif?: boolean;
 }
 
 interface OptionsDeFait {

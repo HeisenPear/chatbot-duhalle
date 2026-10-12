@@ -157,12 +157,20 @@ r.concept("cidre-trouble", "Cidre trouble", ["cidre trouble", "cidre devient tro
 r.fait("cidre-trouble", "raison", `
   Un trouble peut venir de particules, de levures en suspension, d'une reprise de fermentation ou d'une instabilité. Observez la densité, le gaz, l'odeur et l'évolution ; soutirez seulement si le diagnostic le justifie et ne mettez pas en bouteille un cidre instable.`, { source: IFPC });
 
-r.concept("bouchon-mecanique-cidre", "Bouchon mécanique de cidre", ["bouchon mecanique cidre", "bouchon a etrier cidre", "reutiliser bouchon mecanique", "joint bouchon mecanique"], {
+r.concept("bouchon-mecanique-cidre", "Bouchon mécanique de cidre", ["bouchon mecanique cidre", "bouchon a etrier cidre", "reutiliser bouchon mecanique", "joint bouchon mecanique", "bouchon mecanique", "bouchons mecaniques", "bouchon mecanique tete plastique", "bouchons mecaniques tete plastique", "rondelle polyethylene", "rondelles polyethylene", "rondelle", "rondelles"], {
   famille: "bouchage",
 });
 
 r.fait("bouchon-mecanique-cidre", "condition", `
   Réutilisez le mécanisme seulement s'il est conçu pour plusieurs usages, intact et compatible avec la pression ; remplacez le joint dès qu'il est durci, fissuré ou selon la consigne du fabricant. Contrôlez aussi la bouteille et sa bague : le bouchon seul ne garantit pas la résistance à la pression.`, { source: IFPC });
+
+/** Fiches relevées le 12/10/2026 : bouchons mécaniques à rondelle polyéthylène (50 °C maximum, ni pasteurisation ni stérilisation). */
+const BOUCHONS_MECANIQUES_ET_CHALEUR = `
+  Les **bouchons mécaniques à tête plastique** (cidre et bière) sont munis d'une **rondelle en polyéthylène**. D'après leurs fiches, ils ne conviennent **ni à la stérilisation ni à la pasteurisation** (température maximale annoncée : 50 °C), et les rondelles en polyéthylène vendues à part ne conviennent pas non plus à la stérilisation. Pour pasteuriser ou stériliser, utilisez des **capsules couronne** de 29 mm, dont la fiche indique qu'elles supportent ces traitements.`;
+
+for (const aspect of ["condition", "dimension", "choix", "definition"] as const) {
+  r.fait("bouchon-mecanique-cidre", aspect, BOUCHONS_MECANIQUES_ET_CHALEUR, { source: PAGES.bouchonsCidre.url, liens: [PAGES.bouchonsCidre, PAGES.capsules29Or] });
+}
 
 r.concept("jus", "Jus de pomme et de fruits", ["jus", "jus de pomme", "jus de pommes", "jus de fruits", "pur jus", "jus maison", "jus de raisin"], {
   famille: "cidre",

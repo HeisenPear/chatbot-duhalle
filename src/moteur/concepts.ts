@@ -33,7 +33,9 @@ export class DetecteurDeConcepts {
   private readonly alias: AliasIndexe[] = [];
   private readonly vocabulaire = new Set<string>();
   private readonly parId = new Map<string, Concept>();
-  private readonly formules: Array<{ concept: Concept; formule: string; racines: readonly string[] }> = [];
+  private readonly formules: Array<{ concept: Concept; formule: string; racines: readonly string[]; indice: number }> = [];
+  /** Les formules rangées par premier mot : une phrase ne consulte que celles dont le premier mot s'y trouve. */
+  private readonly formulesParPremierMot = new Map<string, Array<{ concept: Concept; formule: string; indice: number }>>();
 
   constructor(base: BaseDeSavoir) {
     for (const concept of base.concepts) {
@@ -41,7 +43,14 @@ export class DetecteurDeConcepts {
       for (const f of concept.formules ?? []) {
         const racinesDeLaFormule = racines(f);
         racinesDeLaFormule.forEach((x) => this.vocabulaire.add(x));
-        this.formules.push({ concept, formule: ` ${normaliser(f)} `, racines: racinesDeLaFormule });
+        const indice = this.formules.length;
+        const normalisee = normaliser(f);
+        const entree = { concept, formule: ` ${normalisee} `, racines: racinesDeLaFormule, indice };
+        this.formules.push(entree);
+        const premierMot = normalisee.split(" ")[0] ?? "";
+        const liste = this.formulesParPremierMot.get(premierMot);
+        if (liste) liste.push(entree);
+        else this.formulesParPremierMot.set(premierMot, [entree]);
       }
       // Deux alias du même concept aux mêmes racines n'en font qu'un : on garde le plus long.
       const parCle = new Map<string, AliasIndexe>();
@@ -90,8 +99,17 @@ export class DetecteurDeConcepts {
 
     // Les formules d'abord, mot pour mot sur la phrase normalisée.
     const forme = ` ${normaliser(texte)} `;
-    for (const { concept, formule } of this.formules) {
-      if (forme.includes(formule) && !trouves.has(concept.id)) trouves.set(concept.id, { concept, position: -1 });
+    // Seules les formules dont le premier mot est dans la phrase peuvent la contenir. Elles sont
+    // reprises dans l'ordre de la base : à égalité, le concept défini en premier ouvre la réponse.
+    const candidates: Array<{ concept: Concept; formule: string; indice: number }> = [];
+    for (const mot of new Set(forme.trim().split(" "))) {
+      for (const f of this.formulesParPremierMot.get(mot) ?? []) {
+        if (forme.includes(f.formule)) candidates.push(f);
+      }
+    }
+    candidates.sort((a, b) => a.indice - b.indice);
+    for (const { concept } of candidates) {
+      if (!trouves.has(concept.id)) trouves.set(concept.id, { concept, position: -1 });
     }
 
     // Une formule reste reconnaissable avec une incise polie ou une faute de
@@ -99,8 +117,11 @@ export class DetecteurDeConcepts {
     // formules de moins de trois mots utiles restent exactes afin d'éviter les
     // faux positifs sur des expressions trop générales.
     const motsDesFormules = racines(texte).map((r) => corriger(r, this.vocabulaire) ?? r);
+    const presentsDansLaQuestion = new Set(motsDesFormules);
     for (const { concept, racines: attendues } of this.formules) {
       if (trouves.has(concept.id) || attendues.length < 3) continue;
+      // Rejet rapide : la plupart des formules ont au moins un mot absent de la question.
+      if (!attendues.every((attendue) => presentsDansLaQuestion.has(attendue))) continue;
       const restantes = [...motsDesFormules];
       const toutesPresentes = attendues.every((attendue) => {
         const index = restantes.indexOf(attendue);

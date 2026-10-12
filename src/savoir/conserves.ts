@@ -1,4 +1,5 @@
 // Le Comptoir de la Conserve : stérilisation, bocaux, confitures, fumage.
+import { EMAIL, TELEPHONE } from "./coordonnees";
 import { PAGES } from "./liens";
 import { rubrique, SAVOIR_FAIRE } from "./outils";
 
@@ -187,7 +188,22 @@ r.fait("ustensiles-conserve", "gamme", `
   Ustensiles du Comptoir de la Conserve :
   - **pince à bocaux**, pour sortir les bocaux chauds du stérilisateur sans se brûler ;
   - **pince ouvre-bocal** multifonction, avec décapsuleur ;
-  - **entonnoir à confiture** de 12 cm de diamètre, pour remplir les pots proprement.`, { source: PAGES.conserve.url, liens: [PAGES.pinceBocaux, PAGES.pinceOuvreBocal, PAGES.entonnoirConfiture] });
+  - **entonnoir à confiture** de 12 cm de diamètre, pour remplir les pots proprement ;
+  - **cuillère inox à crochet** pour pot à confiture.`, { source: PAGES.conserve.url, liens: [PAGES.pinceBocaux, PAGES.pinceOuvreBocal, PAGES.entonnoirConfiture] });
+
+r.concept("cuillere-confiture", "Cuillère à confiture avec crochet", ["cuillere a confiture", "cuillere pour pot a confiture", "cuillere inox confiture", "cuillere avec crochet", "cuillere a crochet", "cuillere crochet"], {
+  exclusif: true,
+  famille: "ustensiles-conserve",
+  lien: PAGES.cuillereConfiture,
+});
+
+/** Fiche relevée le 12/10/2026 : tout inox, manche long, crochet ; aucune longueur n'est indiquée. */
+const CUILLERE_A_CONFITURE = `
+  La **cuillère inox pour pot à confiture** du Comptoir de la Conserve est entièrement en inox. Son manche long permet d'atteindre la confiture au fond du pot, et son **crochet** se fixe sur le rebord pour que les gouttes ne coulent pas sur le verre. Sa **longueur** n'est pas indiquée sur la fiche : pour la cote exacte, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["definition", "dimension", "gamme", "usage", "choix"] as const) {
+  r.fait("cuillere-confiture", aspect, CUILLERE_A_CONFITURE, { source: PAGES.cuillereConfiture.url, liens: [PAGES.cuillereConfiture, PAGES.contact] });
+}
 
 r.concept("confiture", "Confitures", ["confiture", "confitures", "faire de la confiture", "gelee", "gelees", "compote", "compotes", "marmelade", "fruits de saison", "confiturier"], {
   famille: "conserve",
@@ -294,6 +310,21 @@ r.concept("hachoir", "Hachoirs", ["hachoir", "hachoirs", "hachoir a viande", "ha
   famille: "conserve",
   lien: PAGES.hachoirFonte,
 });
+
+r.concept("grille-hachoir", "Grilles de hachoir", ["grille de hachoir", "grilles de hachoir", "grille pour hachoir", "grilles pour hachoir", "grille hachoir", "grille de rechange"], {
+  exclusif: true,
+  famille: "hachoir",
+  lien: PAGES.hachoirFonte,
+  formules: ["diametre de la grille", "diametre ext de la grille", "diametre exterieur de la grille", "trou central de la grille"],
+});
+
+/** Fiches relevées le 12/10/2026 : grilles de rechange n°10 et Reber n°12 en fonte étamée, trous de 6, 8 ou 10 mm. */
+const GRILLES_DE_HACHOIR = `
+  Les **grilles de rechange** des hachoirs (hachoir en fonte n°10 et hachoir Reber n°12) se vendent à part, en acier perforé étamé, avec des trous de 6, 8 ou 10 mm selon la grille. La fiche du hachoir en fonte n°10 mentionne une grille perforée en acier de 4,5 cm avec un diamètre de 6,8 cm ; le diamètre extérieur et celui du trou central ne sont pas détaillés pour chaque modèle. Indiquez la référence de votre hachoir au service client, au **${TELEPHONE}** ou à **${EMAIL}**, pour obtenir ces cotes. Si votre question porte sur une autre grille, précisez le produit.`;
+
+for (const aspect of ["definition", "dimension", "gamme", "choix", "condition"] as const) {
+  r.fait("grille-hachoir", aspect, GRILLES_DE_HACHOIR, { source: PAGES.hachoirFonte.url, liens: [PAGES.hachoirFonte, PAGES.contact] });
+}
 
 r.fait("hachoir", "gamme", `
   Deux hachoirs pour vos préparations maison : un **hachoir en fonte n°10** (grille perforée en acier) et un **hachoir à viande électrique n°8** multifonction, pour hachis, saucisses et légumes râpés. Pratiques pour les terrines et pâtés à mettre en conserve.`, { source: PAGES.transformation.url, liens: [PAGES.hachoirFonte, PAGES.hachoirElectrique] });

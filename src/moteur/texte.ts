@@ -47,7 +47,9 @@ const MOTS_VIDES = new Set(
 );
 
 export function estMotVide(mot: string): boolean {
-  return MOTS_VIDES.has(mot);
+  // Une lettre isolée (« e », « u ») ne dit rien : sans cette règle, un « e » tapé seul
+  // retrouvait « e-mail » dans un fait et déclenchait une réponse sans rapport.
+  return MOTS_VIDES.has(mot) || /^[a-z]$/.test(mot);
 }
 
 /**
@@ -151,7 +153,9 @@ export function distanceEdition(a: string, b: string, max: number): number {
 /** Un vocabulaire rangé par longueur de mot, et les corrections déjà calculées. */
 interface IndexDeCorrection {
   taille: number;
-  parLongueur: Map<number, Array<{ mot: string; lettres: Int8Array }>>;
+  /** Les mots de chaque longueur, rangés par première lettre, puis par dernière lettre. */
+  parLongueurEtPremiere: Map<string, Array<{ mot: string; lettres: Int8Array }>>;
+  parLongueurEtDerniere: Map<string, Array<{ mot: string; lettres: Int8Array }>>;
   memoire: Map<string, string | null>;
 }
 
@@ -192,14 +196,19 @@ const MEMOIRE_MAX = 5_000;
 function indexer(vocabulaire: ReadonlySet<string>): IndexDeCorrection {
   let index = INDEX_DE_CORRECTION.get(vocabulaire);
   if (!index || index.taille !== vocabulaire.size) {
-    const parLongueur: IndexDeCorrection["parLongueur"] = new Map();
+    const parLongueurEtPremiere: IndexDeCorrection["parLongueurEtPremiere"] = new Map();
+    const parLongueurEtDerniere: IndexDeCorrection["parLongueurEtDerniere"] = new Map();
+    const ranger = (table: IndexDeCorrection["parLongueurEtPremiere"], cle: string, entree: { mot: string; lettres: Int8Array }) => {
+      const liste = table.get(cle);
+      if (liste) liste.push(entree);
+      else table.set(cle, [entree]);
+    };
     for (const mot of [...vocabulaire].sort()) {
       const entree = { mot, lettres: compterLettres(mot) };
-      const liste = parLongueur.get(mot.length);
-      if (liste) liste.push(entree);
-      else parLongueur.set(mot.length, [entree]);
+      ranger(parLongueurEtPremiere, `${mot.length}${mot[0]}`, entree);
+      ranger(parLongueurEtDerniere, `${mot.length}${mot[mot.length - 1]}`, entree);
     }
-    index = { taille: vocabulaire.size, parLongueur, memoire: new Map() };
+    index = { taille: vocabulaire.size, parLongueurEtPremiere, parLongueurEtDerniere, memoire: new Map() };
     INDEX_DE_CORRECTION.set(vocabulaire, index);
   }
   return index;
@@ -225,13 +234,15 @@ export function corriger(racine: string, vocabulaire: ReadonlySet<string>): stri
   const lettres = compterLettres(racine);
   let meilleur: string | undefined;
   let meilleureDistance = max + 1;
+  const premiere = racine[0]!;
+  const derniere = racine[racine.length - 1]!;
   for (let longueur = racine.length - max; longueur <= racine.length + max; longueur++) {
-    for (const { mot: candidat, lettres: lettresDuCandidat } of index.parLongueur.get(longueur) ?? []) {
-      // Une faute ne touche pas à la fois la première et la dernière lettre : sans
-      // l'une des deux en commun, inutile de calculer la distance. Sans perte pour
-      // une faute ; seules deux fautes, une à chaque bout d'un mot de 9 lettres ou
-      // plus, échappent à la correction.
-      if (candidat[0] !== racine[0] && candidat[candidat.length - 1] !== racine[racine.length - 1]) continue;
+    // Une faute ne touche pas à la fois la première et la dernière lettre : seuls les mots qui
+    // partagent l'une des deux sont comparés. Sans perte pour une faute ; seules deux fautes,
+    // une à chaque bout d'un mot de 9 lettres ou plus, échappent à la correction.
+    const memePremiere = index.parLongueurEtPremiere.get(`${longueur}${premiere}`) ?? [];
+    const memeDerniere = (index.parLongueurEtDerniere.get(`${longueur}${derniere}`) ?? []).filter((e) => e.mot[0] !== premiere);
+    for (const { mot: candidat, lettres: lettresDuCandidat } of [...memePremiere, ...memeDerniere]) {
       const plafond = Math.min(max, meilleureDistance);
       if (ecartDeLettres(lettres, lettresDuCandidat, plafond) > plafond) continue;
       const d = distanceEdition(racine, candidat, plafond);

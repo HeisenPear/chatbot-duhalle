@@ -1,5 +1,6 @@
 // La mise en bouteille du vin : préparation, soutirage, remplissage,
 // finitions, et le matériel correspondant.
+import { EMAIL, TELEPHONE } from "./coordonnees";
 import { PAGES } from "./liens";
 import { rubrique, SAVOIR_FAIRE } from "./outils";
 
@@ -263,7 +264,7 @@ r.fait("goupillon-usure", "moment", `
 
 // ─── Soutirage ─────────────────────────────────────────────────────────────
 
-r.concept("soutirage", "Le soutirage", ["soutirage", "soutirer", "soutireuse", "siphon", "siphonner", "transvaser", "tireuse", "tireuse a vin", "pompe a vin", "pompe", "tuyau", "tuyau de soutirage", "entonnoir", "remplisseuse", "canne de soutirage", "robinet de soutirage"], {
+r.concept("soutirage", "Le soutirage", ["soutirage", "soutirer", "soutireuse", "siphon", "siphonner", "transvaser", "tireuse", "tireuse a vin", "pompe a vin", "tuyau", "tuyau de soutirage", "entonnoir", "remplisseuse", "canne de soutirage", "robinet de soutirage"], {
   famille: "mise-en-bouteille",
   lien: PAGES.soutirage,
   voirAussi: ["filtre-vin"],
@@ -372,10 +373,20 @@ r.concept("contenant", "Fûts et dames-jeannes", ["fut", "futs", "tonneau", "ton
   famille: "vin",
   lien: PAGES.futs,
   voirAussi: ["bonde", "oenologie"],
+  // « une dame de 20 L », « besoin des dames », « dame Jane » : le nom est souvent raccourci ou écorché.
+  // Pas « la dame » ni « une dame » : « la dame au téléphone » parle d'une personne.
+  formules: ["des dames", "les dames", "mes dames", "ces dames", "dame jane", "dames jane", "dame jeane", "dame de 5 l", "dame de 10 l", "dame de 15 l", "dame de 20 l", "dame de 25 l",
+    // « bouchon de dame-jeanne » est un alias de la bonde, qui avalerait la dame-jeanne : le contenant reste cité.
+    ...["dame jeanne", "bonbonne", "marie jeanne"].flatMap((c) => ["bouchon pour", "bouchon de", "bouchon pour la", "bouchon pour une", "bonde pour"].map((d) => `${d} ${c}`))],
 });
 
 r.fait("contenant", "gamme", `
-  Pour stocker et faire fermenter : **dame-jeanne (bonbonne) de 20 L** à col large en verre transparent avec entourage plastique, et **fûts alimentaires** en plastique. Pour les fermer à la main, choisissez une **bonde en liège** adaptée au diamètre du col.`, {
+  Pour stocker et faire fermenter :
+  - des **dames-jeannes** (bonbonnes) en verre transparent à entourage plastique, de 2 à 25 L : 5, 10, 15, 20 et 25 L à col fin, 5, 10, 15 et 20 L à col large, et une dame-jeanne de 2 L à col à vis ;
+  - des **fûts alimentaires blancs translucides** de 5 à 100 L, fabriqués en Italie, livrés avec leur robinet et leur couvercle ;
+  - des **fûts de macération bleus** à large ouverture (30, 120 et 220 L).
+
+  Pour fermer une dame-jeanne à la main, choisissez une **bonde en liège** adaptée au diamètre du col.`, {
   source: PAGES.futs.url,
   liens: [PAGES.bonbonne20, PAGES.futs, PAGES.bondes],
 });
@@ -386,7 +397,72 @@ r.fait("contenant", "entretien", `
   liens: [PAGES.rinceFut, PAGES.suiffeur],
 });
 
-r.concept("barboteur", "Barboteur de fermentation", ["barboteur", "barboteurs", "bulleur", "bonde de fermentation", "bonde a eau", "bonde hydraulique", "sas de fermentation", "fermeture hydraulique", "soupape de fermentation", "airlock"], {
+// ─── Les cols des dames-jeannes ────────────────────────────────────────────
+
+r.concept("col-dame-jeanne", "Col des dames-jeannes", ["col de la dame jeanne", "goulot de la dame jeanne", "col de la bonbonne", "goulot de la bonbonne", "diametre du col de la dame jeanne", "col des dames jeannes"], {
+  famille: "contenant",
+  voirAussi: ["bonde", "barboteur"],
+});
+
+/** Relevé le 12/10/2026 sur les fiches des dames-jeannes du site : à faire valider par Duhallé (voir README). */
+const BONDE_DE_DAME_JEANNE = `
+  Une bonde doit s'enfoncer sans forcer : son petit diamètre doit être inférieur au diamètre intérieur du col, son grand diamètre supérieur. Mesurez donc le diamètre intérieur réel au pied à coulisse (les bondes vont de 28/24 à 120/115 mm).
+
+  Pour les dames-jeannes Duhallé (verre transparent, entourage plastique), l'ouverture mesure environ **3,9 cm** pour les modèles de 15, 20 et 25 L à col fin, **3,5 cm** pour la 10 L, **2,8 cm** pour la 5 L et **11,7 cm** pour les modèles à col large (bonde **120/115 mm**). La dame-jeanne de **2 L** a un col à vis de 22 mm : elle se ferme avec son bouchon à vis, car la plus petite bonde (28/24 mm) est trop large. Pour un col annoncé à 3,9 cm, la bonde **38/34 mm** convient aux cols de 34 à 38 mm, la **45/40 mm** à ceux de 40 à 45 mm ; entre les deux, ou en cas de doute, demandez conseil au service client au **${TELEPHONE}**.`;
+
+for (const aspect of ["definition", "dimension", "choix"] as const) {
+  r.fait("col-dame-jeanne", aspect, BONDE_DE_DAME_JEANNE, { source: PAGES.futs.url, liens: [PAGES.futs, PAGES.bondes, PAGES.contact] });
+}
+
+// « Quelle bonde pour ma dame-jeanne de 20 L ? » cite la bonde ET le contenant : ce fait croisé passe devant les faits généraux de la bonde.
+for (const aspect of ["choix", "dimension"] as const) {
+  r.fait(["bonde", "contenant"], aspect, BONDE_DE_DAME_JEANNE, { source: PAGES.futs.url, liens: [PAGES.futs, PAGES.bondes, PAGES.contact] });
+}
+
+// ─── Robinets de fûts ──────────────────────────────────────────────────────
+
+r.concept("robinet-fut", "Robinet de fût alimentaire", ["robinet plastique", "robinets plastique", "robinet de fut", "robinets de fut", "robinet pour fut", "robinet du fut", "robinet fut", "robinet fut plastique", "robinet fut alimentaire"], {
+  famille: "contenant",
+  lien: PAGES.futs,
+});
+
+const FUT_AVEC_SON_ROBINET = `
+  Oui : les **fûts alimentaires blancs** Duhallé (de 5 à 100 L) sont livrés avec leur **robinet de soutirage**, placé à la base du fût, et avec leur couvercle. Le robinet se dévisse pour être nettoyé ; en cas de perte ou de casse, un robinet plastique de rechange se vend à part.`;
+
+// « Le fût de 50 litres est-il vendu avec un robinet ? » cite le robinet livré ET le fût : ce fait croisé passe devant la réponse sur le vinaigrier.
+for (const aspect of ["definition", "condition", "gamme"] as const) {
+  r.fait(["robinet-fourni", "contenant"], aspect, FUT_AVEC_SON_ROBINET, { source: PAGES.futs.url, liens: [PAGES.futs] });
+  r.fait(["robinet-fourni", "robinet-fut"], aspect, FUT_AVEC_SON_ROBINET, { source: PAGES.futs.url, liens: [PAGES.futs] });
+}
+
+r.concept("couvercle-fut", "Couvercle de fût alimentaire", ["couvercle de fut", "couvercle pour fut", "couvercle du fut", "couvercles de futs", "couvercle fut"], {
+  famille: "contenant",
+  exclusif: true,
+  lien: PAGES.futs,
+});
+
+/** Fiches relevées le 12/10/2026 : les volumes compatibles de certaines fiches se contredisent, la réponse le dit. */
+const COUVERCLE_DE_FUT = `
+  Les couvercles des **fûts alimentaires blancs** se rachètent à part, avec leur bouchon : un modèle pour les fûts de **5 à 25 L** (environ 12 cm de diamètre) et un autre pour les fûts de **25, 50 et 100 L** (environ 20 cm). Les fiches ne sont pas d'accord entre elles sur les volumes compatibles : vérifiez avant de commander, ou demandez au service client au **${TELEPHONE}** ou à **${EMAIL}**. Il existe aussi un couvercle pour le fût de macération bleu de 30 L.`;
+
+for (const aspect of ["definition", "gamme", "dimension", "choix", "condition"] as const) {
+  r.fait("couvercle-fut", aspect, COUVERCLE_DE_FUT, { source: PAGES.futs.url, liens: [PAGES.futs, PAGES.contact] });
+}
+
+const ROBINET_DE_FUT = `
+  Pour les **fûts alimentaires blancs** Duhallé, le robinet plastique se rachète à part (pièce détachée) : un modèle pour les fûts de **5, 10, 15 et 20 L**, un autre pour les fûts de **25 et 50 L** (la fiche de ce dernier annonce aussi le 100 L : vérifiez avant de commander). Les fûts de 5 à 100 L sont déjà livrés avec leur robinet. Le **diamètre** ou le filetage du robinet n'est pas indiqué sur les fiches : pour une cote précise, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** en précisant la référence du robinet. Pour les fûts en bois, Duhallé propose aussi des robinets en bois de frêne (6 pouces et 7½ pouces).`;
+
+// Pas d'aspect « choix » : il ferait revenir, sur une question de diamètre, le choix du robinet de vinaigrier.
+for (const aspect of ["gamme", "dimension", "condition", "definition"] as const) {
+  r.fait("robinet-fut", aspect, ROBINET_DE_FUT, { source: PAGES.futs.url, liens: [PAGES.futs, PAGES.contact] });
+}
+
+// « Robinet de rechange pour mon fût » cite aussi le choix du robinet de vinaigrier (« rechange ») : ce fait croisé passe devant.
+for (const aspect of ["choix", "gamme", "definition"] as const) {
+  r.fait(["choix-robinet", "robinet-fut"], aspect, ROBINET_DE_FUT, { source: PAGES.futs.url, liens: [PAGES.futs, PAGES.contact] });
+}
+
+r.concept("barboteur", "Barboteur de fermentation", ["barboteur", "barboteurs", "bouchon barboteur", "bouchons barboteurs", "bouchon de barboteur", "bouchon avec barboteur", "bouchon pour barboteur", "bulleur", "bonde de fermentation", "bonde a eau", "bonde hydraulique", "sas de fermentation", "fermeture hydraulique", "soupape de fermentation", "airlock"], {
   // Au même niveau que le contenant (et non dessous) : une question sur « la marie-jeanne avec le barboteur » cite les deux.
   famille: "vin",
   voirAussi: ["contenant", "bonde"],
@@ -395,6 +471,13 @@ r.concept("barboteur", "Barboteur de fermentation", ["barboteur", "barboteurs", 
 r.fait("barboteur", "definition", `
   Le **barboteur** (ou sas de fermentation) est un petit dispositif rempli d'eau qui laisse **sortir le gaz carbonique** produit par la fermentation sans laisser **entrer l'air**. Il se pose sur une dame-jeanne ou un fût, dans une bonde percée prévue pour lui.`, { source: SAVOIR_FAIRE });
 
+const DIAMETRE_DU_BARBOTEUR = `
+  Le barboteur n'est pas lié au goulot : c'est la **bonde** qui doit correspondre au col (bondes de 28/24 à 120/115 mm), et le barboteur se monte dans une bonde **percée** à son diamètre. D'après sa fiche, le barboteur Duhallé convient aux contenants de **1 à 50 litres** ; son diamètre est de **9 mm** sans joint et de **1,4 cm** avec joint. Pour une dame-jeanne de 15 à 25 L, dont le col mesure environ 3,9 cm, ou pour un fût, demandez au service client la bonde adaptée : **${TELEPHONE}** ou **${EMAIL}**. Les fûts alimentaires blancs ont leur propre barboteur, qui se loge dans la petite ouverture du couvercle (vendu à part).`;
+
+for (const aspect of ["dimension", "choix"] as const) {
+  r.fait("barboteur", aspect, DIAMETRE_DU_BARBOTEUR, { source: SAVOIR_FAIRE, liens: [PAGES.bondes, PAGES.contact] });
+}
+
 r.fait("barboteur", "duree", `
   Le barboteur reste en place pendant toute la **fermentation active** : tant que des bulles sortent régulièrement. Quand elles s'espacent puis s'arrêtent pendant plusieurs jours, la fermentation est terminée : vous pouvez alors soutirer, puis fermer le contenant avec une bonde pleine. Gardez de l'eau propre dans le barboteur et contrôlez son niveau.`, { source: SAVOIR_FAIRE });
 
@@ -402,7 +485,7 @@ r.fait("barboteur", "condition", `
   Le barboteur ne sert que pendant une **fermentation**, car il évacue le gaz qu'elle produit. Pour une simple **macération de fruits dans de l'alcool**, il n'y a pas de fermentation : une bonde pleine, ou un couvercle étanche, suffit.`, { source: SAVOIR_FAIRE });
 
 r.fait("contenant", "condition", `
-  Oui, une **dame-jeanne** convient pour faire **fermenter** ou **stocker** du vin. Pendant la fermentation, ne la remplissez pas à ras bord (**trois quarts au plus**, pour la mousse) et fermez-la avec une bonde percée équipée d'un **barboteur**, jamais hermétiquement. Une fois la fermentation terminée, remplissez-la à ras pour limiter l'air, puis fermez avec une **bonde pleine**.`, { source: SAVOIR_FAIRE, liens: [PAGES.bonbonne20, PAGES.bondes] });
+  Oui, une **dame-jeanne** convient pour faire **fermenter** ou **stocker** du vin. Pendant la fermentation, ne la remplissez pas à ras bord (**trois quarts au plus**, pour la mousse) et fermez-la avec une bonde percée équipée d'un **barboteur**, jamais hermétiquement. Une fois la fermentation terminée, remplissez-la à ras pour limiter l'air, puis fermez avec une **bonde pleine**. Le bouchon en plastique livré avec une dame-jeanne n'est pas étanche : ne l'utilisez pas pour la fermentation (risque d'oxydation), préférez une bonde en liège.`, { source: SAVOIR_FAIRE, liens: [PAGES.bonbonne20, PAGES.bondes] });
 
 r.concept("barboteur-silencieux", "Barboteur qui ne bulle plus", ["barboteur qui ne bulle plus"], {
   famille: "barboteur",
@@ -449,7 +532,7 @@ const SUR_LA_DISTILLATION = `
 r.fait("distillation", "condition", SUR_LA_DISTILLATION, { source: SAVOIR_FAIRE, avertissement: true });
 r.fait("distillation", "gamme", SUR_LA_DISTILLATION, { source: SAVOIR_FAIRE });
 
-r.concept("oenologie", "Soufre, mèches et rince-fûts", ["soufre", "souffre", "soufrer", "meche", "meches", "meche soufree", "meches soufrees", "mechage", "sulfite", "sulfites", "sulfiter", "sulfitage", "so2", "metabisulfite", "rince fut", "rince futs", "suiffeur", "assainir", "oenologie"], {
+r.concept("oenologie", "Soufre, mèches et rince-fûts", ["soufre", "souffre", "soufrer", "sulfite", "sulfites", "sulfiter", "sulfitage", "so2", "metabisulfite", "rince fut", "rince futs", "suiffeur", "assainir", "oenologie"], {
   famille: "vin",
   lien: PAGES.oenologie,
 });
@@ -460,7 +543,7 @@ r.fait("oenologie", "usage", `
 r.fait("oenologie", "condition", `
   Pour les doses de soufre ou de sulfites, suivez toujours la notice du produit et, en cas de doute, demandez conseil à un œnologue : je ne donne pas de dosage. Manipulez les mèches soufrées dans un endroit aéré.`, { source: SAVOIR_FAIRE });
 
-r.concept("mesure", "Outils de mesure", ["mesure", "mesurer", "degre", "degre d alcool", "taux d alcool", "alcool", "mesurer l alcool", "mesurer le degre", "densimetre", "mustimetre", "pese mout", "instrument de mesure", "laboratoire"], {
+r.concept("mesure", "Outils de mesure", ["mesure", "mesurer", "degre", "degre d alcool", "taux d alcool", "alcool", "mesurer l alcool", "mesurer le degre", "densimetre", "instrument de mesure", "laboratoire"], {
   famille: "vin",
   lien: PAGES.mesure,
 });
@@ -483,6 +566,108 @@ r.concept("alcoometre", "Alcoomètre", ["alcoometre", "alcoometres", "alcoometre
 
 r.fait("alcoometre", "usage", `
   L'**alcoomètre** en verre (0 à 100 % vol.) mesure le titre d'un alcool **sec et sans sucre ajouté** : on le fait flotter dans une éprouvette remplie du liquide, puis on lit la graduation au niveau de la surface.`, { source: PAGES.mesure.url });
+
+// ─── Mustimètre, éprouvette, mèches soufrées, Larroseptol (fiches relevées le 12/10/2026) ───
+
+r.concept("mustimetre", "Mustimètre", ["mustimetre", "mustimetres", "pese mout", "densimetre a mout", "densite du mout", "oechsle"], {
+  formules: ["mesurer le sucre", "sucre du mout", "sucre du raisin", "teneur en sucre du mout", "taux de sucre du mout", "mesurer la densite du mout", "mesurer la densite du jus", "degre potentiel", "richesse en sucre"],
+  exclusif: true,
+  famille: "mesure",
+  lien: PAGES.mustimetre,
+});
+
+const MUSTIMETRE = `
+  Le **mustimètre** (pèse-moût ou densimètre) de Duhallé est en verre, fabriqué en France. Il mesure la **densité du moût**, d'où l'on déduit sa teneur en sucre : il permet d'estimer le sucre avant la fermentation, de suivre la fermentation, puis de lire le taux d'alcool une fois celle-ci terminée. On le fait flotter dans une **éprouvette graduée de 250 ml** (vendue séparément), qui est le contenant conseillé.
+
+  Pour mesurer : remplissez l'éprouvette du moût à contrôler, plongez-y doucement le mustimètre sans qu'il touche les parois, puis lisez la graduation au niveau de la surface du liquide.`;
+
+const ECHELLE_DU_MUSTIMETRE = `
+  L'**échelle de graduation exacte** du mustimètre (valeurs minimale et maximale de densité) n'est pas dans ma base : elle est indiquée sur sa notice. Avant de l'acheter pour suivre une fermentation jusqu'à une densité proche de 0,990 à 1,000, demandez la confirmation de l'échelle au service client, au **${TELEPHONE}** ou à **${EMAIL}** : mieux vaut vérifier qu'elle descend assez bas.`;
+
+for (const aspect of ["definition", "usage", "gamme", "procedure"] as const) {
+  r.fait("mustimetre", aspect, MUSTIMETRE, { source: PAGES.mustimetre.url, liens: [PAGES.mustimetre, PAGES.mesure] });
+}
+for (const aspect of ["dimension", "condition", "choix"] as const) {
+  r.fait("mustimetre", aspect, ECHELLE_DU_MUSTIMETRE, { source: PAGES.mustimetre.url, liens: [PAGES.mustimetre, PAGES.contact] });
+}
+
+r.concept("eprouvette", "Éprouvette graduée", ["eprouvette", "eprouvettes", "eprouvette graduee", "eprouvettes graduees", "eprouvette 250 ml"], {
+  exclusif: true,
+  famille: "mesure",
+  lien: PAGES.eprouvette,
+});
+
+const EPROUVETTE = `
+  L'**éprouvette graduée de 250 ml** de Duhallé est en plastique alimentaire blanc, avec un bec verseur et un pied qui la tient stable. Elle sert à plonger l'alcoomètre, le mustimètre ou le pèse-cidre. Sa **hauteur** n'est pas indiquée sur sa fiche : pour la cote exacte, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["definition", "usage", "dimension", "gamme", "choix"] as const) {
+  r.fait("eprouvette", aspect, EPROUVETTE, { source: PAGES.eprouvette.url, liens: [PAGES.eprouvette, PAGES.contact] });
+}
+
+r.concept("meche-soufree", "Mèches soufrées", ["meche", "meches", "meche soufree", "meches soufrees", "meche de soufre", "meches de soufre", "soufre en meche", "mechage"], {
+  famille: "oenologie",
+  lien: PAGES.oenologie,
+  formules: ["7 trempages", "sept trempages", "sur coton"],
+});
+
+const MECHES_SOUFREES = `
+  Une **mèche soufrée** est une bande de toile de coton imprégnée de soufre fondu (plusieurs trempages). On la brûle dans un fût vide et propre pour l'assainir et le protéger des moisissures entre deux utilisations. Manipulez-la dans un endroit aéré. Duhallé propose plusieurs références (mèches sur coton en lots, mèches « La Souveraine » avec végétaux aromatiques, mèches grises) : la disponibilité varie selon la référence, consultez la rubrique « Rince-fûts et mèches soufrées ».`;
+
+const CAPACITE_DES_MECHES = `
+  La **capacité de fût** traitée par une mèche, et le nombre de mèches à brûler, sont indiqués sur la fiche et l'emballage de chaque référence : je ne donne pas de dosage. En cas de doute, demandez conseil au service client au **${TELEPHONE}** ou à un œnologue, et manipulez les mèches dans un endroit aéré.`;
+
+for (const aspect of ["definition", "usage", "gamme"] as const) {
+  r.fait("meche-soufree", aspect, MECHES_SOUFREES, { source: PAGES.oenologie.url, liens: [PAGES.oenologie] });
+}
+for (const aspect of ["dimension", "condition", "choix"] as const) {
+  r.fait("meche-soufree", aspect, CAPACITE_DES_MECHES, { source: PAGES.oenologie.url, liens: [PAGES.oenologie, PAGES.contact] });
+}
+
+r.concept("bonde-aseptique", "Bonde aseptique et recharge Larroseptol", ["larroseptol", "larrosseptol", "bonde aseptique", "bondes aseptiques", "recharge de bonde aseptique", "recharge bonde aseptique"], {
+  exclusif: true,
+  famille: "oenologie",
+  lien: PAGES.oenologie,
+});
+
+const LARROSEPTOL = `
+  Oui, Duhallé vend la **recharge LARROSEPTOL** (125 ml) pour **bonde aseptique** : une solution de bisulfite de potassium (SO₂) qui aide à garder un fût ou une barrique sains, un flacon correspondant à un fût de 220 L. La recharge se renouvelle régulièrement, plus souvent en été qu'en hiver, selon la notice. Le produit est irritant pour les yeux et les voies respiratoires : manipulez-le avec précaution.`;
+
+for (const aspect of ["definition", "usage", "gamme", "condition", "lieu"] as const) {
+  r.fait("bonde-aseptique", aspect, LARROSEPTOL, { source: PAGES.oenologie.url, liens: [PAGES.oenologie] });
+}
+
+// ─── Magnum, vins de fruits ────────────────────────────────────────────────
+
+r.concept("magnum", "Magnums et grands formats", ["magnum", "magnums", "jeroboam", "jeroboams", "double magnum"], {
+  famille: "bouteille",
+});
+
+const MAGNUM = `
+  Un **magnum** (1,5 L) est plus large et plus long qu'une bouteille de 75 cl : son diamètre avoisine **10 cm**. Les casiers Duhallé sont prévus pour des bouteilles de 75 cl : les niches du casier polystyrène 16 places, par exemple, mesurent 9 cm, trop étroites pour un magnum. Avant de commander un casier pour des magnums, demandez au service client le diamètre des alvéoles du modèle, au **${TELEPHONE}** ou à **${EMAIL}**. Pour le boucher, mesurez le diamètre intérieur du goulot plutôt que de supposer qu'il est identique à celui d'une bouteille de 75 cl.`;
+
+for (const aspect of ["definition", "condition", "dimension", "choix"] as const) {
+  r.fait("magnum", aspect, MAGNUM, { source: SAVOIR_FAIRE, liens: [PAGES.casiers, PAGES.contact] });
+}
+
+const BOISSONS_A_BOUCHER = ["vin de noix", "vin de fruits", "pineau"];
+r.concept("vin-de-fruits", "Vin de noix et vins de fruits", ["vin de noix", "vin d orange", "vin de peche", "vin de cerise", "vin de coing", "vin de fruits", "vin aromatise", "ratafia", "pineau", "pineau des charentes"], {
+  famille: "vin",
+  voirAussi: ["bouchon", "boucheuse", "maceration-fruits"],
+  formules: BOISSONS_A_BOUCHER.flatMap((boisson) =>
+    ["boucher", "bouchonner", "bouchonne"].flatMap((verbe) => ["mon", "le", "du"].map((det) => `${verbe} ${det} ${boisson}`)),
+  ),
+});
+
+/** Un vin de noix ou de fruits se boit dans les mois ou les années qui suivent : un colmaté 38 x 24 suffit, le 45 x 24 pour garder plus longtemps. */
+const BOUCHER_UN_VIN_DE_FRUITS = `
+  Un **vin de noix** (comme un vin d'orange, de pêche ou de cerise) est un vin aromatisé maison, que l'on boit dans les mois ou les années qui suivent. Pour le boucher, un bouchon en liège **colmaté 38 x 24 mm** (catégorie 4 ou 5) posé avec une boucheuse suffit ; pour une garde de plusieurs années, préférez un **45 x 24 mm colmaté catégorie 3**. Laissez les bouteilles debout 24 à 48 heures après le bouchage, puis couchez-les.`;
+
+for (const aspect of ["definition", "choix", "procedure", "gamme", "condition"] as const) {
+  r.fait("vin-de-fruits", aspect, BOUCHER_UN_VIN_DE_FRUITS, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin, PAGES.boucheuses] });
+}
+for (const aspect of ["choix", "procedure", "gamme"] as const) {
+  r.fait(["bouchon", "vin-de-fruits"], aspect, BOUCHER_UN_VIN_DE_FRUITS, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonsVin, PAGES.boucheuses] });
+}
 
 // ─── Finitions : surbouchage et étiquettes ─────────────────────────────────
 

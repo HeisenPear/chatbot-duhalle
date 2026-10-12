@@ -27,6 +27,9 @@ r.fait("catalogue", "gamme", `
 r.fait("catalogue", "prix", `
   Les prix, toujours à jour, sont affichés sur chaque fiche produit de la boutique. Je préfère vous y renvoyer plutôt que de vous donner un chiffre qui aurait pu changer.`);
 
+r.fait("catalogue", "dimension", `
+  Les **dimensions** et le **poids** de chaque produit sont indiqués sur sa **fiche** (description et caractéristiques). Dites-moi de quel produit il s'agit (bouchon, bonde, casier, vinaigrier, fût, dame-jeanne…) et je vous donnerai ce que je sais ; sinon, le service client vous répond au **${TELEPHONE}** ou à **${EMAIL}**.`, { liens: [PAGES.contact] });
+
 r.fait("catalogue", "lieu", `
   Tous nos produits sont en vente sur la boutique en ligne **duhalle-boutique.fr**, avec livraison en France.`);
 
@@ -93,13 +96,36 @@ r.fait("promotions", "definition", `
 
 // ─── Professionnels, personnalisation, cadeaux, points de vente ────────────
 
-r.concept("professionnels", "Professionnels et grandes quantités", ["professionnel", "professionnels", "pro", "viticulteur", "vigneron", "domaine viticole", "caviste", "grossiste", "grande quantite", "grandes quantites", "gros volume", "en gros", "devis", "tarif professionnel", "entreprise cliente", "comite d entreprise", "collectivite"], {
+r.concept("professionnels", "Professionnels et grandes quantités", ["professionnel", "professionnels", "pro", "viticulteur", "vigneron", "domaine viticole", "caviste", "grossiste", "grande quantite", "grandes quantites", "gros volume", "en gros", "tarif professionnel", "entreprise cliente", "comite d entreprise", "collectivite"], {
   famille: "duhalle",
   formules: ["je suis revendeur", "devenir revendeur", "pour revendre", "je suis professionnel", "je suis viticulteur", "je suis vigneron"],
 });
 
 r.fait("professionnels", "definition", `
   Vous êtes viticulteur, caviste, revendeur, ou vous avez besoin de grandes quantités ? Contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** : l'équipe étudiera votre demande. Certains articles existent déjà en grands conditionnements, comme les capsules couronne par 1000.`, { liens: [PAGES.contact] });
+
+// Devis, remise, prix pour une grosse commande : le prix d'un article est sur sa fiche, le reste passe par l'équipe.
+const QUANTITES = [50, 100, 200, 250, 300, 400, 500, 600, 800, 1000, 2000, 5000];
+
+r.concept("devis", "Devis et prix par quantité", ["devis", "demande de devis", "demande de prix", "meilleur prix", "prix degressif", "prix degressifs", "tarif degressif", "remise quantite", "grosse quantite", "grosses quantites"], {
+  famille: "professionnels",
+  formules: [
+    "remise pour grosse quantite", "remise pour une grosse quantite", "remise pour grande quantite", "remise pour gros volume", "remise sur grosse quantite", "remise sur une grosse quantite",
+    "souhaite un prix", "souhaiterais un prix", "voudrais un prix", "avoir un prix", "un prix pour", "un tarif pour", "demander un prix", "demander un tarif", "faire une remise", "une remise", "des remises", "meilleur tarif", "prix de gros", "tarif de gros", "prix pour une quantite", "prix pour une grande quantite", "prix pour une grosse quantite",
+    ...QUANTITES.flatMap((n) => [`prix pour ${n}`, `tarif pour ${n}`]),
+  ],
+});
+
+const AVOIR_UN_DEVIS = `
+  Le prix de chaque article est affiché sur sa **fiche produit**. Pour un **devis**, une remise sur une **grande quantité** ou une livraison à une date précise, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** en indiquant les **produits**, les **quantités**, votre **adresse de livraison** (code postal) et la **date souhaitée** : l'équipe vous fera une proposition. Certains articles existent déjà en grands conditionnements, comme les capsules couronne par 1000.`;
+
+for (const aspect of ["definition", "prix", "condition", "procedure"] as const) {
+  r.fait("devis", aspect, AVOIR_UN_DEVIS, { liens: [PAGES.contact] });
+}
+// « tarif professionnel » : le prix, pour un professionnel, passe aussi par l'équipe.
+for (const aspect of ["prix", "condition"] as const) {
+  r.fait("professionnels", aspect, AVOIR_UN_DEVIS, { liens: [PAGES.contact] });
+}
 
 r.concept("personnalisation", "Bouchons personnalisés", ["personnalisation", "personnaliser", "personnalise", "personnalises", "marquage", "marquer", "gravure", "logo", "mariage", "prenoms", "initiales", "bouchon personnalise", "evenement", "bapteme"], {
   famille: "duhalle",

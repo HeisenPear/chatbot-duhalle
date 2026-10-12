@@ -37,7 +37,7 @@ export const MARQUES_DE_TYPE: readonly MarqueDeType[] = [
   {
     type: "prix",
     motif:
-      / (?:prix|tarifs?|combien (?:coute|coutent|ca coute|ca fait|vaut|valent|ca vaut)|coute|coutent|cout|couts|cher|chere|chers|onereux|frais (?:de port|de livraison|d envoi|d expedition|de transport)|gratuit|gratuite|gratuits|offerte?s?|payant|payante|euros?) /,
+      / (?:prix|tarifs?|combien (?:coute|coutent|ca coute|ca fait|vaut|valent|ca vaut)|coute|coutent|cout|couts|cher|chere|chers|onereux|frais (?:de port|de livraison|d envoi|d expedition|de transport)|combien (?:sont|font|coutent) (?:les )?frais|gratuit|gratuite|gratuits|offerte?s?|payant|payante|euros?) /,
     signal: "un prix : « combien coûte », « prix », « frais », « gratuit »",
   },
   {
@@ -55,7 +55,7 @@ export const MARQUES_DE_TYPE: readonly MarqueDeType[] = [
   {
     type: "valeur",
     motif:
-      / (?:quelle (?:est la )?(?:taille|dimension|longueur|hauteur|temperature|contenance|capacite|quantite|humidite|dose|cadence)|quel (?:est le )?(?:niveau|diametre|format|volume|poids|calibre|taux|degre|nombre|dosage)|combien de|combien en faut|dimensions?|diametres?|tailles?|mesures?|mm|cm|contenance|capacite|doses?|dosages?|temperatures?|humidite|cadence|puissance|watts?|quelle puissance|combien de litres|combien de places) /,
+      / (?:quelle (?:est la )?(?:taille|dimension|longueur|hauteur|temperature|contenance|capacite|quantite|humidite|dose|cadence|graduation|echelle|plage)|quel (?:est le )?(?:niveau|diametre|format|volume|poids|calibre|taux|degre|nombre|dosage)|combien de|combien en faut|dimensions?|diametres?|tailles?|mesures?|graduations?|echelles?|mm|cm|contenance|capacite|doses?|dosages?|temperatures?|humidite|cadence|puissance|watts?|quelle puissance|combien de litres|combien de places) /,
     signal: "une valeur : « quelle taille », « quel diamètre », « combien de »",
   },
   {

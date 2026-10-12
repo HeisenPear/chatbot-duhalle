@@ -141,6 +141,10 @@ export class ConstructeurDeReponse {
   private membres(cites: readonly string[], dejaAtteints: ReadonlyMap<string, number>): Map<string, number> {
     const membres = new Map<string, number>();
     cites.forEach((id, rang) => {
+      // Un concept cité qui n'est que la famille d'un autre concept cité donne le contexte
+      // (« commande en attente… ou… » parle de la commande en attente, pas de ses cousines) :
+      // on ne descend pas vers ses autres membres.
+      if (cites.some((autre) => autre !== id && this.detecteur.lignee(autre).some((c) => c.id === id))) return;
       const tete = Math.max(0.7, 1 - 0.1 * rang);
       for (const enfant of this.detecteur.enfants(id)) {
         if (!dejaAtteints.has(enfant.id)) membres.set(enfant.id, Math.max(membres.get(enfant.id) ?? 0, tete / 3));
@@ -194,7 +198,14 @@ export class ConstructeurDeReponse {
     let plan = type === null ? PLAN_PAR_DEFAUT : souple ? avecLeReste(PLANS_DE_REPONSE[type]) : PLANS_DE_REPONSE[type];
     const strict = type !== null && TYPES_DE_LA_RACINE.has(type);
     const prefere = type !== null && souple ? new Set(PLANS_DE_REPONSE[type]) : null;
-    let faits = this.selectionner(candidats, plan, !souple, strict, prefere);
+    // Un concept exclusif (la disponibilité) répond seul, s'il a de quoi répondre à ce type de question.
+    const exclusifs = cites.filter((id) => this.detecteur.concept(id)?.exclusif);
+    let faits: FaitRetenu[] = [];
+    if (exclusifs.length > 0) {
+      const seuls = candidats.filter((c) => c.fait.concepts.some((id) => exclusifs.includes(id)));
+      faits = this.selectionner(seuls, plan, !souple, strict, prefere);
+    }
+    if (faits.length === 0) faits = this.selectionner(candidats, plan, !souple, strict, prefere);
     if (faits.length === 0 && type !== null) {
       // Le type ne trouve rien à dire sur ces concepts : on présente ce qu'on sait.
       plan = PLAN_PAR_DEFAUT;
@@ -262,7 +273,11 @@ export class ConstructeurDeReponse {
     // Un même énoncé écrit pour plusieurs aspects (« procédure » et « condition »)
     // ne s'affiche qu'une fois.
     const dits = new Set<string>();
-    const sansDoublon = retenus.flatMap((g) => g.faits).filter((f) => !dits.has(f.fait.enonce) && !!dits.add(f.fait.enonce));
+    // Un complément est au moins aussi spécifique que le principal, fait par fait : un second fait,
+    // moins proche de la question, ne rejoint pas la réponse parce qu'il partage un aspect avec elle.
+    const sansDoublon = retenus
+      .flatMap((g) => (g === principal ? g.faits : g.faits.filter((f) => f.specificite >= principal.specificite)))
+      .filter((f) => !dits.has(f.fait.enonce) && !!dits.add(f.fait.enonce));
     return sansDoublon.slice(0, MAX_FAITS);
   }
 

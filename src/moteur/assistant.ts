@@ -106,7 +106,7 @@ const INSULTE =
   /\b(?:connard|connards|connasse|salope|salopes|pute|putes|putain|merde|enculer|enculez|encule|enculee|nique|niquer|ntm|fdp|abruti|abrutis|debile|debiles|imbecile|imbeciles|idiot|idiote|idiots|cretin|cretins|batard|batards|bordel|couille|couilles|branle|branler|foutre|ta gueule|va te faire|vas te faire|allez vous faire)\b/;
 // Seulement des reproches à la deuxième personne : « je ne sais rien faire » est un débutant, pas un mécontent.
 const REPROCHE =
-  /\b(?:(?:tu|vous|t) ne? ?(?:ser[st]?|servez) a rien|vous ne connaiss(?:ez|az) pas (?:les )?produits|vous ne connaiss(?:ez|az) rien|vous ne savez rien|tu ne sais rien|tu sais rien|vous ne comprenez rien|tu ne comprends rien|tu comprends rien|n importe quoi|a cote de la plaque|hors sujet|rien a voir avec ma question|pas ma question|ne repond\w* pas a ma question|repondez pas a ma question|(?:vous etes|tu es|t es) nul(?:le)?s?|bot nul|service nul|je vais acheter ailleurs|j achete ailleurs|j irai ailleurs|je vais voir ailleurs)\b/;
+  /\b(?:(?:tu|vous|t) ne? ?(?:ser[st]?|servez) a rien|vous ne connaiss(?:ez|az) pas (?:les )?produits|vous ne connaiss(?:ez|az) rien|vous ne savez rien|tu ne sais rien|tu sais rien|vous ne comprenez rien|tu ne comprends rien|tu comprends rien|n importe quoi|a cote de la plaque|hors sujet|rien a voir avec ma question|pas ma question|ne repond\w* pas a ma question|repondez pas a ma question|(?:vous etes|tu es|t es) nul(?:le)?s?|bot nul|service nul|je vais acheter ailleurs|j achete ailleurs|j irai ailleurs|je vais voir ailleurs|(?:vous|tu) n avez pas compris|(?:vous|tu) n as pas compris|(?:vous|tu) ne comprenez pas|(?:vous|tu) ne comprends pas|pas compris (?:ma|la) question|chercher ailleurs|aller ailleurs|je change de fournisseur|(?:chercher|trouver|prendre|aller|passer|commander|acheter) (?:chez )?(?:un )?autre fo?u?i?rnisseurs?)\b/;
 /** Mots anglais courants : assez de ces mots, et la phrase est en anglais. */
 const MOTS_ANGLAIS = new Set(
   (
@@ -125,6 +125,32 @@ const ANAPHORE = /\b(?:le|la|les|l|ca|cela|il|elle|ils|elles)\b/;
 const DEBUT_DE_SUJET = /^(?:le|la|les|l|un|une|des|du|de|ce|cet|cette|ces) /;
 /** Une référence de commande ou de colis (cinq chiffres ou plus) : la valeur n'importe pas, la forme oui. */
 const REFERENCE_BRUTE = /\b[a-z]{0,3}\d{5,}[a-z0-9]*\b/gi;
+/** Un lien vers la boutique : « https://www.duhalle-boutique.fr/mustimetre-c2x35079023 ». */
+const LIEN_BOUTIQUE = /\b(?:https?:\/\/)?(?:www\.)?duhalle-boutique\.fr\/?([^\s?#]*)\S*/gi;
+const LIEN_QUELCONQUE = /\b(?:https?:\/\/|www\.)\S+/gi;
+
+/**
+ * Les clients collent parfois l'adresse d'un produit à la place de son nom. Sur la boutique,
+ * l'adresse contient le nom du produit : « …/mustimetre-c2x35079023 » se lit « mustimetre ».
+ * Un lien vers un autre site n'est pas lisible : il est retiré, et on le signale.
+ */
+function lireLesLiens(brut: string): { message: string; lienIllisible: boolean } {
+  let lienIllisible = false;
+  const lu = brut.replace(LIEN_BOUTIQUE, (_lien, chemin: string) => {
+    let nom = chemin;
+    try {
+      nom = decodeURIComponent(chemin);
+    } catch {
+      // une adresse mal encodée se lit telle quelle
+    }
+    return ` ${nom.replace(/\.html?$/i, "").replace(/-?c\d+x\d+$/i, "").replace(/[-_/+]+/g, " ")} `;
+  });
+  const message = lu.replace(LIEN_QUELCONQUE, () => {
+    lienIllisible = true;
+    return " ";
+  });
+  return { message, lienIllisible };
+}
 
 /** Sous cette confiance, la recherche plein texte ne répond pas : on redirige. */
 const SEUIL_RECHERCHE = 0.6;
@@ -161,8 +187,11 @@ export class Assistant {
 
   repondre(brut: string, precedent: Contexte | null = null): Reponse {
     // « commande 1234567 » et « commande [référence] » (la forme enregistrée) se lisent pareil.
-    const message = brut.replace(REFERENCE_BRUTE, " reference ");
+    const { message: sansLiens, lienIllisible } = lireLesLiens(brut);
+    const message = sansLiens.replace(REFERENCE_BRUTE, " reference ");
     const forme = normaliser(message);
+    // Un lien vers un autre site et rien d'autre : ce n'est pas une salutation.
+    if (lienIllisible && !/[a-z0-9]{2,}/.test(forme)) return this.lienIllisible();
     const politesse = this.politesse(forme);
     if (politesse) return politesse;
     // Que des lettres isolées (« e », « u ») : inutile de chercher, on invite à préciser.
@@ -206,6 +235,9 @@ export class Assistant {
         });
       }
     }
+
+    // Un lien vers un autre site, sans rien d'autre que je comprenne : je ne peux pas l'ouvrir.
+    if (cites.length === 0 && lienIllisible) return this.lienIllisible();
 
     // Une question en anglais ne se retrouve pas dans une base en français : on le dit,
     // plutôt que de proposer au hasard un fait qui partage un mot avec elle.
@@ -314,6 +346,18 @@ export class Assistant {
     const mots = forme.split(" ").filter(Boolean);
     const anglais = mots.filter((m) => MOTS_ANGLAIS.has(m)).length;
     return anglais >= 2 && anglais / mots.length >= 0.5 && mots.some((m) => MOTS_OUTILS_ANGLAIS.has(m));
+  }
+
+  private lienIllisible(): Reponse {
+    const { telephone, email, contact, questionsDeDepart } = this.reglages;
+    return {
+      nature: "inconnu",
+      texte: `Je ne peux pas ouvrir les liens. Dites-moi en quelques mots de quel produit ou de quel sujet il s'agit (par exemple « boucheuse à deux leviers » ou « bouchon de 45 mm »), ou contactez le service client au **${telephone}** ou à **${email}**.`,
+      liens: [contact],
+      suggestions: [...questionsDeDepart],
+      contexte: { concepts: [], type: null },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [] },
+    };
   }
 
   private anglais(): Reponse {

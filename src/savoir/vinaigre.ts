@@ -65,19 +65,63 @@ r.concept("coloris", "Couleurs et coloris", ["coloris"], {
 r.fait("coloris", "gamme", `
   Les coloris et finitions disponibles sont indiqués sur la **fiche de chaque produit**. Si la couleur que vous cherchez n'y figure pas, le service client peut vous confirmer si elle existe : **${TELEPHONE}** ou **${EMAIL}**.`, { liens: [PAGES.contact] });
 
+// Relevé le 19/10/2026 sur les fiches du site (recherche sur duhalle-boutique.fr) : à faire valider par Duhallé (voir README).
+// Le vinaigrier noir existe (Emile Henry noir mat) : une version précédente de cette réponse disait le contraire.
 r.fait(["vinaigrier", "coloris"], "gamme", `
-  Dans la gamme actuelle, les vinaigriers en grès existent en **rouge** (2,5 L), **gris anthracite** (3,5 L), **grès naturel**, **bleu Provence**, **jaune safran** ou « **à l'ancienne** » (4 L), et **grès naturel** ou **bleu nuit** (5 L, en forme de tonneau). Le vinaigrier en **chêne** (3 L) a la teinte du bois. Il n'y a pas de modèle noir : le plus sombre est le **gris anthracite**. Pour une demande particulière, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`, { liens: [PAGES.vinaigriers, PAGES.contact] });
+  Dans la gamme actuelle, les vinaigriers en **grès** (fabrication artisanale du Portugal) existent en **rouge** et **vert anis** (2,5 L), **gris anthracite** (3,5 L), **grès naturel**, **bleu Provence**, **jaune safran**, **rouge flamboyant** ou « **à l'ancienne** » (4 L), et **grès naturel** ou **bleu noir** (5 L, en forme de tonneau). Le vinaigrier en **chêne** (3 L) a la teinte du bois.
+
+  Les vinaigriers design **Emile Henry** en céramique émaillée (2,5 L, robinet en bois, coupelle en céramique) existent en **noir mat**, **anthracite**, **rouge flamboyant** et **bleu calanque**. Un coloris peut être momentanément épuisé : la disponibilité est indiquée sur la fiche de chaque modèle. Pour une demande particulière, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`, { liens: [PAGES.vinaigriers, PAGES.contact] });
 
 r.fait("vinaigrier", "definition", `
   Les vinaigriers Duhallé sont en **grès**, fabriqués artisanalement au **Portugal** par une entreprise à taille humaine. Le grès protège le vinaigre de la lumière et des écarts de température. Ils sont équipés d'un **robinet en bois** et d'un **bouchon en liège**, et certains modèles sont livrés avec leur **tabouret en bois**.`, { liens: [PAGES.vinaigriers] });
 
 r.fait("vinaigrier", "gamme", `
-  Les vinaigriers Duhallé, de 2,5 à 5 litres :
-  - **2,5 L** rouge ;
-  - **3,5 L** gris anthracite ;
-  - **4 L** grès naturel, bleu Provence, jaune safran ou « à l'ancienne », avec tabouret en bois selon le modèle ;
-  - **5 L** en forme de tonneau, grès naturel ou bleu nuit, avec tabouret ;
-  - et un **vinaigrier en chêne de 3 L**, de fabrication française.`, { liens: [PAGES.vinaigriers, PAGES.vinaigrier4L, PAGES.vinaigrierChene] });
+  Les vinaigriers Duhallé :
+  - en **grès** (Portugal), de 2,5 à 5 L : **2,5 L** rouge ou vert anis, **3,5 L** gris anthracite, **4 L** grès naturel, bleu Provence, jaune safran, rouge flamboyant ou « à l'ancienne » (avec tabouret en bois selon le modèle), **5 L** en forme de tonneau, grès naturel ou bleu noir, avec tabouret ;
+  - en **céramique émaillée Emile Henry**, 2,5 L, avec robinet en bois et coupelle en céramique : noir mat, anthracite, rouge flamboyant ou bleu calanque ;
+  - un **vinaigrier en chêne de 3 L**, de fabrication française ;
+  - un petit vinaigrier en grès émaillé à **bec verseur** de 0,4 L.`, { liens: [PAGES.vinaigriers, PAGES.vinaigrier4L, PAGES.vinaigrierChene] });
+
+r.concept("vinaigrier-emile-henry", "Vinaigriers Emile Henry", ["emile henry", "e henry", "emile henri"], {
+  famille: "vinaigrier",
+  voirAussi: ["coloris"],
+});
+
+// Relevé le 19/10/2026 sur les fiches du site : à faire valider par Duhallé (voir README).
+const VINAIGRIER_EMILE_HENRY = `
+  Duhallé propose des **vinaigriers design Emile Henry** en **céramique émaillée** (et non en grès du Portugal), de **2,5 L**, avec **robinet en bois** et **coupelle en céramique**, en **noir mat**, **anthracite**, **rouge flamboyant** et **bleu calanque**. Un coloris peut être momentanément épuisé ; pour savoir quand il sera de retour, regardez la fiche du modèle ou demandez au service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["definition", "gamme", "choix", "dimension", "condition", "moment"] as const) {
+  r.fait("vinaigrier-emile-henry", aspect, VINAIGRIER_EMILE_HENRY, { liens: [PAGES.vinaigriers, PAGES.contact] });
+}
+
+r.concept("mortier", "Mortier en grès émaillé", ["mortier", "mortiers", "pilon", "pilon en bois"], {
+  famille: "catalogue",
+  exclusif: true,
+  lien: PAGES.mortier,
+});
+
+// Relevé le 19/10/2026 : mortier en grès émaillé avec son pilon en bois, fabrication artisanale du Portugal, poids de 1 000 g.
+// Aucune contenance n'est indiquée dans ce que nous avons relevé.
+const MORTIER = `
+  Duhallé propose un **mortier en grès émaillé avec son pilon en bois**, de fabrication artisanale du Portugal (poids d'environ 1 kg). Sa **contenance** n'est pas dans ma base : elle figure sur la fiche du produit, ou demandez-la au service client au **${TELEPHONE}** ou à **${EMAIL}**. Ce n'est pas un vinaigrier.`;
+
+for (const aspect of ["definition", "gamme", "dimension", "choix", "usage", "condition"] as const) {
+  r.fait("mortier", aspect, MORTIER, { liens: [PAGES.mortier, PAGES.contact] });
+}
+
+r.concept("etancheite-vinaigrier", "Étanchéité du vinaigrier", ["etancheite", "etanche", "vinaigrier etanche"], {
+  famille: "vinaigrier",
+  // Pas « vinaigrier fuit » seul : « le robinet de mon vinaigrier fuit » parle du robinet.
+  formules: ["mon vinaigrier fuit", "mon vinaigrier coule", "mon vinaigrier suinte", "le vinaigrier fuit", "le vinaigrier coule", "le vinaigrier suinte", "ce vinaigrier fuit", "vinaigrier qui suinte", "fuite du vinaigrier", "fuite de mon vinaigrier", "fuite sur le vinaigrier"],
+});
+
+const ETANCHEITE_DU_VINAIGRIER = `
+  Le **grès** du vinaigrier est étanche ; une fuite vient presque toujours du **robinet en bois** ou de son **bouchon en liège**, qui n'ont pas encore gonflé. Faites tremper le robinet dans l'eau quelques heures et le bouchon en liège **24 heures** avant de les remettre en place, enfoncez-les sans forcer, puis patientez : le bois gonfle et devient étanche. Si le vinaigrier suinte ou fuit toujours, ou s'il présente une fêlure, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avec une photo.`;
+
+for (const aspect of ["definition", "condition", "raison", "procedure", "erreur", "entretien", "choix"] as const) {
+  r.fait("etancheite-vinaigrier", aspect, ETANCHEITE_DU_VINAIGRIER, { source: PAGES.vinaigriers.url, liens: [PAGES.vinaigriers, PAGES.contact] });
+}
 
 r.fait("vinaigrier", "choix", `
   Choisissez la contenance selon votre consommation : **2,5 à 3,5 L** pour un usage familial, **4 à 5 L** si vous utilisez beaucoup de vinaigre ou avez souvent des restes de vin. Le **grès** est le plus facile à entretenir ; le **chêne** apporte des notes boisées au vinaigre.`, { source: SAVOIR_FAIRE, liens: [PAGES.vinaigriers] });
@@ -199,12 +243,21 @@ for (const aspect of ["condition", "raison", "entretien"] as const) {
 
 r.concept("demarrer-vinaigre", "Démarrer son vinaigre avec une mère", ["mere de depart", "mere pour demarrer", "acheter une mere", "vendre une mere", "premiere mere"], {
   famille: "mere-vinaigre",
-  formules: ["ou trouver une mere", "ou acheter une mere", "vendez vous une mere", "vendez vous des meres", "vendez vous de la mere", "mere de vinaigre a vendre", "vendez vous de la mere de vinaigre"],
+  formules: ["ou trouver une mere", "ou acheter une mere", "vendez vous une mere", "vendez vous des meres", "vendez vous de la mere", "mere de vinaigre a vendre", "vendez vous de la mere de vinaigre",
+    // « comment faire une mère ? », « à partir d'un fond de vin peut-on créer une mère ? » : fabriquer sa mère.
+    "faire une mere", "faire sa mere", "faire ma mere", "fabriquer ma mere", "produire ma mere", "former ma mere", "obtenir ma mere", "sa propre mere", "ma propre mere", "propre mere de vinaigre", "creer une mere de vinaigre", "faire une mere de vinaigre", "fabriquer une mere de vinaigre", "creer une mere", "creer sa mere", "creer ma mere", "fabriquer une mere", "fabriquer sa mere", "obtenir une mere", "former une mere", "produire une mere", "cultiver une mere"],
 });
 
 const DEMARRER_LE_VINAIGRE = `
   Pour démarrer un vinaigre, il faut une **mère de vinaigre**. Je n'ai pas trace d'une mère vendue à part par la boutique ; pour savoir si l'on peut s'en procurer, demandez au service client au **${TELEPHONE}** ou à **${EMAIL}**. Vous pouvez aussi en demander un morceau à un proche qui fait son vinaigre, ou verser dans le vinaigrier un fond de **vinaigre de vin non pasteurisé** (« vivant ») avec du vin sain, peu soufré : une mère se forme alors d'elle-même, en trois semaines environ d'après la fiche d'un de nos vinaigriers. Alimentez-la ensuite régulièrement avec des fonds de bouteille de vin.`;
 
-for (const aspect of ["definition", "procedure", "choix", "lieu", "gamme"] as const) {
+for (const aspect of ["definition", "choix", "lieu", "gamme"] as const) {
   r.fait("demarrer-vinaigre", aspect, DEMARRER_LE_VINAIGRE, { source: SAVOIR_FAIRE, liens: [PAGES.vinaigriers, PAGES.contact] });
+}
+
+const FAIRE_UNE_MERE = `
+  Oui, on peut faire sa mère. Dans un bocal propre, en verre ou en grès (jamais en métal), mélangez du vin rouge ou blanc **sain et peu soufré** avec un peu de **vinaigre de vin non pasteurisé** (« vivant »), qui apporte les bactéries acétiques. Couvrez d'une **toile fine** qui laisse passer l'air, gardez à **20-30 °C**, à l'abri de la lumière, sans remuer. Une pellicule gélatineuse se forme au bout de quelques semaines (environ trois, d'après la fiche d'un de nos vinaigriers) : c'est la mère. Sans vinaigre vivant, un fond de vin laissé à l'air peut aussi tourner, mais plus lentement et sans garantie. Une fois la mère formée, alimentez-la peu à peu avec des fonds de bouteille de vin dans votre vinaigrier.`;
+
+for (const aspect of ["procedure", "condition", "duree", "erreur"] as const) {
+  r.fait("demarrer-vinaigre", aspect, FAIRE_UNE_MERE, { source: SAVOIR_FAIRE, liens: [PAGES.vinaigriers] });
 }

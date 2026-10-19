@@ -33,6 +33,19 @@ for (const aspect of ["usage", "definition", "condition", "choix", "raison", "di
   r.fait("huile-paraffine", aspect, HUILE_DE_PARAFFINE, { liens: [PAGES.huileParaffine, PAGES.contact] });
 }
 
+r.concept("planche-bois", "Planches à découper et ustensiles en bois", ["planche a decouper", "planches a decouper", "planche en bois", "planches en bois", "planche de bois", "planche de cuisine", "planches de cuisine", "billot", "billots", "ustensiles en bois", "plan de travail en bois", "cuilleres en bois", "saladier en bois"], {
+  famille: "droguerie",
+});
+
+// « L'huile de paraffine Codex peut-elle servir sur des planches à découper en bois ? » : la fiche ne cite pas cet usage ;
+// l'huile minérale de qualité alimentaire est l'entretien courant des planches (savoir-faire général, à faire valider).
+const HUILE_ET_PLANCHES = `
+  La fiche de l'huile de paraffine Duhallé ne cite pas cet usage, mais c'est une huile minérale de qualité **alimentaire** (« Codex »), et ce type d'huile est couramment employé pour **nourrir les planches à découper en bois** : appliquez-en une fine couche sur une planche propre et sèche, laissez pénétrer plusieurs heures, puis essuyez l'excédent. Pour une confirmation de l'équipe, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["usage", "condition", "choix", "raison", "procedure", "entretien", "definition"] as const) {
+  r.fait(["huile-paraffine", "planche-bois"], aspect, HUILE_ET_PLANCHES, { source: SAVOIR_FAIRE, liens: [PAGES.huileParaffine, PAGES.contact] });
+}
+
 r.concept("carbure", "Carbure de calcium", ["carbure", "carbure de calcium", "acetylene", "lampe a carbure", "soudage"], { famille: "droguerie", lien: PAGES.carbure });
 
 r.fait("carbure", "usage", `

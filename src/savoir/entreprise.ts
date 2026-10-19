@@ -105,13 +105,13 @@ r.fait("professionnels", "definition", `
   Vous êtes viticulteur, caviste, revendeur, ou vous avez besoin de grandes quantités ? Contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** : l'équipe étudiera votre demande. Certains articles existent déjà en grands conditionnements, comme les capsules couronne par 1000.`, { liens: [PAGES.contact] });
 
 // Devis, remise, prix pour une grosse commande : le prix d'un article est sur sa fiche, le reste passe par l'équipe.
-const QUANTITES = [50, 100, 200, 250, 300, 400, 500, 600, 800, 1000, 2000, 5000];
+const QUANTITES = [20, 24, 30, 36, 40, 50, 60, 72, 80, 100, 120, 144, 150, 180, 200, 250, 300, 360, 400, 500, 600, 800, 1000, 2000, 5000];
 
 r.concept("devis", "Devis et prix par quantité", ["devis", "demande de devis", "demande de prix", "meilleur prix", "prix degressif", "prix degressifs", "tarif degressif", "remise quantite", "grosse quantite", "grosses quantites"], {
   famille: "professionnels",
   formules: [
     "remise pour grosse quantite", "remise pour une grosse quantite", "remise pour grande quantite", "remise pour gros volume", "remise sur grosse quantite", "remise sur une grosse quantite",
-    "souhaite un prix", "souhaiterais un prix", "voudrais un prix", "avoir un prix", "un prix pour", "un tarif pour", "demander un prix", "demander un tarif", "faire une remise", "une remise", "des remises", "meilleur tarif", "prix de gros", "tarif de gros", "prix pour une quantite", "prix pour une grande quantite", "prix pour une grosse quantite",
+    "souhaite un prix", "souhaiterais un prix", "voudrais un prix", "avoir un prix", "un prix pour", "un tarif pour", "demander un prix", "demander un tarif", "faire une remise", "une remise", "des remises", "meilleur tarif", "prix de gros", "tarif de gros", "prix pour une quantite", "prix pour une grande quantite", "prix pour une grosse quantite", "prix au lot", "prix par lot", "tarif au lot", "tarif par lot", "prix du lot", "prix en lot", "prix par quantite", "prix selon la quantite", "prix si j en prends", "prix si j en achete", "prix si j en commande", "tarif par quantite", "remise au lot", "remise a partir de", "remise si j en prends", "remise si j en achete", "reduction par quantite", "reduction pour quantite",
     ...QUANTITES.flatMap((n) => [`prix pour ${n}`, `tarif pour ${n}`]),
   ],
 });
@@ -122,9 +122,13 @@ const AVOIR_UN_DEVIS = `
 for (const aspect of ["definition", "prix", "condition", "procedure"] as const) {
   r.fait("devis", aspect, AVOIR_UN_DEVIS, { liens: [PAGES.contact] });
 }
+// « Les prix indiqués sont-ils des prix pro ? » : les prix du site sont ceux de chaque fiche, il n'y a pas de grille pro à annoncer.
+const PRIX_PRO = `
+  Les prix affichés sur le site sont ceux de chaque **fiche produit** : je n'ai pas de tarif professionnel distinct à vous annoncer. Si vous êtes viticulteur, caviste ou revendeur, ou si vous avez besoin de grandes quantités, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** : l'équipe étudiera votre demande et pourra vous faire une proposition (**devis**) en indiquant les **produits**, les **quantités**, votre **adresse de livraison** et la **date souhaitée**.`;
+
 // « tarif professionnel » : le prix, pour un professionnel, passe aussi par l'équipe.
 for (const aspect of ["prix", "condition"] as const) {
-  r.fait("professionnels", aspect, AVOIR_UN_DEVIS, { liens: [PAGES.contact] });
+  r.fait("professionnels", aspect, PRIX_PRO, { liens: [PAGES.contact] });
 }
 
 r.concept("personnalisation", "Bouchons personnalisés", ["personnalisation", "personnaliser", "personnalise", "personnalises", "marquage", "marquer", "gravure", "logo", "mariage", "prenoms", "initiales", "bouchon personnalise", "evenement", "bapteme"], {
@@ -152,10 +156,31 @@ r.fait("cadeau", "gamme", `
 
 r.concept("magasin", "Points de vente", ["magasin", "magasins", "boutique physique", "point de vente", "points de vente", "showroom", "retrait", "retrait sur place", "venir chercher", "revendeurs", "grande surface", "magasin de bricolage", "adresse du magasin"], {
   famille: "duhalle",
+  // « Est-il possible de retirer un bidon directement à votre site ? » : le retrait l'emporte sur le produit cité.
+  exclusif: true,
+  formules: ["retirer un", "retirer une", "retirer ma commande", "retirer mon colis", "retirer directement", "retirer sur place", "retirer a votre site", "retirer sur votre site", "directement a votre site", "directement sur votre site", "directement chez vous", "passer chercher", "passer prendre", "venir recuperer", "recuperer sur place", "enlever sur place", "retrait en magasin", "retrait au depot", "click and collect", "votre depot", "votre entrepot", "votre site de"],
 });
 
-r.fait("magasin", "lieu", `
-  Duhallé est avant tout une **boutique en ligne** : l'ensemble du catalogue est sur duhalle-boutique.fr, avec livraison en France. Certains produits de la marque sont aussi distribués par des enseignes de bricolage et de jardinage. Pour toute question sur un retrait de commande, contactez le service client au **${TELEPHONE}**.`);
+const BOUTIQUE_EN_LIGNE = `
+  Duhallé est avant tout une **boutique en ligne** : l'ensemble du catalogue est sur duhalle-boutique.fr, avec livraison en France. Certains produits de la marque sont aussi distribués par des enseignes de bricolage et de jardinage. Je n'ai pas trace d'un retrait possible sur place : pour toute question sur un retrait de commande, ou pour obtenir l'adresse d'un site, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["lieu", "condition", "procedure", "definition", "gamme"] as const) {
+  r.fait("magasin", aspect, BOUTIQUE_EN_LIGNE);
+}
+
+// « Où sont fabriqués ces pressoirs ? » : l'origine est précisée sur la fiche quand elle est connue.
+r.concept("origine-fabrication", "Origine de fabrication des produits", ["origine", "provenance", "pays de fabrication", "lieu de fabrication", "fabriquee en france", "fabrique en france", "made in france", "made in", "origine des produits"], {
+  famille: "catalogue",
+  exclusif: true,
+  formules: ["ou sont fabriques", "ou est fabrique", "ou sont fabriquees", "ou est fabriquee", "ou est ce fabrique", "ou est ce que c est fabrique", "d ou vient", "d ou viennent", "d ou provient", "d ou provient", "fabrique ou", "fabriques ou", "fabrique dans quel pays", "fabrique en quel pays", "de quel pays", "ou sont produits", "ou est produit", "ou sont fabrique", "fabrication francaise", "fabrication artisanale"],
+});
+
+const ORIGINE_DE_FABRICATION = `
+  L'origine de fabrication est précisée sur la **fiche de chaque produit** quand elle est connue. Parmi les produits dont je la connais : les **vinaigriers en grès** et les **mortiers en grès** sont de fabrication artisanale du **Portugal**, le **vinaigrier en chêne** et le **mustimètre** sont fabriqués en **France**, les **fûts alimentaires blancs** et les **casiers** en acier plastifié en **Italie**, et le **liège** vient du **Portugal**. Pour un autre produit, par exemple un pressoir en bois, l'origine ne figure pas toujours sur la fiche : demandez-la au service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["lieu", "definition", "raison", "condition", "gamme"] as const) {
+  r.fait("origine-fabrication", aspect, ORIGINE_DE_FABRICATION, { liens: [PAGES.contact] });
+}
 
 // ─── Les conseils du site ──────────────────────────────────────────────────
 

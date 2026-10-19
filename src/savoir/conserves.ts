@@ -315,12 +315,12 @@ r.concept("grille-hachoir", "Grilles de hachoir", ["grille de hachoir", "grilles
   exclusif: true,
   famille: "hachoir",
   lien: PAGES.hachoirFonte,
-  formules: ["diametre de la grille", "diametre ext de la grille", "diametre exterieur de la grille", "trou central de la grille"],
+  formules: ["diametre de la grille", "diametre ext de la grille", "diametre exterieur de la grille", "trou central de la grille", "porkert", "compatible avec hachoir", "compatible avec mon hachoir", "compatible avec le hachoir", "compatible hachoir", "convient a mon hachoir", "convient pour mon hachoir", "va sur mon hachoir"],
 });
 
 /** Fiches relevées le 12/10/2026 : grilles de rechange n°10 et Reber n°12 en fonte étamée, trous de 6, 8 ou 10 mm. */
 const GRILLES_DE_HACHOIR = `
-  Les **grilles de rechange** des hachoirs (hachoir en fonte n°10 et hachoir Reber n°12) se vendent à part, en acier perforé étamé, avec des trous de 6, 8 ou 10 mm selon la grille. Le **diamètre des grilles** de hachoir est compris entre **6,8 et 7 cm** selon le modèle (cote donnée par l'équipe Duhallé le 12/10/2026). Le diamètre du trou central n'est pas indiqué dans ma base : pour l'obtenir, indiquez la référence de votre hachoir au service client, au **${TELEPHONE}** ou à **${EMAIL}**. Si votre question porte sur une autre grille, précisez le produit.`;
+  Les **grilles de rechange** des hachoirs (hachoir en fonte n°10 et hachoir Reber n°12) se vendent à part, en acier perforé étamé, avec des trous de 6, 8 ou 10 mm selon la grille. Le **diamètre des grilles** de hachoir est compris entre **6,8 et 7 cm** selon le modèle (cote donnée par l'équipe Duhallé le 12/10/2026). Le diamètre du trou central n'est pas indiqué dans ma base : pour l'obtenir, indiquez la référence de votre hachoir au service client, au **${TELEPHONE}** ou à **${EMAIL}**. Pour un hachoir d'une autre marque (Porkert par exemple), la compatibilité n'est pas garantie : comparez le diamètre de votre grille avec ces cotes et demandez confirmation au service client avant de commander. Si votre question porte sur une autre grille, précisez le produit.`;
 
 for (const aspect of ["definition", "dimension", "gamme", "choix", "condition"] as const) {
   r.fait("grille-hachoir", aspect, GRILLES_DE_HACHOIR, { source: PAGES.hachoirFonte.url, liens: [PAGES.hachoirFonte, PAGES.contact] });

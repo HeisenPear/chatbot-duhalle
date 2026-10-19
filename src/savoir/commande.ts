@@ -137,6 +137,8 @@ r.fait("facture-incorrecte", "procedure", `
 r.concept("suivi-commande", "Suivre ma commande", ["suivi", "suivi de commande", "suivre ma commande", "suivre mon colis", "numero de suivi", "etat de ma commande", "statut de ma commande", "colis pas recu", "colis non recu", "retard", "retard de livraison", "numero de commande", "commande pas arrivee", "commande pas recue", "commande en retard"], {
   famille: "commande",
   formules: ["ou en est ma commande", "ou en est mon colis", "je n ai pas recu", "pas recu", "toujours pas recu", "pas encore recu", "jamais recu", "quand vais je recevoir", "quand vais je etre livre", "en retard",
+    // Un numéro de commande seul (« N° 1234567 ») : le client demande où elle en est.
+    "n reference", "numero reference", "commande n reference",
     "ou est ma commande", "ou est mon colis", "mon colis n est pas arrive", "ma commande n est pas arrivee",
     // « quand je recevrai ma commande ? » : la date d'une commande précise, que seul le service client connaît.
     "quand je recevrai", "quand je recevrais", "quand je vais recevoir", "quand puis je recevoir", "quand pourrai je recevoir", "quand recevrai je", "quand je serai livre", "quand je serais livre", "quand serai je livre", "quand arrive ma commande", "quand arrivera ma commande", "quand arrive mon colis", "quand arrivera mon colis", "quand vais je avoir ma commande",
@@ -219,14 +221,15 @@ r.concept("commande-en-attente", "Commande en attente de préparation ou d'expé
   voirAussi: ["suivi-commande", "livraison"],
   formules: ["en preparation", "preparation de ma commande", "preparation de la commande", "preparer ma commande", "preparer la commande", "prepare ma commande", "prepare la commande", "en attente de preparation", "toujours en attente", "en cours de preparation", "pas encore expedie", "pas encore expediee", "pas ete expedie", "pas ete expediee", "toujours pas expedie", "toujours pas expediee", "quand sera t elle expediee", "quand sera t il expedie",
     // « quand ma commande sera envoyée ? » : la date de départ d'une commande précise.
-    "quand ma commande sera envoyee", "quand ma commande sera expediee", "quand sera envoyee ma commande", "quand sera expediee ma commande", "quand ma commande part", "quand ma commande partira", "quand mon colis part", "quand mon colis partira", "quand sera envoye mon colis", "quand va partir ma commande", "quand sera t elle envoyee", "quand ma commande sera t elle envoyee"],
+    "quand ma commande sera envoyee", "quand ma commande sera expediee", "quand ma commande sera t elle expediee", "quand ma commande est elle expediee", "quand ma commande va t elle partir", "quand sera envoyee ma commande", "quand sera expediee ma commande", "quand ma commande part", "quand ma commande partira", "quand mon colis part", "quand mon colis partira", "quand sera envoye mon colis", "quand va partir ma commande", "quand sera t elle envoyee", "quand ma commande sera t elle envoyee"],
 });
 
-r.fait("commande-en-attente", "moment", `
-  Je n'ai pas accès aux commandes : je ne peux donc pas vous donner la date d'expédition ou de livraison d'une commande précise. Si la vôtre reste « en attente de préparation » plus longtemps que prévu, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avec votre numéro de commande : l'équipe vous dira où elle en est et quand elle partira.`, { liens: [PAGES.contact] });
+const COMMANDE_EN_ATTENTE = `
+  Je n'ai pas accès aux commandes : je ne peux donc pas vous donner la date d'expédition ou de livraison d'une commande précise. La livraison prend en général **2 à 5 jours ouvrés** (davantage en période de forte activité). Si la vôtre reste « en attente de préparation » plus longtemps que prévu, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avec votre numéro de commande : l'équipe vous dira où elle en est et quand elle partira.`;
 
-r.fait("commande-en-attente", "duree", `
-  Je ne connais pas le délai de préparation d'une commande précise, car je n'ai pas accès aux commandes. Si la vôtre est « en attente de préparation » depuis plusieurs jours, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avec votre numéro de commande : l'équipe vous dira où elle en est et quand elle partira.`, { liens: [PAGES.contact] });
+// Le même énoncé pour les deux aspects : il ne s'affiche qu'une fois.
+r.fait("commande-en-attente", "moment", COMMANDE_EN_ATTENTE, { liens: [PAGES.contact] });
+r.fait("commande-en-attente", "duree", COMMANDE_EN_ATTENTE, { liens: [PAGES.contact] });
 
 // ─── Livraison ─────────────────────────────────────────────────────────────
 
@@ -234,7 +237,7 @@ r.concept("livraison", "Livraison", ["livraison", "delivraison", "livrer", "livr
   famille: "boutique-en-ligne",
   voirAussi: ["suivi-commande", "paiement"],
   // « De combien sont les frais ? » : dans une boutique en ligne, ce sont les frais de port.
-  formules: ["combien de temps pour recevoir", "combien de temps pour etre livre", "combien de temps pour etre livree", "sous combien de temps", "dans combien de temps je recois", "dans combien de temps je serai livre", "delai pour recevoir", "delai de reception", "delai d acheminement", "sont les frais", "combien en payant", "et en payant", "combien si je paie", "combien si je paye", "quel est le montant des frais", "les frais supplementaires", "frais en plus", "frais en sus"],
+  formules: ["en commandant aujourd hui", "si je commande aujourd hui", "si je commande maintenant", "si je commande ce soir", "en commandant maintenant", "en commandant ce soir", "je recois ma commande quand", "je recevrai ma commande quand", "combien de temps pour recevoir", "combien de temps pour etre livre", "combien de temps pour etre livree", "sous combien de temps", "dans combien de temps je recois", "dans combien de temps je serai livre", "delai pour recevoir", "delai de reception", "delai d acheminement", "sont les frais", "combien en payant", "et en payant", "combien si je paie", "combien si je paye", "quel est le montant des frais", "les frais supplementaires", "frais en plus", "frais en sus"],
 });
 
 r.fait("livraison", "prix", `
@@ -270,7 +273,7 @@ for (const aspect of ["prix", "condition", "definition", "raison"] as const) {
 // qui deviendraient « livraison gratuite » tout court.
 r.concept("livraison-offerte-absente", "Livraison offerte non proposée", ["option payante", "options payantes"], {
   famille: "livraison",
-  formules: ["transport gratuit", "cocher option payante", "cocher l option payante", "oblige de cocher", "seule option payante", "uniquement des options payantes", "livraison gratuite n apparait pas", "livraison offerte n apparait pas", "port offert n apparait pas", "pas de livraison gratuite", "pas de livraison offerte", "pas de port offert", "je paie la livraison", "je dois payer la livraison", "pourquoi payer la livraison", "pourquoi je paie la livraison", "pourquoi je paye la livraison", "je ne vois pas la livraison gratuite", "je ne vois pas la livraison offerte", "ne propose pas la livraison gratuite", "ne propose pas la livraison offerte"],
+  formules: ["transport gratuit", "cocher option payante", "cocher l option payante", "oblige de cocher", "seule option payante", "uniquement des options payantes", "livraison gratuite n apparait pas", "livraison offerte n apparait pas", "port offert n apparait pas", "pas de livraison gratuite", "pas de livraison offerte", "pas de port offert", "je paie la livraison", "je dois payer la livraison", "pourquoi payer la livraison", "pourquoi je paie la livraison", "pourquoi je paye la livraison", "je ne vois pas la livraison gratuite", "je ne vois pas la livraison offerte", "pk je dois payer", "pourquoi je dois payer les frais", "pourquoi je dois payer la livraison", "pourquoi des frais de livraison", "pourquoi les frais de livraison", "je dois payer les frais de livraison", "me fait payer la livraison", "fait payer la livraison", "on me fait payer la livraison", "payer la livraison alors", "livraison payante alors", "ne propose pas la livraison gratuite", "ne propose pas la livraison offerte"],
 });
 
 const LIVRAISON_OFFERTE_ABSENTE = `
@@ -282,7 +285,7 @@ for (const aspect of ["condition", "raison", "prix", "procedure"] as const) {
 
 r.concept("transporteur-propose", "Choix du transporteur", ["choix du transporteur", "changer de transporteur", "autre transporteur", "autres transporteurs", "proposition de transport", "mode de transport"], {
   famille: "livraison",
-  formules: ["choisir le transporteur", "choisir mon transporteur", "autre que geodis", "autre que dpd", "autre que colissimo", "pas eu la proposition", "pas propose dpd", "pas propose colissimo", "uniquement geodis", "seulement geodis", "que geodis"],
+  formules: ["choisir le transporteur", "choisir mon transporteur", "autre que geodis", "autre que dpd", "autre que colissimo", "pas eu la proposition", "ne permet pas le choix de la livraison", "pas le choix de la livraison", "pas de choix de livraison", "pas de choix du mode de livraison", "choix de la livraison", "choisir la livraison", "choisir le mode de livraison", "pas propose dpd", "pas propose colissimo", "uniquement geodis", "seulement geodis", "que geodis"],
 });
 
 const TRANSPORTEUR_PROPOSE = `
@@ -378,12 +381,13 @@ r.fait("paiement-4x", "definition", `
   Duhallé propose le **paiement en 4 fois sans frais**. L'option et ses conditions (montants minimum et maximum) s'affichent au moment du paiement, lors de la validation de votre panier.`);
 
 r.concept("paiement-refuse", "Paiement refusé ou impossible", ["paiement refuse", "paiement echoue", "paiement impossible", "carte refusee", "carte bancaire refusee", "erreur de paiement", "probleme de paiement", "paiement bloque"], {
+  exclusif: true,
   famille: "paiement",
   voirAussi: ["paiement", "paiement-4x"],
   // « Valider un paiement » : l'étape que le client ne franchit pas, le plus souvent l'authentification de sa banque.
   formules: ["paiement ne passe pas", "paiement ne fonctionne pas", "paiement a ete refuse", "carte ne passe pas", "carte n est pas acceptee", "ma carte est refusee", "impossible de payer", "je n arrive pas a payer", "n arrive pas a payer",
     "valider un paiement", "valider mon paiement", "valider le paiement", "valider ce paiement", "n arrive pas a valider", "impossible de valider", "ne peux pas valider", "ne parviens pas a valider", "bouton valider ne fonctionne pas", "bouton valider ne marche pas", "bouton payer ne fonctionne pas", "bouton payer ne marche pas",
-    "impossible de finaliser", "n arrive pas a finaliser", "ne peux pas finaliser", "commande ne passe pas", "n arrive pas a commander", "impossible de commander", "ne peux pas commander", "ne parviens pas a commander", "probleme pour commander", "erreur au paiement", "erreur lors du paiement"],
+    "impossible de finaliser", "n arrive pas a finaliser", "ne peux pas finaliser", "commande ne passe pas", "n arrive pas a commander", "impossible de commander", "ne peux pas commander", "ne parviens pas a commander", "probleme pour commander", "erreur au paiement", "erreur lors du paiement", "vous bloquez", "ca bloque", "le site bloque", "site bloque", "bloque a la commande", "bloque lors de la commande", "bloque au paiement", "impossible de choisir", "impossible de selectionner", "ne peux pas choisir", "n arrive pas a choisir"],
 });
 
 for (const aspect of ["procedure", "condition", "erreur"] as const) {

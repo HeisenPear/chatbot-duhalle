@@ -1,6 +1,6 @@
 // Le bouchage : bouchons et bondes en liège, boucheuses, capsules couronne
 // et capsuleuses. Le cœur de métier de Duhallé.
-import { TELEPHONE } from "./coordonnees";
+import { EMAIL, TELEPHONE } from "./coordonnees";
 import { PAGES } from "./liens";
 import { rubrique, SAVOIR_FAIRE } from "./outils";
 
@@ -276,6 +276,33 @@ r.concept("bouchon-conique", "Bouchons coniques", ["bouchon conique", "bouchons 
 r.fait("bouchon-conique", "definition", `
   Le **bouchon conique** en liège colmaté (33 x 23 x 19 mm) s'enfonce **à la main, sans boucheuse** : idéal pour reboucher une bouteille ou pour un vin à consommer rapidement. Il est vendu par lots de 40 ou de 10.`, { liens: [PAGES.bouchonConique] });
 
+// « Un liège percé d'un trou pour un bouchon verseur de 11 mm » : les bouchons percés Duhallé sont prévus pour les robinets
+// de vinaigrier. Relevé du 19/10/2026 : seules les dimensions extérieures sont publiées, pas le diamètre du trou.
+r.concept("bouchon-perce-sur-mesure", "Bouchon percé pour un verseur ou un robinet", [], {
+  famille: "bouchon",
+  exclusif: true,
+  formules: ["perce d un trou", "perce pour un verseur", "perce pour verseur", "perce pour un bouchon verseur", "perce pour bouchon verseur", "bouchon verseur perce", "trou pour un verseur", "trou pour verseur", "trou de mon verseur", "diametre du trou de mon verseur", "perce pour mon verseur", "perce pour un robinet", "perce pour mon robinet"],
+});
+
+const BOUCHON_PERCE = `
+  Duhallé propose des **bouchons en liège percés** de forme conique, prévus pour poser un robinet sur un vinaigrier : un bouchon de **32 x 28 mm** (hauteur 33 mm) et un lot de quatre tailles, **Ø 23/19, 28/23, 32/28 et 35/30 mm** (hauteur 33 mm). Les fiches donnent leurs dimensions extérieures mais **pas le diamètre du trou** : pour un verseur de 11 mm de diamètre extérieur, demandez au service client si l'un de ces bouchons convient, au **${TELEPHONE}** ou à **${EMAIL}**, en indiquant le diamètre du col de la bouteille.`;
+
+for (const aspect of ["definition", "dimension", "choix", "condition", "gamme", "procedure"] as const) {
+  r.fait("bouchon-perce-sur-mesure", aspect, BOUCHON_PERCE, { source: PAGES.bouchonVinaigrier.url, liens: [PAGES.bouchonVinaigrier, PAGES.contact] });
+}
+
+// « Quel bouchon pour une eau-de-vie ? » : un bouchon à tête plutôt qu'un bouchon de vin comprimé à la boucheuse.
+r.concept("eau-de-vie", "Eau-de-vie, liqueur et alcools forts", ["eau de vie", "eaux de vie", "spiritueux", "liqueur", "liqueurs", "alcool fort", "alcools forts", "digestif", "digestifs", "rhum", "whisky", "cognac", "armagnac", "calvados", "vodka", "gin", "eau de vie de"], {
+  famille: "catalogue",
+});
+
+const BOUCHON_POUR_EAU_DE_VIE = `
+  Pour une bouteille d'**eau-de-vie**, de liqueur ou de digestif, on choisit plutôt un **bouchon à tête** (liège avec une tête plastique), que l'on retire et remet à la main, qu'un bouchon de vin comprimé à la boucheuse : Duhallé propose des bouchons en liège à tête plastique de couleur, par lot de 100. Le bon diamètre dépend de votre goulot : mesurez son **diamètre intérieur** au pied à coulisse et choisissez un bouchon un peu plus large, que vous enfoncez à la main. Un goulot plus large qu'un col de vin se ferme avec une **bonde conique** (de 28/24 à 120/115 mm). En cas de doute, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["choix", "dimension", "gamme", "condition", "usage", "definition"] as const) {
+  r.fait(["bouchon", "eau-de-vie"], aspect, BOUCHON_POUR_EAU_DE_VIE, { source: SAVOIR_FAIRE, liens: [PAGES.bouchonTete, PAGES.bondes, PAGES.contact] });
+}
+
 r.concept("bouchon-tete", "Bouchons à tête", ["bouchon a tete", "bouchons a tete", "tete plastique", "bouchon tete plastique", "bouchon de couleur", "bouchon reutilisable", "bouchon amovible"], {
   famille: "bouchon",
   lien: PAGES.bouchonTete,
@@ -304,7 +331,7 @@ r.fait(["bonde", "contenant"], "gamme", `
   Oui : pour fermer une **dame-jeanne**, une **bonbonne** ou un **fût**, Duhallé propose des bondes coniques en liège, de **28/24 mm** pour les petits cols jusqu'à **120/115 mm** pour les bonbonnes à col large. Mesurez le diamètre intérieur du col : il doit se situer entre le petit et le grand diamètre de la bonde.`, { liens: [PAGES.bondes, PAGES.bondesLot3] });
 
 /** Les diamètres de 2 à 15 cm, et quelques demi-centimètres courants (« 2,5 » : la normalisation lit la virgule comme le client). */
-const CENTIMETRES = [...Array.from({ length: 14 }, (_, i) => String(i + 2)), "2,5", "3,5", "4,5", "5,5"];
+const CENTIMETRES = [...Array.from({ length: 29 }, (_, i) => String(i + 2)), "2,5", "3,5", "4,5", "5,5"];
 
 r.concept("trou-bouchon", "Bouchon pour un trou donné", ["trou", "trous", "orifice", "orifices", "diametre du trou", "diametre de l orifice"], {
   famille: "bonde",
@@ -316,7 +343,7 @@ r.concept("trou-bouchon", "Bouchon pour un trou donné", ["trou", "trous", "orif
     // « un col de 38 mm », « un goulot de 30 mm » : le diamètre dit qu'il s'agit d'une bonde (« goulot de la bouteille » n'en est pas une).
     ...Array.from({ length: 109 }, (_, i) => i + 22).flatMap((n) => [`col de ${n}`, `col mesure ${n}`, `col fait ${n}`, `goulot de ${n}`, `goulot mesure ${n}`, `goulot fait ${n}`, `orifice de ${n}`, `ouverture de ${n}`]),
     // « un bouchon conique de 13 cm » : les clients comptent aussi en centimètres.
-    ...CENTIMETRES.flatMap((cm) => [`bouchon conique de ${cm} cm`, `bouchon de ${cm} cm`, `col de ${cm} cm`]),
+    ...CENTIMETRES.flatMap((cm) => [`bouchon conique de ${cm} cm`, `bouchon de ${cm} cm`, `col de ${cm} cm`, `goulot de ${cm} cm`, `goulot mesure ${cm} cm`, `ouverture de ${cm} cm`, `orifice de ${cm} cm`, `trou de ${cm} cm`]),
   ],
 });
 
@@ -495,20 +522,44 @@ r.concept("capsule-opercule", "Capsules à opercule", ["opercule", "capsule a op
 r.fait("capsule-opercule", "definition", `
   La **capsule à opercule incorporé** comporte un joint intérieur qui renforce l'étanchéité : elle est conçue pour le **cidre artisanal**, en 29 mm, pour bouteilles champenoises.`, { source: PAGES.bouchonsCidre.url, liens: [PAGES.capsulesOpercule] });
 
-r.concept("capsuleuse", "Capsuleuses", ["capsuleuse", "capsuleuses", "encapsuleuse", "sertisseuse", "poser les capsules", "capsuleuse super pro", "capsuleuse trepied"], {
+r.concept("capsuleuse", "Capsuleuses", ["capsuleuse", "capsuleuses", "encapsuleuse", "sertisseuse", "poser les capsules", "capsuleuse super pro", "capsuleuse trepied", "vik capper", "sertir", "sertissage", "sertisseur"], {
   famille: "bouchage",
   lien: PAGES.capsuleuse,
+  formules: ["machine pour sertir", "machine a sertir", "outil pour sertir", "outil a sertir", "pour les sertir", "pour sertir", "sertir les capsules", "sertir des capsules", "sertir une capsule", "sertir la capsule"],
 });
 
 r.fait("capsuleuse", "gamme", `
   Capsuleuses pour capsules couronne de 26 et 29 mm :
   - **capsuleuse** standard ;
   - **capsuleuse manuelle Super Pro** à base acier, plateau réglable, livrée avec deux bagues (26 et 29 mm) ;
+  - **capsuleuse manuelle Vik Capper** (Enolandia), pour capsules de 26 et 29 mm ;
   - **capsuleuse sur trépied**, actionnée par levier, très stable ;
   - **capsuleuse boucheuse universelle**, qui pose aussi les bouchons liège et plastique (têtes prévues pour les capsules de 29 mm).`, {
   source: PAGES.bouchonsCidre.url,
-  liens: [PAGES.capsuleuse, PAGES.capsuleuseSuperPro, PAGES.capsuleuseTrepied],
+  liens: [PAGES.capsuleuse, PAGES.capsuleuseSuperPro, PAGES.capsuleuseTrepied, PAGES.capsuleuseVikCapper],
 });
+
+// Relevé le 19/10/2026 sur les fiches : aucune hauteur maximale de bouteille n'est publiée ; plateau, socle ou bague réglables.
+const HAUTEUR_MAXIMALE_DE_BOUTEILLE = `
+  Les fiches des capsuleuses ne donnent **pas de hauteur maximale de bouteille** : elles précisent que la hauteur se règle, selon le modèle, au niveau de la **bague**, du **socle** (le plateau où repose la bouteille) ou du **disque en acier** de la boucheuse universelle, pour s'adapter aux petites comme aux grandes bouteilles. Pour une bouteille très haute (magnum, grand format), indiquez sa hauteur et le modèle visé au service client, au **${TELEPHONE}** ou à **${EMAIL}**, pour une confirmation avant d'acheter.`;
+
+for (const aspect of ["dimension", "condition", "choix"] as const) {
+  r.fait(["capsuleuse", "bouteille"], aspect, HAUTEUR_MAXIMALE_DE_BOUTEILLE, { source: PAGES.capsuleuse.url, liens: [PAGES.capsuleuse, PAGES.contact] });
+}
+r.fait("capsuleuse", "dimension", HAUTEUR_MAXIMALE_DE_BOUTEILLE, { source: PAGES.capsuleuse.url, liens: [PAGES.capsuleuse, PAGES.contact] });
+
+r.concept("capsule-aluminium", "Capsules en aluminium à sertir", ["capsule aluminium", "capsules aluminium", "capsule en aluminium", "capsules en aluminium", "capsule alu", "capsules alu", "capsule a sertir", "capsules a sertir"], {
+  famille: "capsule-couronne",
+  exclusif: true,
+  voirAussi: ["capsuleuse", "surbouchage"],
+});
+
+const CAPSULES_A_SERTIR = `
+  Les **capsules couronne** en métal (26 et 29 mm, pour le cidre, la bière et les vins effervescents) se sertissent avec une **capsuleuse** : Duhallé propose la capsuleuse standard, la Super Pro, la capsuleuse sur trépied, la Vik Capper et la boucheuse capsuleuse universelle. En revanche, pour des capsules de **surbouchage en aluminium** posées sur un goulot de vin déjà bouché, je n'ai pas de machine à sertir à vous proposer : Duhallé vend des capsules de surbouchage en **PVC thermorétractable** (posées à la chaleur, avec un appareil électrique à rétracter ou un pistolet à air chaud) et de la **cire à cacheter**. Dites-moi quel type de capsule vous avez, ou contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["definition", "choix", "gamme", "procedure", "condition", "dimension", "lieu", "usage"] as const) {
+  r.fait("capsule-aluminium", aspect, CAPSULES_A_SERTIR, { source: PAGES.capsuleuse.url, liens: [PAGES.capsuleuse, PAGES.capsuleuseVikCapper, PAGES.appareilARetracter, PAGES.contact] });
+}
 
 r.fait("capsuleuse", "procedure", `
   Pour capsuler : posez la capsule sur le goulot, placez la bouteille sur le plateau réglé à sa hauteur, vérifiez que la bague correspond au diamètre de la capsule (26 ou 29 mm), puis abaissez le levier : la capsule est sertie tout autour du col.`, { source: SAVOIR_FAIRE });

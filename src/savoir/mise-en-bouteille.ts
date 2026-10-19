@@ -318,7 +318,17 @@ r.fait("nettoyage-tuyau", "procedure", `
 r.concept("arret-remplissage", "Arrêt automatique du remplissage", ["arret automatique du remplissage", "arreter au bon niveau", "entonnoir a arret automatique", "remplissage automatique niveau"], {
   famille: "soutirage",
   lien: PAGES.entonnoirArret,
+  // « le niveau se règle tout seul ? » : « régler » est aussi le mot du paiement ; ici, il s'agit du niveau.
+  exclusif: true,
+  formules: ["niveau se fait tout seul", "niveau se fait seul", "niveau se regle tout seul", "niveau se regle seul", "regle le niveau tout seul", "se met au niveau", "niveau automatique", "s arrete tout seul", "s arrete automatiquement", "s arrete de lui meme", "remplit tout seul", "arret automatique"],
 });
+
+const NIVEAU_AUTOMATIQUE = `
+  Cela dépend de l'appareil. Avec un **entonnoir à arrêt automatique** ou une **remplisseuse**, le remplissage s'arrête de lui-même au niveau réglé : le liquide cesse de couler quand il atteint l'embout. Avec un simple tuyau ou un siphon sans arrêt, c'est à vous de fermer au bon moment. Vérifiez sur la fiche de l'appareil que l'arrêt est automatique, réglez-le avec la bouteille exacte de la série et faites un essai avant de lancer le lot.`;
+
+for (const aspect of ["definition", "condition", "choix", "raison", "usage", "gamme"] as const) {
+  r.fait("arret-remplissage", aspect, NIVEAU_AUTOMATIQUE, { source: SAVOIR_FAIRE, liens: [PAGES.entonnoirArret, PAGES.remplisseuse3Becs] });
+}
 
 r.fait("arret-remplissage", "procedure", `
   Utilisez un entonnoir à arrêt automatique ou une remplisseuse réglée au niveau voulu, puis faites un essai avec la bouteille exacte. Gardez l'appareil vertical, vérifiez l'absence de mousse et contrôlez régulièrement le niveau pendant la série.`, { source: SAVOIR_FAIRE, liens: [PAGES.entonnoirArret, PAGES.remplisseuse3Becs] });
@@ -348,6 +358,19 @@ r.concept("filtre-vin", "Filtration du vin", ["filtre", "filtres", "filtrer", "f
 
 r.fait("filtre-vin", "dimension", `
   Les **filtres à vin** Duhallé sont des filtres papier plissés de **40 cm de diamètre** (épaisseur 190 micromètres, filtration de 4 à 7 microns), vendus par 10. Ils s'adaptent aux entonnoirs.`, { source: PAGES.soutirage.url, liens: [PAGES.filtres, PAGES.entonnoirArret] });
+
+// « Les filtres pour vin sont-ils lavables ? » : des filtres papier plissés, donc à usage unique. Un concept à part et un fait
+// croisé : sur le filtre seul, ce fait volerait la réponse à « faut-il filtrer son vin ? ».
+r.concept("lavabilite", "Lavable ou réutilisable", ["lavable", "lavables", "reutilisable", "reutilisables", "reutiliser", "usage unique", "jetable", "jetables"], {
+  famille: "catalogue",
+});
+
+const FILTRES_A_USAGE_UNIQUE = `
+  Les **filtres à vin** Duhallé sont des **filtres papier plissés** (40 cm de diamètre, vendus par 10) : en papier, ils sont **à usage unique**. Chargé de particules, un filtre se colmate et un lavage le déchire ou le rend moins efficace ; prévoyez un filtre neuf pour chaque filtration, ou dès que l'écoulement ralentit nettement.`;
+
+for (const aspect of ["condition", "entretien", "raison", "choix", "definition", "usage", "procedure"] as const) {
+  r.fait(["filtre-vin", "lavabilite"], aspect, FILTRES_A_USAGE_UNIQUE, { source: PAGES.soutirage.url, liens: [PAGES.filtres, PAGES.entonnoirArret] });
+}
 
 r.fait("filtre-vin", "usage", `
   Filtrer permet de retirer les dernières particules en suspension avant la mise en bouteille. Un vin bien soutiré, limpide et stable n'a pas toujours besoin d'être filtré ; un vin trouble ou microbiologiquement incertain demande d'abord un diagnostic, car la filtration et sa finesse dépendent du style et de la stabilité recherchés.`, { source: SAVOIR_FAIRE });
@@ -641,6 +664,19 @@ for (const aspect of ["definition", "usage", "gamme", "condition", "lieu"] as co
 
 // ─── Magnum, vins de fruits ────────────────────────────────────────────────
 
+// « Des bouteilles alsaciennes » : la gamme ne comporte ni flûte d'Alsace ni forme rhénane (relevé du 19/10/2026 : aucune fiche).
+r.concept("bouteille-alsacienne", "Bouteilles alsaciennes", ["alsacienne", "alsaciennes", "flute d alsace", "flutes d alsace", "bouteille alsacienne", "bouteille rhenane", "flute alsacienne"], {
+  famille: "bouteille",
+  exclusif: true,
+});
+
+const BOUTEILLE_ALSACIENNE = `
+  Je n'ai pas trace de **bouteilles alsaciennes** (flûtes d'Alsace) dans la boutique. Les bouteilles vides de 75 cl de Duhallé sont des **bordelaises** (verte ou transparente) et des **bourgogne** transparentes, et il existe aussi des bouteilles **champenoises** pour le cidre. Pour savoir si une autre forme est proposée, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["definition", "gamme", "choix", "dimension", "condition", "lieu"] as const) {
+  r.fait("bouteille-alsacienne", aspect, BOUTEILLE_ALSACIENNE, { liens: [PAGES.bouteilleBordelaiseVerte, PAGES.bouteilleBordelaiseBlanche, PAGES.bouteilleBourgogne, PAGES.contact] });
+}
+
 r.concept("magnum", "Magnums et grands formats", ["magnum", "magnums", "jeroboam", "jeroboams", "double magnum"], {
   famille: "bouteille",
 });
@@ -682,9 +718,9 @@ r.concept("surbouchage", "Capsules de surbouchage", ["surbouchage", "capsule de 
 });
 
 r.fait("surbouchage", "gamme", `
-  Capsules de surbouchage en **PVC thermorétractable** pour bouteilles de 75 cl, en lots de 50, **dorées** ou **rouges**.`, {
+  Capsules de surbouchage en **PVC thermorétractable** pour bouteilles de 75 cl, en lots de 50, **dorées** ou **rouges**. Un **appareil électrique à rétracter** les capsules de surbouchage PVC est aussi proposé.`, {
   source: PAGES.surbouchage.url,
-  liens: [PAGES.capsulesPvcOr, PAGES.capsulesPvcRouge],
+  liens: [PAGES.capsulesPvcOr, PAGES.capsulesPvcRouge, PAGES.appareilARetracter],
 });
 
 r.fait("surbouchage", "procedure", `

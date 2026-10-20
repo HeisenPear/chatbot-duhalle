@@ -164,7 +164,7 @@ r.fait("robinet-vinaigrier", "condition", `
 // Concept à part : sinon un fait « choix » capterait « le robinet goutte », l'aspect choix passant avant la condition dans le plan par défaut.
 r.concept("choix-robinet", "Robinet de remplacement ou de rechange", [], {
   famille: "robinet-vinaigrier",
-  formules: ["taille du robinet", "taille de robinet", "taille de mon robinet", "diametre du robinet", "diametre de robinet", "dimension du robinet", "dimensions du robinet", "choisir son robinet", "choisir le robinet", "choisir un robinet", "quel robinet", "quels robinets", "bon robinet", "robinet adapte", "robinet compatible", "robinet de rechange", "robinets de rechange", "robinet de remplacement", "robinets de remplacement"],
+  formules: ["taille du robinet", "taille de robinet", "taille de mon robinet", "diametre du robinet", "diametre de robinet", "dimension du robinet", "dimensions du robinet", "choisir son robinet", "choisir le robinet", "choisir un robinet", "quel robinet", "quels robinets", "bon robinet", "robinet adapte", "robinet compatible", "robinet de rechange", "robinets de rechange", "robinet de remplacement", "robinets de remplacement", "robinet avec bouchon", "robinet avec son bouchon", "robinet avec un bouchon", "robinet et bouchon", "robinet et son bouchon", "racheter robinet", "racheter un robinet", "racheter le robinet", "racheter mon robinet", "acheter un robinet", "acheter robinet", "commander un robinet", "commander robinet", "robinet seul"],
 });
 
 r.fait("choix-robinet", "choix", `

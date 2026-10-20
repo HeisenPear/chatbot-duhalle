@@ -200,6 +200,8 @@ export class Assistant {
     const marque = lireTypeDeQuestion(forme);
     let type = marque?.type ?? null;
     let cites = this.plusPrecis(this.detecteur.detecter(message).map((c) => c.concept.id));
+    // Un message nettement anglais reçoit la réponse bilingue, sauf s'il parle d'un sujet que la base traite en anglais.
+    if (this.estNettementAnglais(forme) && !cites.some((id) => id.endsWith("-en"))) return this.anglais();
     let relance = false;
     let doitToucher: Set<string> | undefined;
 
@@ -340,6 +342,16 @@ export class Assistant {
   private estUneSuite(message: string, forme: string): boolean {
     const utiles = racines(message).length;
     return utiles >= 1 && utiles <= 2 && ANAPHORE.test(forme) && !DEBUT_DE_SUJET.test(forme);
+  }
+
+  /**
+   * Un message long dont plusieurs mots-outils sont anglais (« I am interested in buying… Can you give me a quote »)
+   * est anglais, même s'il contient un mot de la base (« contact » dans une adresse e-mail) : quatre mots-outils
+   * anglais différents ne se rencontrent pas dans une phrase française.
+   */
+  private estNettementAnglais(forme: string): boolean {
+    const outils = new Set(forme.split(" ").filter((m) => MOTS_OUTILS_ANGLAIS.has(m)));
+    return outils.size >= 4;
   }
 
   private estAnglais(forme: string): boolean {

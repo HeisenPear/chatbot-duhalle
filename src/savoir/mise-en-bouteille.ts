@@ -512,6 +512,20 @@ r.fait("barboteur", "condition", `
 r.fait("contenant", "condition", `
   Oui, une **dame-jeanne** convient pour faire **fermenter** ou **stocker** du vin. Pendant la fermentation, ne la remplissez pas à ras bord (**trois quarts au plus**, pour la mousse) et fermez-la avec une bonde percée équipée d'un **barboteur**, jamais hermétiquement. Une fois la fermentation terminée, remplissez-la à ras pour limiter l'air, puis fermez avec une **bonde pleine**. Le bouchon en plastique livré avec une dame-jeanne n'est pas étanche : ne l'utilisez pas pour la fermentation (risque d'oxydation), préférez une bonde en liège.`, { source: SAVOIR_FAIRE, liens: [PAGES.bonbonne20, PAGES.bondes] });
 
+// « Le col est-il parfaitement droit ? Le bouchon en silicone remonte » : la forme exacte du col n'est pas dans les fiches ;
+// la bonde en liège percée tient par serrage, comme pour toute bonde.
+r.concept("pose-barboteur", "Poser un barboteur sur une dame-jeanne", ["pose d un barboteur", "pose du barboteur", "bouchon en silicone", "bouchon silicone", "bouchon en sicilone", "col parfaitement droit", "col droit"], {
+  famille: "barboteur",
+  exclusif: true,
+});
+
+const POSE_DU_BARBOTEUR = `
+  Les fiches ne précisent pas si le col de chaque dame-jeanne est **parfaitement droit** : je ne peux pas vous le garantir. Un barboteur se pose sur une **bonde en liège percée**, qui tient par serrage : son petit diamètre doit être inférieur au diamètre intérieur du col et son grand diamètre supérieur (**mesurez le col** au pied à coulisse). Un bouchon qui **remonte** est le plus souvent trop petit pour le col, ou poussé par la pression du gaz de la fermentation : prenez une bonde un peu plus large, enfoncez-la franchement et vérifiez qu'elle tient avant de remplir. En cas de doute sur le col de votre dame-jeanne, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avec le diamètre mesuré.`;
+
+for (const aspect of ["condition", "procedure", "choix", "dimension", "erreur", "raison", "definition"] as const) {
+  r.fait("pose-barboteur", aspect, POSE_DU_BARBOTEUR, { source: SAVOIR_FAIRE, liens: [PAGES.futs, PAGES.bondes, PAGES.contact] });
+}
+
 r.concept("barboteur-silencieux", "Barboteur qui ne bulle plus", ["barboteur qui ne bulle plus"], {
   famille: "barboteur",
   formules: ["ne bulle plus", "bulle plus", "ne barbote plus", "plus de bulles", "n a plus de bulles", "arret des bulles", "ne fait plus de bulles"],
@@ -722,6 +736,15 @@ r.fait("surbouchage", "gamme", `
   source: PAGES.surbouchage.url,
   liens: [PAGES.capsulesPvcOr, PAGES.capsulesPvcRouge, PAGES.appareilARetracter],
 });
+
+// « Les capsules PVC sont-elles compatibles avec des bouteilles à bouchon à vis de 31 mm ? » : les capsules sont prévues pour des
+// bouteilles de 75 cl bouchées au liège ; leur diamètre n'est pas dans la base.
+const SURBOUCHAGE_ET_BOUCHON_A_VIS = `
+  Les capsules de surbouchage **PVC thermorétractables** de Duhallé sont prévues pour des **bouteilles de 75 cl bouchées au liège**. Leur diamètre n'est pas dans ma base : pour une bouteille à **bouchon à vis**, de 31 mm par exemple, demandez confirmation au service client avant d'acheter, au **${TELEPHONE}** ou à **${EMAIL}**, en indiquant le diamètre extérieur du goulot et la hauteur à couvrir.`;
+
+for (const aspect of ["dimension", "condition", "choix", "definition"] as const) {
+  r.fait(["surbouchage", "filetage"], aspect, SURBOUCHAGE_ET_BOUCHON_A_VIS, { source: PAGES.surbouchage.url, liens: [PAGES.surbouchage, PAGES.contact] });
+}
 
 r.fait("surbouchage", "procedure", `
   Posez la capsule sur le goulot bouché, puis chauffez-la pour qu'elle se rétracte et épouse le col : avec un pistolet à air chaud, un sèche-cheveux puissant, ou au-dessus de la vapeur d'une casserole d'eau frémissante. Tournez la bouteille pour chauffer de façon uniforme.`, { source: SAVOIR_FAIRE });

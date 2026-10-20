@@ -256,6 +256,19 @@ r.fait("deshydrateur", "choix", `
 r.fait("deshydrateur", "condition", `
   Un aliment peut sembler sec en surface tout en restant humide à cœur. Laissez-le refroidir avant évaluation, conditionnez-le seulement selon la recette et surveillez condensation, ramollissement ou moisissure.`, { source: SAVOIR_FAIRE });
 
+// « Le presse-tomates Reber n° 12 est-il compatible avec mon bloc moteur ? » : aucune fiche ne parle de moteur à adapter.
+r.concept("bloc-moteur", "Adapter un moteur à un appareil", ["bloc moteur", "moteur electrique", "motorisation", "motoriser", "motorise", "moteur de hachoir", "moteur emyg"], {
+  famille: "conserve",
+  exclusif: true,
+});
+
+const BLOC_MOTEUR = `
+  Je n'ai pas d'information sur l'adaptation d'un **bloc moteur** (marque ou modèle particulier) aux presse-tomates ou aux hachoirs Duhallé : les fiches ne la mentionnent pas. Comparez le **raccord d'entraînement** de votre moteur (forme, dimensions) avec celui de l'appareil, puis demandez confirmation au service client avant d'acheter, au **${TELEPHONE}** ou à **${EMAIL}**, en indiquant la **référence** de l'appareil et le **modèle** du moteur.`;
+
+for (const aspect of ["condition", "choix", "dimension", "definition", "usage", "gamme"] as const) {
+  r.fait("bloc-moteur", aspect, BLOC_MOTEUR, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+}
+
 r.concept("presse-tomates", "Presse-tomates", ["presse tomates", "presse tomate", "choisir un presse tomates", "hachoir ou presse tomates"], {
   famille: "conserve",
 });

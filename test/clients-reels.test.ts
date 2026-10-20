@@ -363,7 +363,7 @@ export const QUESTIONS_CLIENTS: Array<[string, string]> = [
   ["Bonjour, qu'elle est la hauteur maximale des bouteille que peux recevoir la capsuleuse ?", "capsuleuse+bouteille.choix"],
   ["Bonjour l'huile paraffine codex peut elle être utilisée sur des planches a decouper en bois ? Merci", "huile-paraffine+planche-bois.condition"],
   ["les prix indiqués sont ils des prix pro?", "professionnels.prix"],
-  ["ou sont fabriqués ces pressoirs?", "origine-fabrication.definition"],
+  ["ou sont fabriqués ces pressoirs?", "origine-fabrication+pressoir.definition"],
   ["Étanchéité du vinaigrier", "etancheite-vinaigrier.definition"],
   ["je cherche un liège percé d'un trou pour un bouchon verseur pour bouteille de vin. Diamètre du trou de mon verseur est de 11mm extérieur", "bouchon-perce-sur-mesure.dimension"],
   ["en commandant aujourdhui je recois ma commande quand exactement ?", "livraison.duree"],

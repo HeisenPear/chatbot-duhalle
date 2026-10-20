@@ -50,9 +50,9 @@ describe("les vinaigriers", () => {
 });
 
 describe("les capsules et les capsuleuses", () => {
-  it("ne donne pas de hauteur maximale de bouteille que les fiches ne publient pas", () => {
+  it("annonce 40 cm de hauteur maximale de bouteille (donnée de l'équipe, 20/10/2026)", () => {
     for (const question of ["Bonjour, qu'elle est la hauteur maximale des bouteille que peux recevoir la capsuleuse ?", "hauteur maximale de bouteille pour la capsuleuse super pro"]) {
-      dit(question, /pas de hauteur maximale de bouteille/, /se règle/);
+      dit(question, /jusqu'à \*\*40 cm de haut\*\*/, /se règle/);
     }
   });
 
@@ -73,7 +73,13 @@ describe("les produits qui n'existent pas ou dont la base ne sait pas tout", () 
   });
 
   it("dit où les produits sont fabriqués quand la base le sait, sinon renvoie vers la fiche", () => {
-    for (const question of ["ou sont fabriqués ces pressoirs?", "d'où viennent vos bouchons ?", "made in france ?"]) dit(question, /Portugal/, /fiche de chaque produit/);
+    for (const question of ["d'où viennent vos bouchons ?", "made in france ?"]) dit(question, /Portugal/, /Italie/, /fiche de chaque produit/);
+  });
+
+  it("dit que les pressoirs en bois viennent d'Italie (donnée de l'équipe, 20/10/2026)", () => {
+    for (const question of ["ou sont fabriqués ces pressoirs?", "où est fabriqué le pressoir en bois ?", "d'où vient le pressoir 20 L ?"]) {
+      dit(question, /pressoirs en bois.*Italie/);
+    }
   });
 
   it("répond à un bouchon percé pour un verseur sans inventer le diamètre du trou", () => {
@@ -147,16 +153,16 @@ describe("la commande, la livraison et le retrait", () => {
   });
 
   it("répond aux prix professionnels sans inventer de grille", () => {
-    dit("les prix indiqués sont ils des prix pro?", /pas de tarif professionnel distinct/);
+    dit("les prix indiqués sont ils des prix pro?", /tarifs professionnels\*\* sont à l'étude/, /rien n'est encore en place/);
   });
 
-  it("n'a pas trace d'un retrait sur place, et renvoie vers le service client", () => {
+  it("renvoie vers le service client pour définir un retrait sur place", () => {
     for (const question of [
       "Je suis près de Toulouse. Est-il possible de retirer un bidon d’huile de paraffine 1 L directement à votre site ? Et pouvez-vous me donner le numéro de ce site ?",
       "retrait sur place possible ?",
       "puis-je venir chercher ma commande ?",
     ]) {
-      dit(question, /pas trace d'un retrait/, new RegExp(TELEPHONE));
+      dit(question, /définira avec vous les possibilités/, new RegExp(TELEPHONE));
     }
   });
 });

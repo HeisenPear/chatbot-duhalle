@@ -539,9 +539,10 @@ r.fait("capsuleuse", "gamme", `
   liens: [PAGES.capsuleuse, PAGES.capsuleuseSuperPro, PAGES.capsuleuseTrepied, PAGES.capsuleuseVikCapper],
 });
 
-// Relevé le 19/10/2026 sur les fiches : aucune hauteur maximale de bouteille n'est publiée ; plateau, socle ou bague réglables.
+// Donnée de l'équipe Duhallé (20/10/2026) : les capsuleuses reçoivent des bouteilles jusqu'à 40 cm de haut.
+// La hauteur se règle ensuite au niveau de la bague, du socle ou du disque en acier, selon le modèle.
 const HAUTEUR_MAXIMALE_DE_BOUTEILLE = `
-  Les fiches des capsuleuses ne donnent **pas de hauteur maximale de bouteille** : elles précisent que la hauteur se règle, selon le modèle, au niveau de la **bague**, du **socle** (le plateau où repose la bouteille) ou du **disque en acier** de la boucheuse universelle, pour s'adapter aux petites comme aux grandes bouteilles. Pour une bouteille très haute (magnum, grand format), indiquez sa hauteur et le modèle visé au service client, au **${TELEPHONE}** ou à **${EMAIL}**, pour une confirmation avant d'acheter.`;
+  Les capsuleuses Duhallé reçoivent des bouteilles jusqu'à **40 cm de haut**. La hauteur se règle, selon le modèle, au niveau de la **bague**, du **socle** (le plateau où repose la bouteille) ou du **disque en acier** de la boucheuse universelle, pour s'adapter aux petites comme aux grandes bouteilles. Pour une bouteille plus haute ou un format particulier, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** avant d'acheter.`;
 
 for (const aspect of ["dimension", "condition", "choix"] as const) {
   r.fait(["capsuleuse", "bouteille"], aspect, HAUTEUR_MAXIMALE_DE_BOUTEILLE, { source: PAGES.capsuleuse.url, liens: [PAGES.capsuleuse, PAGES.contact] });

@@ -122,9 +122,10 @@ const AVOIR_UN_DEVIS = `
 for (const aspect of ["definition", "prix", "condition", "procedure"] as const) {
   r.fait("devis", aspect, AVOIR_UN_DEVIS, { liens: [PAGES.contact] });
 }
-// « Les prix indiqués sont-ils des prix pro ? » : les prix du site sont ceux de chaque fiche, il n'y a pas de grille pro à annoncer.
+// « Les prix indiqués sont-ils des prix pro ? » : les prix du site sont ceux de chaque fiche ; des tarifs professionnels sont à
+// l'étude mais rien n'est en place (équipe Duhallé, 20/10/2026).
 const PRIX_PRO = `
-  Les prix affichés sur le site sont ceux de chaque **fiche produit** : je n'ai pas de tarif professionnel distinct à vous annoncer. Si vous êtes viticulteur, caviste ou revendeur, ou si vous avez besoin de grandes quantités, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** : l'équipe étudiera votre demande et pourra vous faire une proposition (**devis**) en indiquant les **produits**, les **quantités**, votre **adresse de livraison** et la **date souhaitée**.`;
+  Les prix affichés sur le site sont ceux de chaque **fiche produit**. Des **tarifs professionnels** sont à l'étude, mais rien n'est encore en place : je n'ai donc pas de grille distincte à vous annoncer. Si vous êtes viticulteur, caviste ou revendeur, ou si vous avez besoin de grandes quantités, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** : l'équipe étudiera votre demande et pourra vous faire une proposition (**devis**) en indiquant les **produits**, les **quantités**, votre **adresse de livraison** et la **date souhaitée**.`;
 
 // « tarif professionnel » : le prix, pour un professionnel, passe aussi par l'équipe.
 for (const aspect of ["prix", "condition"] as const) {
@@ -161,8 +162,9 @@ r.concept("magasin", "Points de vente", ["magasin", "magasins", "boutique physiq
   formules: ["retirer un", "retirer une", "retirer ma commande", "retirer mon colis", "retirer directement", "retirer sur place", "retirer a votre site", "retirer sur votre site", "directement a votre site", "directement sur votre site", "directement chez vous", "passer chercher", "passer prendre", "venir recuperer", "recuperer sur place", "enlever sur place", "retrait en magasin", "retrait au depot", "click and collect", "votre depot", "votre entrepot", "votre site de"],
 });
 
+// Retrait sur place : à définir avec le service client (équipe Duhallé, 20/10/2026).
 const BOUTIQUE_EN_LIGNE = `
-  Duhallé est avant tout une **boutique en ligne** : l'ensemble du catalogue est sur duhalle-boutique.fr, avec livraison en France. Certains produits de la marque sont aussi distribués par des enseignes de bricolage et de jardinage. Je n'ai pas trace d'un retrait possible sur place : pour toute question sur un retrait de commande, ou pour obtenir l'adresse d'un site, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+  Duhallé est avant tout une **boutique en ligne** : l'ensemble du catalogue est sur duhalle-boutique.fr, avec livraison en France. Certains produits de la marque sont aussi distribués par des enseignes de bricolage et de jardinage. Pour un **retrait sur place**, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** : l'équipe définira avec vous les possibilités.`;
 
 for (const aspect of ["lieu", "condition", "procedure", "definition", "gamme"] as const) {
   r.fait("magasin", aspect, BOUTIQUE_EN_LIGNE);
@@ -176,10 +178,16 @@ r.concept("origine-fabrication", "Origine de fabrication des produits", ["origin
 });
 
 const ORIGINE_DE_FABRICATION = `
-  L'origine de fabrication est précisée sur la **fiche de chaque produit** quand elle est connue. Parmi les produits dont je la connais : les **vinaigriers en grès** et les **mortiers en grès** sont de fabrication artisanale du **Portugal**, le **vinaigrier en chêne** et le **mustimètre** sont fabriqués en **France**, les **fûts alimentaires blancs** et les **casiers** en acier plastifié en **Italie**, et le **liège** vient du **Portugal**. Pour un autre produit, par exemple un pressoir en bois, l'origine ne figure pas toujours sur la fiche : demandez-la au service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+  L'origine de fabrication est précisée sur la **fiche de chaque produit** quand elle est connue. Parmi les produits dont je la connais : les **vinaigriers en grès** et les **mortiers en grès** sont de fabrication artisanale du **Portugal**, le **vinaigrier en chêne** et le **mustimètre** sont fabriqués en **France**, les **pressoirs en bois**, les **fûts alimentaires blancs** et les **casiers** en acier plastifié en **Italie**, et le **liège** vient du **Portugal**. Pour un autre produit, demandez l'origine au service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+// Donnée de l'équipe Duhallé (20/10/2026) : les pressoirs en bois viennent d'Italie.
+const PRESSOIRS_FABRIQUES_EN_ITALIE = `
+  Les **pressoirs en bois** Duhallé (6, 11, 20 et 28 litres) sont fabriqués en **Italie**.`;
 
 for (const aspect of ["lieu", "definition", "raison", "condition", "gamme"] as const) {
   r.fait("origine-fabrication", aspect, ORIGINE_DE_FABRICATION, { liens: [PAGES.contact] });
+  // « Où sont fabriqués ces pressoirs ? » cite l'origine ET le pressoir : ce fait croisé passe devant la liste générale.
+  r.fait(["origine-fabrication", "pressoir"], aspect, PRESSOIRS_FABRIQUES_EN_ITALIE, { liens: [PAGES.pressoir20] });
 }
 
 // ─── Les conseils du site ──────────────────────────────────────────────────

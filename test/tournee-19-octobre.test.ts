@@ -225,3 +225,51 @@ describe("les numéros de commande seuls", () => {
     expect(assistant.repondre("N°1234567").trace.faits[0]).toBe("suivi-commande.procedure");
   });
 });
+
+describe("la tournée du 20 octobre", () => {
+  it("répond en anglais à un message nettement anglais, même avec une adresse e-mail ou un mot de la base", () => {
+    for (const message of [
+      "I am interested in buying x 10 of these items, shipping is it: Dornoch Castle Castle Street Dornoch Sutherland IV25 3SD Scotland https://www.exemple.com/x Can you give me a quote contact@exemple.fr",
+      "Hello, I would like a quote for 20 corks shipped to Belgium, can you help me please",
+      "i would like to buy your products can you ship to the UK",
+    ]) {
+      const reponse = assistant.repondre(message);
+      expect(reponse.nature, message).toBe("politesse");
+      expect(reponse.texte, message).toMatch(/I can only answer in French/);
+      expect(reponse.texte, message).toContain(TELEPHONE);
+    }
+  });
+
+  it("garde la réponse sur le fond aux questions anglaises que la base traite, et ne prend pas du français pour de l'anglais", () => {
+    expect(assistant.repondre("is it ok if I upload an image?").nature).toBe("reponse");
+    expect(assistant.repondre("quel prix pour 100 bouchons et la livraison en Belgique ?").nature).toBe("reponse");
+  });
+
+  it("dit que les capsules PVC sont prévues pour des bouteilles bouchées au liège, pas pour un bouchon à vis", () => {
+    dit("les capsules pvc rétractables sont elles compatibles avec des bouteilles à bouchon à vis 31 mm", /bouteilles de 75 cl bouchées au liège/, /confirmation au service client/);
+  });
+
+  it("propose de racheter un robinet de vinaigrier avec son bouchon, sans la procédure de commande", () => {
+    for (const question of ["Robinet avec bouchon", "Racheter robinet avec bouchon liege"]) {
+      dit(question, /robinet en bois de 3 pouces/, /24 heures/);
+    }
+  });
+
+  it("répond à la pose d'un barboteur sans garantir la forme du col", () => {
+    dit(
+      "Bonjour, pouvez vous me confirmer que le col est parfaitement droit et que la pose d'un barboteur ne pose aucun problème ? Sur certaines dame jeanne, le bouchon en sicilone ne reste pas en place, et remonte...",
+      /ne précisent pas si le col/,
+      /bonde en liège percée/,
+    );
+  });
+
+  it("ne confond pas des bouchons qui remontent après le bouchage avec la pose d'un barboteur", () => {
+    expect(assistant.repondre("mes bouchons remontent tout seuls après bouchage").trace.concepts).not.toContain("pose-barboteur");
+  });
+
+  it("ne sait pas adapter un bloc moteur et le dit", () => {
+    for (const question of ["est ce que le presse tomate reber n° 12 est compatible avec mon bloc moteur EMYG type IE 12", "peut-on motoriser le hachoir ?"]) {
+      dit(question, /pas d'information sur l'adaptation d'un \*\*bloc moteur\*\*/);
+    }
+  });
+});

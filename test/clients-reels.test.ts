@@ -421,6 +421,23 @@ export const QUESTIONS_CLIENTS: Array<[string, string]> = [
   ["puis-je fabriquer ma mère de vinaigre ?", "demarrer-vinaigre.condition"],
   ["delai de livraison en Belgique", "livraison-belgique.duree"],
   ["je veux retirer ma commande sur place", "magasin.definition"],
+
+  // Lot du 20 octobre (questions du 19 et 20 octobre)
+  ["les capsules pvc rétractables sont elles compatibles avec des bouteilles à bouchon à vis 31 mm", "surbouchage+filetage.dimension"],
+  ["Robinet avec bouchon", "choix-robinet.choix"],
+  ["Racheter robinet avec bouchon liege", "choix-robinet.choix"],
+  ["Bonjour, pouvez vous me confirmer que le col est parfaitement droit et que la pose d'un barboteur ne pose aucun problème ? Sur certaines dame jeanne, le bouchon en sicilone ne reste pas en place, et remonte...", "pose-barboteur.erreur"],
+  ["est ce que le presse tomate reber n° 12 est compatible avec mon bloc moteur EMYG type IE 12", "bloc-moteur.condition"],
+  ["Quand est-ce que les étiquettes de goulot réf. 1234567 seront à nouveau disponibles ? Je les utilise en rouge et en blanc.", "disponibilite.condition"],
+  ["comment utiliser une Boucheuse Standard Deux Leviers", "boucheuse.procedure"],
+  // Voisines
+  ["les capsules pvc sont-elles adaptées à une bouteille à vis ?", "surbouchage+filetage.condition"],
+  ["capsule de surbouchage pour bouchon à vis de 31 mm", "surbouchage+filetage.dimension"],
+  ["je veux racheter le robinet de mon vinaigrier avec son bouchon", "choix-robinet.choix"],
+  ["le bouchon en silicone de mon barboteur remonte", "pose-barboteur.definition"],
+  ["le presse-tomates est-il compatible avec un moteur électrique ?", "bloc-moteur.condition"],
+  ["peut-on motoriser le hachoir ?", "bloc-moteur.condition"],
+  ["bouchons remontent après bouchage", "repos-bouchage.duree"],
 ];
 
 describe("les questions réelles des clients et leurs voisines", () => {

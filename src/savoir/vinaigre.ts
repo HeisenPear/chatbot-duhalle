@@ -174,7 +174,9 @@ r.fait("choix-robinet", "choix", `
 r.concept("robinet-fourni", "Robinet livré avec le vinaigrier", [], {
   famille: "robinet-vinaigrier",
   exclusif: true,
-  formules: ["robinet est il fourni", "robinet est il inclus", "robinet fourni", "robinet inclus", "robinet livre", "livre avec un robinet", "livre avec son robinet", "vendu avec son robinet", "vendu avec le robinet", "vendu avec un robinet", "robinet avec le vinaigrier", "robinet avec vinaigrier", "robinet avec la jarre", "avec robinet bois", "fut vendu avec un robinet", "fut vendu avec son robinet", "fut fourni avec un robinet", "fut fourni avec son robinet", "fut robinet inclus", "fut robinet fourni"],
+  formules: ["robinet est il fourni", "robinet est il inclus", "robinet fourni", "robinet inclus", "robinet livre", "livre avec un robinet", "livre avec son robinet", "vendu avec son robinet", "vendu avec le robinet", "vendu avec un robinet", "robinet avec le vinaigrier", "robinet avec vinaigrier", "robinet avec la jarre", "avec robinet bois", "fut vendu avec un robinet", "fut vendu avec son robinet", "fut fourni avec un robinet", "fut fourni avec son robinet", "fut robinet inclus", "fut robinet fourni",
+    // La même question posée en affirmation : « Le robinet est bien fourni ».
+    "robinet est fourni", "robinet est bien fourni", "robinet bien fourni", "robinet est inclus", "robinet est bien inclus", "robinet bien inclus", "robinet est livre", "robinet est bien livre", "robinet bien livre", "robinet est vendu avec", "robinet est bien vendu avec", "robinet est il vendu", "robinet vendu avec", "robinet est compris", "robinet compris"],
 });
 
 const ROBINET_FOURNI = `

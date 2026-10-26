@@ -78,6 +78,25 @@ r.fait("casier", "dimension", `
 r.fait("casier", "condition", `
   Une bouteille de champagne peut être stockée dans un casier uniquement si ses **diamètre, longueur et poids** sont compatibles avec chaque logement et si le casier est stable ou fixé comme prévu. Ne forcez pas une bouteille plus large dans une alvéole conçue pour une bordelaise.`, { source: SAVOIR_FAIRE });
 
+// « Combien de casiers peut-on empiler en hauteur ? » : l'empilage dépend de la matière (fiches relevées le 26/10/2026, à valider).
+r.concept("empilage", "Empiler ou superposer", ["empiler", "empilable", "empilables", "empilage", "superposer", "superposable", "superposables", "superposition", "gerber", "gerbable", "gerbables"], {
+  famille: "catalogue",
+});
+
+const EMPILER_LES_CASIERS = `
+  Cela dépend de la matière du casier, d'après les fiches du site :
+  - **polystyrène** (12 places, 16 places réversible, lot de 3 modules) : empilables et modulables, pour agrandir sa cave ;
+  - **effet chromé** (24, 48 et 72 places) : empilables jusqu'à **96 places au maximum** ; le modèle 72 places doit être fixé au mur ;
+  - **Weinbox** transportable : jusqu'à **8 caisses** empilées, soit environ 1,92 m ;
+  - **Brindo** : les petits casiers se clipsent entre eux sur le côté ;
+  - **acier plastifié noir** (30, 60, 90 et 144 places) : prévus pour se fixer au mur avec leurs pattes de fixation, la fiche ne parle pas d'empilement.
+
+  Respectez toujours la notice du casier, et pour un empilement précis demandez conseil au service client au **${TELEPHONE}**.`;
+
+for (const aspect of ["definition", "condition", "dimension", "choix", "usage", "gamme", "procedure", "raison"] as const) {
+  r.fait(["casier", "empilage"], aspect, EMPILER_LES_CASIERS, { source: PAGES.casiers.url, liens: [PAGES.casierNeops12, PAGES.casierChrome48, PAGES.weinbox, PAGES.casiers, PAGES.contact] });
+}
+
 r.concept("stabilite-casier", "Stabilité et inclinaison des casiers", ["stabilite du casier", "casier stable", "casier instable", "casier qui bouge", "casier qui penche", "casier bancal", "casier qui tombe", "robustesse du casier", "casier solide", "casier fragile", "casier incline", "inclinaison des bouteilles", "inclinaison vers l avant", "monter le casier", "remplir le casier"], {
   famille: "casier",
   lien: PAGES.casiers,

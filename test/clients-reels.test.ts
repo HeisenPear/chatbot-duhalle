@@ -472,6 +472,8 @@ export const QUESTIONS_CLIENTS: Array<[string, string]> = [
   ["combien de casier peut-on empiler en hauteur ?", "casier+empilage.dimension"],
   ["Les casiers en polystyrène sont-ils empilables ?", "casier+empilage.condition"],
   ["Peut-on superposer deux casiers chromés ?", "casier+empilage.condition"],
+  ["en cas de retour dans les 14 jours des frais sont ils appliques ? qui prend les frais de retour en charge?", "retour.procedure"],
+  ["Qui paie les frais de retour ?", "retour.procedure"],
 ];
 
 describe("les questions réelles des clients et leurs voisines", () => {

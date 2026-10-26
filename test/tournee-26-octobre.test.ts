@@ -125,3 +125,20 @@ describe("l'empilage des casiers", () => {
     expect(reponse.trace.faits[0]).toBe("empilage-bocaux.condition");
   });
 });
+
+describe("les frais de retour", () => {
+  it("dit que les frais de retour sont à la charge du client en cas de rétractation", () => {
+    for (const question of [
+      "en cas de retour dans les 14 jours des frais sont ils appliques ? qui prend les frais de retour en charge?",
+      "si le produit ne convient pas quelles sont les modalites de retour",
+      "Qui paie les frais de retour ?",
+    ]) {
+      dit(question, /frais de retour sont à la charge du client/, /14 jours/);
+    }
+  });
+
+  it("ne présente pas un produit abîmé comme une rétractation à la charge du client", () => {
+    const reponse = assistant.repondre("Mon colis est arrivé cassé, qui paie le retour ?");
+    expect(reponse.texte).not.toMatch(/à la charge du client/);
+  });
+});

@@ -142,7 +142,7 @@ r.fait("sterilisateur", "definition", `
   Le **stérilisateur électrique ABC en inox de 27 litres** est équipé d'un **thermostat**, d'un **minuteur** et d'un **robinet de vidange** : il chauffe l'eau et la maintient à la bonne température pendant toute la stérilisation. Un **thermomètre pour bouilleur** permet aussi de contrôler la température de l'eau.`, { source: PAGES.sterilisateurs.url, liens: [PAGES.sterilisateur, PAGES.thermometreBouilleur] });
 
 r.fait("sterilisateur", "dimension", `
-  Le stérilisateur électrique ABC en inox a une contenance de **27 litres**, avec thermostat, minuteur et robinet de vidange.`, { source: PAGES.sterilisateurs.url, liens: [PAGES.sterilisateur] });
+  Le stérilisateur électrique ABC en inox a une contenance de **27 litres**, soit environ **14 bocaux de 500 g** à la fois. Il est doté d'un thermostat réglable de **40 à 100 °C**, d'un minuteur de 120 minutes, d'une grille de support et d'un robinet de vidange (puissance 2 000 W, poids 6,15 kg).`, { source: PAGES.sterilisateurs.url, liens: [PAGES.sterilisateur] });
 
 r.fait("sterilisateur", "condition", `
   Ce stérilisateur chauffe un **bain d'eau** ; il ne doit pas être assimilé à un appareil de mise en conserve sous pression. Utilisez-le seulement lorsque la recette testée prévoit ce mode de traitement et respectez ses limites et sa notice.`, { source: NCHFP, liens: [PAGES.sterilisateur] });

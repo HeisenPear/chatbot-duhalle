@@ -94,7 +94,7 @@ r.concept("rendement-jus", "Rendement des pommes en jus", ["rendement en jus", "
 r.fait("rendement-jus", "dimension", `
   À titre d'ordre de grandeur, **10 kg de pommes donnent souvent environ 5 à 7 L de jus**. Le résultat varie fortement avec la variété, la maturité, la finesse du broyage, le remplissage de la cage et la pression : pesez un premier lot et mesurez son jus pour dimensionner la suite.`, { source: SAVOIR_FAIRE, liens: [PAGES.broyerPresser] });
 
-r.concept("fermentation-cidre", "Fin de fermentation du cidre", ["fermentation du cidre", "fermentation terminee", "fermentation finie", "fin de fermentation", "densite du cidre", "densimetre a cidre", "cidre pret a embouteiller", "cidre pret a mettre en bouteille"], {
+r.concept("fermentation-cidre", "Fin de fermentation du cidre", ["fermentation du cidre", "fermentation terminee", "fermentation finie", "fin de fermentation", "densite du cidre", "cidre pret a embouteiller", "cidre pret a mettre en bouteille"], {
   famille: "cidre",
   lien: PAGES.cidre,
 });

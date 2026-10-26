@@ -159,7 +159,9 @@ r.concept("magasin", "Points de vente", ["magasin", "magasins", "boutique physiq
   famille: "duhalle",
   // « Est-il possible de retirer un bidon directement à votre site ? » : le retrait l'emporte sur le produit cité.
   exclusif: true,
-  formules: ["retirer un", "retirer une", "retirer ma commande", "retirer mon colis", "retirer directement", "retirer sur place", "retirer a votre site", "retirer sur votre site", "directement a votre site", "directement sur votre site", "directement chez vous", "passer chercher", "passer prendre", "venir recuperer", "recuperer sur place", "enlever sur place", "retrait en magasin", "retrait au depot", "click and collect", "votre depot", "votre entrepot", "votre site de"],
+  formules: ["retirer un", "retirer une", "retirer ma commande", "retirer mon colis", "retirer directement", "retirer sur place", "retirer a votre site", "retirer sur votre site", "directement a votre site", "directement sur votre site", "directement chez vous", "passer chercher", "passer prendre", "venir recuperer", "recuperer sur place", "enlever sur place", "retrait en magasin", "retrait au depot", "click and collect", "votre depot", "votre entrepot", "votre site de",
+    // « Dans quelle boutique vous trouve-t-on à Mulhouse ? » : la boutique est en ligne.
+    "dans quelle boutique", "dans quel magasin", "dans quelles boutiques", "dans quels magasins", "quelle boutique", "quel magasin", "boutique a proximite", "magasin a proximite", "boutique pres de chez", "magasin pres de chez", "boutique pres de", "magasin pres de", "ou vous trouver en magasin", "trouver vos produits en magasin", "vos produits en magasin", "vos produits en boutique", "acheter vos produits en magasin", "ou acheter vos produits", "ou trouver vos produits", "vous trouve t on", "vous trouvez vous"],
 });
 
 // Retrait sur place : à définir avec le service client (équipe Duhallé, 20/10/2026).

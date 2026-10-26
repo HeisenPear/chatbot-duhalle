@@ -306,10 +306,27 @@ for (const aspect of ["choix", "dimension", "gamme", "condition", "usage", "defi
 r.concept("bouchon-tete", "Bouchons à tête", ["bouchon a tete", "bouchons a tete", "tete plastique", "bouchon tete plastique", "bouchon de couleur", "bouchon reutilisable", "bouchon amovible"], {
   famille: "bouchon",
   lien: PAGES.bouchonTete,
+  // « Un bouchon liège avec la tête fixée dans un rond plastique » : le bouchon à tête, décrit avec les mots du client.
+  formules: ["tete fixee", "tete en plastique", "rond plastique", "avec une tete", "avec la tete", "avec tete"],
 });
 
 r.fait("bouchon-tete", "definition", `
   Les **bouchons en liège à tête plastique** de couleur (lot de 100) se retirent et se remettent à la main : parfaits pour conserver une bouteille déjà ouverte.`, { liens: [PAGES.bouchonTete] });
+
+// « Le bouchon est-il inclus avec les bouteilles ? » : une question de fiche, pas un conseil de choix du bouchon.
+// Fiches relevées le 26/10/2026 : les bouteilles vides sont vendues seules, les bouchons et capsules sont d'autres articles.
+r.concept("bouchon-fourni", "Bouchon fourni avec le produit", [], {
+  famille: "bouchon",
+  exclusif: true,
+  formules: ["bouchon est il inclus", "bouchon est il inclu", "bouchon est il fourni", "bouchon est il livre", "bouchon est il vendu avec", "bouchon est inclus", "bouchon est inclu", "bouchon est fourni", "bouchon est bien fourni", "bouchon est bien inclus", "bouchon est livre", "bouchon est vendu avec", "bouchon inclus", "bouchon inclu", "bouchon fourni", "bouchon compris", "bouchon livre avec", "bouchon vendu avec", "bouchon avec la bouteille", "bouchon avec les bouteilles", "bouchon avec chaque bouteille", "bouchons sont ils inclus", "bouchons sont ils fournis", "bouchons sont ils livres", "bouchons inclus", "bouchons fournis", "bouchons livres avec", "bouchons vendus avec", "bouchons compris", "bouchons avec les bouteilles", "bouteilles avec leur bouchon", "bouteille avec son bouchon", "bouteille avec bouchon inclus", "bouteilles vendues avec bouchon", "bouteilles vendues avec bouchons", "bouteille vendue avec bouchon", "bouteille vendue avec son bouchon", "bouteilles livrees avec bouchon", "bouteilles livrees avec leur bouchon", "bouteilles livrees avec bouchons", "bouteille livree avec bouchon", "bouteille livree avec son bouchon"],
+});
+
+const BOUCHON_FOURNI = `
+  Les **bouteilles vides** Duhallé sont vendues **sans bouchon ni capsule** : la fermeture est un article à part, à choisir selon la bouteille (bouchon en liège pour le vin, capsule couronne ou bouchon mécanique pour le cidre et la bière). En revanche, les **vinaigriers en grès** sont livrés avec leur **bouchon en liège** (et leur robinet en bois), et les **fûts alimentaires blancs** avec leur couvercle et leur robinet. Une **dame-jeanne** est livrée avec un bouchon en plastique, qui n'est pas étanche pour la fermentation : préférez une bonde en liège. Pour un doute sur un produit précis, la fiche indique ce qui est fourni, et le service client vous répond au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["definition", "condition", "gamme", "choix"] as const) {
+  r.fait("bouchon-fourni", aspect, BOUCHON_FOURNI, { source: PAGES.bouchonsVin.url, liens: [PAGES.bouchonsVin, PAGES.contact] });
+}
 
 // ─── Les bondes ────────────────────────────────────────────────────────────
 
@@ -513,6 +530,21 @@ r.fait("capsule-couronne", "gamme", `
 
 r.fait("capsule-couronne", "condition", `
   D'après leur fiche, les capsules couronne en métal de 29 mm conviennent à la **pasteurisation** comme à la **stérilisation**, ce qui n'est pas le cas des bouchons mécaniques à rondelle en polyéthylène (50 °C au maximum).`, { source: PAGES.bouchonsCidre.url, liens: [PAGES.capsules29Or] });
+
+// « Peut-on boucher des canettes de bière de 33 cl ? » : en français courant, une « canette » de bière est souvent une petite
+// bouteille en verre, qui reçoit une capsule de 26 mm. Fiches relevées le 26/10/2026.
+r.concept("canette", "Canettes et petites bouteilles de bière", ["canette", "canettes", "canette de biere", "canettes de biere"], {
+  famille: "capsule-couronne",
+  exclusif: true,
+  lien: PAGES.capsules26Or,
+});
+
+const BOUCHER_UNE_CANETTE = `
+  Oui, si vos « canettes » sont de **petites bouteilles en verre** (bière de 33 cl par exemple) : elles se ferment avec des **capsules couronne de 26 mm**, posées avec une **capsuleuse**. Les capsuleuses manuelles Duhallé acceptent les capsules de **26 et 29 mm** ; vérifiez le diamètre du col avant de commander, car le 29 mm est réservé aux bouteilles champenoises. En revanche, pour de vraies canettes **en aluminium**, qui se ferment par sertissage, je n'ai pas de machine au catalogue : contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["definition", "condition", "usage", "gamme", "choix", "dimension", "procedure"] as const) {
+  r.fait("canette", aspect, BOUCHER_UNE_CANETTE, { source: PAGES.bouchonsCidre.url, liens: [PAGES.capsules26Or, PAGES.capsuleuse, PAGES.contact] });
+}
 
 r.concept("capsule-opercule", "Capsules à opercule", ["opercule", "capsule a opercule", "capsules a opercule", "opercule incorpore", "capsule avec joint"], {
   famille: "capsule-couronne",

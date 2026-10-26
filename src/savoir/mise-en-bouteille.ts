@@ -428,12 +428,56 @@ r.fait("contenant", "gamme", `
   Pour stocker et faire fermenter :
   - des **dames-jeannes** (bonbonnes) en verre transparent à entourage plastique, de 2 à 25 L : 5, 10, 15, 20 et 25 L à col fin, 5, 10, 15 et 20 L à col large, et une dame-jeanne de 2 L à col à vis ;
   - des **fûts alimentaires blancs translucides** de 5 à 100 L, fabriqués en Italie, livrés avec leur robinet et leur couvercle ;
-  - des **fûts de macération bleus** à large ouverture (30, 120 et 220 L).
+  - des **fûts de macération bleus** à large ouverture (30, 60, 120 et 220 L).
 
   Pour fermer une dame-jeanne à la main, choisissez une **bonde en liège** adaptée au diamètre du col.`, {
   source: PAGES.futs.url,
   liens: [PAGES.bonbonne20, PAGES.futs, PAGES.bondes],
 });
+
+// Fiches relevées le 26/10/2026 (fûts de macération 30, 60, 120 et 220 L et leurs pièces détachées) : à faire valider.
+r.concept("fut-maceration", "Fûts de macération bleus", ["fut de maceration", "futs de maceration", "fut maceration", "futs maceration", "fut alimentaire bleu", "futs alimentaires bleus", "fut bleu", "futs bleus", "bidon bleu", "bidons bleus", "bidon alimentaire", "bidon de maceration"], {
+  famille: "contenant",
+  lien: PAGES.futMaceration60,
+  voirAussi: ["joint-fut", "robinet-fut", "contenant"],
+  // « Bleu 60 litres » : la couleur et la contenance suffisent à désigner le fût de macération.
+  formules: ["bleu 30", "bleu 60", "bleu 120", "bleu 220", "bleu de 30", "bleu de 60", "bleu de 120", "bleu de 220", "fut de 30 l bleu", "fut de 60 l bleu", "fut de 120 l bleu", "fut de 220 l bleu"],
+});
+
+const FUT_DE_MACERATION = `
+  Les **fûts de macération alimentaires bleus**, à **large ouverture**, existent en **30, 60, 120 et 220 L**. Le modèle de **60 L** mesure environ **62 cm de haut** pour **36 cm de diamètre**, avec une ouverture de **30 cm**. Le couvercle est livré avec son **joint** (le cerclage de maintien se vend à part), et les pièces détachées (joint, couvercle, cerclage) se commandent séparément. Ces fûts conviennent aussi aux **saumures**, à la macération et au stockage alimentaire. Pour le robinet, deux tailles existent : **4,2 cm** (petit) et **4,8 cm** (grand).`;
+
+for (const aspect of ["definition", "gamme", "dimension", "choix", "usage"] as const) {
+  r.fait("fut-maceration", aspect, FUT_DE_MACERATION, { source: PAGES.futMaceration60.url, liens: [PAGES.futMaceration30, PAGES.futMaceration60, PAGES.futs] });
+}
+
+r.concept("joint-fut", "Joint du couvercle des fûts de macération", ["joint de fut", "joints de fut", "joint du fut", "joint pour fut", "joints de futs", "joint de couvercle de fut", "joint du couvercle du fut", "joint pour couvercle de fut", "joint de bidon", "joint du bidon", "joint de maceration"], {
+  famille: "fut-maceration",
+  // Sinon « joint » désigne celui des bocaux, et « fût » le conseil général sur les contenants.
+  exclusif: true,
+  lien: PAGES.jointFut60,
+});
+
+const JOINT_DE_FUT = `
+  Le **joint** du couvercle des fûts de macération bleus est en **caoutchouc naturel** et se place à l'intérieur du couvercle ; il se vend aussi en pièce détachée. Son diamètre dépend du fût : **235 mm** pour le fût de **30 L**, **300 mm** pour le **60 L**, **400 mm** pour le **120 L** et **600 mm** pour le **220 L**. Le couvercle du 60 L est livré avec son joint, le cerclage se vend à part. Choisissez le joint de la contenance de votre fût.`;
+
+for (const aspect of ["definition", "dimension", "choix", "gamme", "condition", "usage"] as const) {
+  r.fait("joint-fut", aspect, JOINT_DE_FUT, { source: PAGES.jointFut60.url, liens: [PAGES.jointFut60, PAGES.futMaceration60, PAGES.contact] });
+}
+
+// « Vendez-vous des fûts de 150 L ? » : la gamme s'arrête à 220 L, et il n'y a rien entre 120 et 220 L.
+r.concept("fut-autre-taille", "Fût d'une contenance non proposée", [], {
+  famille: "contenant",
+  exclusif: true,
+  formules: ["130", "150", "160", "180", "200", "225", "230", "250", "300", "400", "500", "1000"].flatMap((n) => [`fut de ${n}`, `futs de ${n}`, `fut ${n}`, `futs ${n}`, `fut de ${n} l`, `futs de ${n} l`, `fut de ${n} litres`, `futs de ${n} litres`, `futs de ${n}l`, `fut de ${n}l`]),
+});
+
+const FUT_AUTRE_TAILLE = `
+  Je n'ai pas de fût de cette contenance au catalogue. Duhallé propose des **fûts alimentaires blancs** de **5 à 100 L**, des **fûts de macération bleus** de **30, 60, 120 et 220 L** et des **dames-jeannes** de 2 à 25 L. Pour un besoin plus précis, par exemple un volume intermédiaire, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}**.`;
+
+for (const aspect of ["definition", "gamme", "dimension", "choix", "lieu", "condition"] as const) {
+  r.fait("fut-autre-taille", aspect, FUT_AUTRE_TAILLE, { source: PAGES.futs.url, liens: [PAGES.futs, PAGES.contact] });
+}
 
 r.fait("contenant", "entretien", `
   Pour entretenir un fût : le **rince-fût** assainit, rénove et dérougit la futaille (dose pour un fût de 110 L), et le **suiffeur**, un mastic d'étanchéité blanc de 400 g, colmate les fuites des fûts et tonneaux. Entre deux utilisations, un fût vide se conserve propre, sec et assaini (par exemple avec une mèche soufrée).`, {
@@ -603,16 +647,45 @@ r.fait("oenologie", "usage", `
 r.fait("oenologie", "condition", `
   Pour les doses de soufre ou de sulfites, suivez toujours la notice du produit et, en cas de doute, demandez conseil à un œnologue : je ne donne pas de dosage. Manipulez les mèches soufrées dans un endroit aéré.`, { source: SAVOIR_FAIRE });
 
-r.concept("mesure", "Outils de mesure", ["mesure", "mesurer", "degre", "degre d alcool", "taux d alcool", "alcool", "mesurer l alcool", "mesurer le degre", "densimetre", "instrument de mesure", "laboratoire"], {
+r.concept("mesure", "Outils de mesure", ["mesure", "mesurer", "degre", "degre d alcool", "taux d alcool", "alcool", "mesurer l alcool", "mesurer le degre", "instrument de mesure", "laboratoire"], {
   famille: "vin",
   lien: PAGES.mesure,
 });
 
 r.fait("mesure", "gamme", `
-  Outils de mesure Duhallé : un **vinomètre** en verre de 0 à 20°, fabriqué en France, pour estimer le degré d'un vin sec, et un **alcoomètre** en verre de 0 à 100 % vol., pour les alcools secs sans sucre ajouté.`, {
+  Outils de mesure Duhallé : un **vinomètre** en verre de 0 à 20°, fabriqué en France, pour estimer le degré d'un vin sec, un **alcoomètre** en verre de 0 à 100 % vol., pour les alcools secs sans sucre ajouté, un **mustimètre** (densimètre) de 0,98 à 1,30 pour le moût et le vin, un **pèse-cidre** (cidromètre) pour le cidre, et une **éprouvette graduée** de 250 ml pour les plonger.`, {
   source: PAGES.mesure.url,
-  liens: [PAGES.vinometre, PAGES.alcoometre],
+  liens: [PAGES.vinometre, PAGES.alcoometre, PAGES.mustimetre, PAGES.peseCidre],
 });
+
+// Fiches du mustimètre et du pèse-cidre relevées le 26/10/2026 : à faire valider.
+r.concept("densimetre", "Densimètres", ["densimetre", "densimetres"], {
+  famille: "mesure",
+  voirAussi: ["mustimetre", "pese-cidre", "eprouvette"],
+  lien: PAGES.mesure,
+});
+
+const DENSIMETRES = `
+  Un **densimètre** mesure la densité d'un liquide, donc son sucre avant la fermentation, puis l'avancement de celle-ci. Duhallé en propose deux, à choisir selon la boisson : le **mustimètre** (pèse-moût), gradué de **0,98 à 1,30**, pour le **moût de raisin et le vin** ; le **pèse-cidre** (cidromètre), pour le **cidre**. Pour le cidre, préférez le pèse-cidre, dont l'échelle est adaptée. Chacun se plonge dans une **éprouvette graduée de 250 ml** (vendue séparément). Le pèse-sirop, lui, sert aux confitures et aux sirops, pas au vin ni au cidre.`;
+
+for (const aspect of ["definition", "usage", "gamme", "choix", "condition", "dimension"] as const) {
+  r.fait("densimetre", aspect, DENSIMETRES, { source: PAGES.mesure.url, liens: [PAGES.mustimetre, PAGES.peseCidre, PAGES.eprouvette] });
+}
+
+r.concept("pese-cidre", "Pèse-cidre", ["pese cidre", "pese cidres", "cidrometre", "cidrometres"], {
+  famille: "densimetre",
+  exclusif: true,
+  lien: PAGES.peseCidre,
+  // Des expressions entières : « un densimètre peut-il servir pour le cidre et pour le vin ? » parle des densimètres en général.
+  formules: ["densimetre a cidre", "densimetre cidre", "densimetre pour cidre", "densimetre pour le cidre", "densimetre pour mon cidre", "densimetre de cidre"],
+});
+
+const PESE_CIDRE = `
+  Le **pèse-cidre** (cidromètre ou densimètre à cidre) de Duhallé est un instrument en verre pour le **cidre** : sa graduation de densité va de **1002 à 1018**, et une seconde échelle de **0 à 13 %** permet d'estimer le degré d'alcool potentiel avant la fermentation. Il aide à choisir le bon moment pour mettre en bouteille. On le plonge dans une **éprouvette graduée de 250 ml** (vendue séparément). La densité à viser avant l'embouteillage dépend du type de cidre : je ne donne pas de seuil chiffré, par prudence.`;
+
+for (const aspect of ["definition", "usage", "gamme", "choix", "dimension", "procedure", "condition"] as const) {
+  r.fait("pese-cidre", aspect, PESE_CIDRE, { source: PAGES.peseCidre.url, liens: [PAGES.peseCidre, PAGES.eprouvette] });
+}
 
 r.concept("vinometre", "Vinomètre", ["vinometre", "vinometres", "tube capillaire"], { famille: "mesure", lien: PAGES.vinometre });
 

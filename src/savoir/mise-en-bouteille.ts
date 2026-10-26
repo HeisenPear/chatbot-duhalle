@@ -102,7 +102,7 @@ r.concept("bouteille", "Bouteilles vides", ["bouteille", "bouteilles", "bouteill
 });
 
 r.fait("bouteille", "gamme", `
-  Duhallé propose des **bouteilles de vin vides en verre de 75 cl** : bordelaise verte, bordelaise transparente et bourgogne transparente.`, {
+  Duhallé propose des **bouteilles de vin vides en verre de 75 cl** : bordelaise verte, bordelaise transparente et bourgogne transparente (goulot de 19 mm, environ 400 g). Je n'ai pas trace d'autres contenances (50 cl, 1 L) ; une bouteille en verre à motif étain existe aussi pour les liqueurs, comme la liqueur de poire.`, {
   liens: [PAGES.bouteilleBordelaiseVerte, PAGES.bouteilleBordelaiseBlanche, PAGES.bouteilleBourgogne],
 });
 
@@ -213,7 +213,7 @@ r.fait("produit-nettoyage-bouteilles", "condition", `
 
 r.fait("nettoyage-bouteilles", "gamme", `
   Matériel de nettoyage Duhallé :
-  - **goupillons** : modèle standard (tige inox, poils nylon) et grand modèle de 49 x 7 cm ;
+  - **goupillons** : modèle standard de 47 cm et grand modèle de 49 x 7 cm, tous deux à tige inox et poils nylon ;
   - **rince-bouteille** manuel pour goulots de 15 mm, pour laver, rincer, assainir ou aviner les bouteilles ;
   - **lave-bouteille à turbine** fonctionnant avec la pression de l'eau, et sa brosse inox de rechange ;
   - **égouttoirs** : colonne 80 places pour bordelaises de 75 cl, et hérisson métal 100 bouteilles.`, {
@@ -282,12 +282,12 @@ r.fait("operations-transfert", "choix", `
 
 r.fait("soutirage", "gamme", `
   Matériel de soutirage Duhallé :
-  - **soutireuse à siphon automatique** (tuyau de 130 cm) pour remplir les bouteilles depuis un fût ou une dame-jeanne ;
-  - **kit tireuse pistolet** réglable avec tuyau de 2 m ;
+  - **soutireuse à siphon automatique** Enolandia Easy Start (tube de 63 cm, tuyau de 130 cm, jusqu'à 65 °C) pour remplir les bouteilles depuis un fût ou une dame-jeanne ;
+  - **kit tireuse pistolet** réglable avec tuyau de 2 m et tuyau d'aspiration, pour les vins tranquilles et boissons plates (pas de liquide au-dessus de 60 °C) ;
   - **remplisseuse manuelle 3 becs** inox, qui remplit par gravité en limitant l'oxydation ;
   - **pompe à vin manuelle** à amorçage automatique, pour vins, jus, cidres et sirops ;
   - **tuyaux** silicone de 2 et 3 m ;
-  - **entonnoir à arrêt automatique** avec filtre, et **filtres** papier.`, {
+  - **entonnoir à arrêt automatique** avec filtre, **entonnoir de cave** de 37 cm de diamètre en plastique alimentaire, et **filtres** papier.`, {
   source: PAGES.soutirage.url,
   liens: [PAGES.soutireuseSiphon, PAGES.kitTireuse, PAGES.remplisseuse3Becs],
 });
@@ -332,6 +332,27 @@ for (const aspect of ["definition", "condition", "choix", "raison", "usage", "ga
 
 r.fait("arret-remplissage", "procedure", `
   Utilisez un entonnoir à arrêt automatique ou une remplisseuse réglée au niveau voulu, puis faites un essai avec la bouteille exacte. Gardez l'appareil vertical, vérifiez l'absence de mousse et contrôlez régulièrement le niveau pendant la série.`, { source: SAVOIR_FAIRE, liens: [PAGES.entonnoirArret, PAGES.remplisseuse3Becs] });
+
+// Relevé le 26/10/2026 sur les fiches du site : à faire valider par Duhallé (voir README).
+r.concept("entonnoir-cave", "Entonnoir de cave", ["entonnoir de cave", "entonnoirs de cave", "grand entonnoir", "entonnoir 37 cm", "entonnoir alimentaire"], {
+  famille: "soutirage",
+  lien: PAGES.entonnoirCave,
+});
+
+const ENTONNOIR_DE_CAVE = `
+  L'**entonnoir de cave** Duhallé, grand modèle, mesure **37 cm de diamètre**. Il est en **plastique alimentaire** et muni d'une lamelle antivortex, pour remplir les fûts, les cuves et les bonbonnes sans éclaboussures.`;
+
+for (const aspect of ["definition", "usage", "gamme", "dimension", "choix"] as const) {
+  r.fait("entonnoir-cave", aspect, ENTONNOIR_DE_CAVE, { source: PAGES.entonnoirCave.url, liens: [PAGES.entonnoirCave] });
+}
+
+// « L'entonnoir à arrêt automatique convient-il à une dame-jeanne ? » : la fiche indique qu'il ne fonctionne pas avec les bonbonnes ni les bidons.
+const ARRET_AUTOMATIQUE_ET_BONBONNES = `
+  D'après sa fiche, l'**entonnoir à arrêt automatique** avec filtre **ne fonctionne pas avec les bonbonnes ni les bidons**. Pour remplir une dame-jeanne, utilisez plutôt l'**entonnoir de cave** de 37 cm, en plastique alimentaire.`;
+
+for (const aspect of ["condition", "choix", "definition", "gamme", "usage"] as const) {
+  r.fait(["arret-remplissage", "contenant"], aspect, ARRET_AUTOMATIQUE_ET_BONBONNES, { source: PAGES.entonnoirArret.url, liens: [PAGES.entonnoirArret, PAGES.entonnoirCave] });
+}
 
 r.concept("pertes-soutirage", "Pertes pendant le soutirage", ["pertes au soutirage", "marge de perte", "fond de cuve", "limiter les pertes", "reste dans la cuve"], {
   famille: "soutirage",
@@ -642,6 +663,20 @@ const EPROUVETTE = `
 
 for (const aspect of ["definition", "usage", "dimension", "gamme", "choix"] as const) {
   r.fait("eprouvette", aspect, EPROUVETTE, { source: PAGES.eprouvette.url, liens: [PAGES.eprouvette, PAGES.contact] });
+}
+
+r.concept("renovyn", "Pastilles Rénovyn", ["renovyn", "renovin", "pastilles renovyn", "pastille renovyn", "pastilles pour futs", "pastilles de metabisulfite"], {
+  famille: "oenologie",
+  lien: PAGES.renovyn,
+});
+
+// Fiche relevée le 26/10/2026 : pastilles de métabisulfite de potassium et de tanins, par 20 de 10 g, pour l'entretien des fûts et
+// la conservation du vin (le cidre est aussi cité). La dose figure sur la fiche : la réponse ne la donne pas.
+const RENOVYN = `
+  Les **pastilles Rénovyn** (lot de **20 pastilles de 10 g**) associent du **métabisulfite de potassium** et des **tanins**. Elles servent à l'**entretien des fûts** et à **préserver le vin** ; la fiche cite aussi le cidre. La dose à employer est indiquée sur la fiche et sur l'emballage : je ne la donne pas ici. Manipulez-les avec précaution, comme tout produit sulfité, et demandez conseil au service client au **${TELEPHONE}** ou à **${EMAIL}** ou à un œnologue en cas de doute.`;
+
+for (const aspect of ["definition", "usage", "gamme", "condition", "entretien", "dimension", "choix", "raison"] as const) {
+  r.fait("renovyn", aspect, RENOVYN, { source: PAGES.renovyn.url, liens: [PAGES.renovyn, PAGES.contact] });
 }
 
 r.concept("meche-soufree", "Mèches soufrées", ["meche", "meches", "meche soufree", "meches soufrees", "meche de soufre", "meches de soufre", "soufre en meche", "mechage"], {

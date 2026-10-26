@@ -65,7 +65,7 @@ r.fait("cire", "gamme", `
   Des couleurs personnalisées sont possibles sur demande.`, { liens: [PAGES.cireDure, PAGES.cireSouple, PAGES.chauffeCire] });
 
 r.fait("cire", "dimension", `
-  La quantité de cire utilisée par bouteille dépend de la hauteur de goulot trempée et du nombre de couches. Pour estimer la quantité nécessaire à votre projet, le service client vous conseille volontiers.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
+  La quantité de cire utilisée par bouteille dépend de la hauteur de goulot trempée et du nombre de couches : d'après la fiche d'une cire Duhallé, comptez environ **4 à 12 g de cire par bouteille**, soit **de 80 à 250 bouteilles par kilo**. Pour estimer la quantité nécessaire à votre projet, le service client vous conseille volontiers.`, { source: SAVOIR_FAIRE, liens: [PAGES.contact] });
 
 r.concept("cire-dure", "Cire dure", ["cire dure", "cire traditionnelle", "cire rigide"], {
   famille: "cire",
@@ -135,7 +135,7 @@ r.concept("rendement-cire", "Quantité de cire par bouteille", ["bouteilles avec
 });
 
 r.fait("rendement-cire", "dimension", `
-  Le nombre de bouteilles par kilo varie avec le diamètre du col, la hauteur trempée, l'épaisseur et le nombre de couches. Pour une estimation fiable, pesez la cire avant et après un **test de 10 bouteilles**, calculez la consommation moyenne, puis ajoutez une marge pour la cire restant dans la cuve. Le service client peut aussi confirmer le rendement de la référence choisie.`, { source: SAVOIR_FAIRE, liens: [PAGES.cire, PAGES.contact] });
+  Le nombre de bouteilles par kilo varie avec le diamètre du col, la hauteur trempée, l'épaisseur et le nombre de couches. Pour une estimation fiable, pesez la cire avant et après un **test de 10 bouteilles**, calculez la consommation moyenne, puis ajoutez une marge pour la cire restant dans la cuve. D'après la fiche d'une cire Duhallé, comptez environ **4 à 12 g de cire par bouteille** selon la hauteur de col trempée, soit **de 80 à 250 bouteilles par kilo**. Le service client peut aussi confirmer le rendement de la référence choisie.`, { source: SAVOIR_FAIRE, liens: [PAGES.cire, PAGES.contact] });
 
 r.fait(["surbouchage", "cire"], "choix", `
   **Capsule ou cire ?** La **capsule thermorétractable** se pose vite et donne une finition nette. La **cire à cacheter** offre un rendu artisanal et une protection supplémentaire contre l'air et l'humidité, appréciée pour les vins de garde et les bouteilles à offrir.`, { source: SAVOIR_FAIRE, liens: [PAGES.surbouchage, PAGES.cire] });

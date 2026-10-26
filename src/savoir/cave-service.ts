@@ -59,7 +59,7 @@ r.fait("casier", "gamme", `
   Les casiers Duhallé :
   - **acier plastifié noir**, fabriqués en Italie : 30 places (5 rangées de 6), 60 places (10 rangées de 6), 90 places (15 rangées de 6, environ 63 x 151 x 26 cm) et 144 places, légèrement inclinés vers l'avant, livrés avec leurs pattes de fixation murale (également vendues à part comme pièces de rechange) ;
   - **effet chromé** : 24 places (4 rangées de 6), 48 places et 72 places, avec pattes de fixation murale ;
-  - **polystyrène** : 16 places réversible effet béton ciré, et 12 places en matière d'origine écologique, empilables ;
+  - **polystyrène** : 16 places réversible effet béton ciré, 12 places en matière d'origine écologique, empilables, et lot de 3 casiers gris de 3 bouteilles (9 au total), modulables ;
   - **bois** : 12 bouteilles (H 39 x L 34 x P 18 cm), livré monté ;
   - **Weinbox** transportable 12 bouteilles, et petit casier **Brindo** 3 bouteilles, modulable.`, { liens: [PAGES.casier30, PAGES.casier60, PAGES.casierPolystyrene16] });
 
@@ -67,7 +67,13 @@ r.fait("casier", "choix", `
   Choisissez d'abord selon le **nombre de bouteilles, leur diamètre, leur longueur et leur poids**, puis selon la place disponible et la fixation. Les casiers en acier plastifié offrent le plus de capacité ; le polystyrène isole davantage ; le bois privilégie l'esthétique. Vérifiez spécialement le diamètre des bouteilles champenoises : elles sont souvent plus larges et lourdes qu'une bordelaise de 75 cl.`, { liens: [PAGES.casier60, PAGES.casierPolystyrene16, PAGES.casierBois12] });
 
 r.fait("casier", "dimension", `
-  Les **dimensions** (hauteur, largeur, profondeur), le **nombre de places** et le **poids** de chaque casier sont indiqués sur sa fiche produit. Avant de commander, mesurez l'emplacement prévu, en tenant compte de la plinthe, des prises et de l'espace pour sortir les bouteilles. À titre d'exemple, le casier **90 places** mesure environ 63 x 151 x 26 cm (largeur x hauteur x profondeur). Pour une question sur un modèle précis, le service client vous répond au **${TELEPHONE}**.`, { liens: [PAGES.casiers, PAGES.contact] });
+  Les **dimensions** (hauteur, largeur, profondeur), le **nombre de places** et le **poids** de chaque casier sont indiqués sur sa fiche produit. Avant de commander, mesurez l'emplacement prévu, en tenant compte de la plinthe, des prises et de l'espace pour sortir les bouteilles. Dimensions relevées sur les fiches (largeur x hauteur x profondeur) :
+  - **acier plastifié noir** : 30 places, 63 x 51 x 26 cm ; 60 places, 63 x 101 x 26 cm ; 90 places, 63 x 151 x 26 cm ; 144 places (double largeur), 126 x 120 x 26 cm ;
+  - **effet chromé** : 24 places, 59 x 45 x 26 cm ; 48 places, 59 x 90 x 26 cm ; 72 places, 59 x 124 x 26 cm ;
+  - **polystyrène** : 16 places réversible, 44,5 x 44,5 x 26 cm ; 12 places, 44 x 33,5 x 23 cm ; lot de 3 casiers de 3 bouteilles, 33 x 42 x 30 cm chacun ;
+  - **bois** : 12 bouteilles, 34 x 39 x 18 cm.
+
+  Pour une question sur un modèle précis, le service client vous répond au **${TELEPHONE}**.`, { liens: [PAGES.casiers, PAGES.contact] });
 
 r.fait("casier", "condition", `
   Une bouteille de champagne peut être stockée dans un casier uniquement si ses **diamètre, longueur et poids** sont compatibles avec chaque logement et si le casier est stable ou fixé comme prévu. Ne forcez pas une bouteille plus large dans une alvéole conçue pour une bordelaise.`, { source: SAVOIR_FAIRE });
@@ -148,7 +154,43 @@ r.concept("service-vin", "Le service du vin", ["service du vin", "accessoires vi
 });
 
 r.fait("service-vin", "gamme", `
-  Pour le service du vin : **tire-bouchons** (à levier en coffret, deux leviers, bilame, Autopull avec coupe-capsule, couteau de sommelier Coutale Prestige, kit décapsuleur bois et métal), **bouchon verseur** Jerry, **bouchons Pratic** et **pompe vide-air** pour conserver les bouteilles entamées.`, { source: PAGES.serviceDuVin.url, liens: [PAGES.serviceDuVin] });
+  Pour le service du vin : **tire-bouchons** (à levier en coffret, deux leviers, bilame, Autopull avec coupe-capsule, couteau de sommelier Coutale Prestige, kit décapsuleur bois et métal), **bouchon verseur** Jerry, **bouchons Pratic** et **pompe vide-air** pour conserver les bouteilles entamées, **thermomètre à vin** en verre, **pince à champagne** en acier et **support BIB'UP** pour Bag in Box.`, { source: PAGES.serviceDuVin.url, liens: [PAGES.serviceDuVin] });
+
+// Accessoires de service relevés le 26/10/2026 sur les fiches du site : à faire valider par Duhallé (voir README).
+r.concept("bag-in-box", "Support pour Bag in Box", ["bag in box", "bib", "bib up", "cubi", "cubis", "cubitainer", "support de cubi", "support bag in box"], {
+  famille: "service-vin",
+  lien: PAGES.bibUp,
+});
+
+const BIB_UP = `
+  Le **support BIB'UP** est un support universel pour **Bag in Box** (cubi) : il surélève le cubi pour placer son robinet à hauteur de verre et facilite le service du vin. Il convient aux formats de **3, 5 et 10 litres**.`;
+
+for (const aspect of ["definition", "usage", "gamme", "dimension", "choix", "condition"] as const) {
+  r.fait("bag-in-box", aspect, BIB_UP, { source: PAGES.bibUp.url, liens: [PAGES.bibUp] });
+}
+
+r.concept("thermometre-vin", "Thermomètre à vin", ["thermometre a vin", "thermometre de vin", "thermometre vin", "thermometre pour le vin"], {
+  famille: "service-vin",
+  lien: PAGES.thermometreVin,
+  voirAussi: ["temperature-service"],
+});
+
+const THERMOMETRE_A_VIN = `
+  Le **thermomètre à vin** Duhallé est un thermomètre en **verre** gradué de **0 à 30 °C**, pour servir chaque vin à la bonne température.`;
+
+for (const aspect of ["definition", "usage", "gamme", "dimension", "choix"] as const) {
+  r.fait("thermometre-vin", aspect, THERMOMETRE_A_VIN, { source: PAGES.thermometreVin.url, liens: [PAGES.thermometreVin] });
+}
+
+r.concept("pince-champagne", "Pince à champagne", ["pince a champagne", "pince champagne", "pince a bouteille de champagne"], {
+  famille: "service-vin",
+  lien: PAGES.pinceChampagne,
+});
+
+for (const aspect of ["definition", "usage", "gamme", "choix"] as const) {
+  r.fait("pince-champagne", aspect, `
+    Duhallé propose une **pince à champagne en acier** (marque WAF), accessoire pour servir le champagne.`, { source: PAGES.pinceChampagne.url, liens: [PAGES.pinceChampagne] });
+}
 
 r.concept("temperature-service", "Température de service", ["temperature de service", "temperature du vin", "servir frais", "chambrer", "vin frais", "rafraichir", "servir le vin frais", "servir a quelle temperature", "temperature pour servir", "temperature pour boire"], {
   famille: "service-vin",
@@ -174,6 +216,7 @@ r.fait("tire-bouchon", "gamme", `
   - **tire-bouchon bilame** avec étui, pour les vieux bouchons ;
   - **Autopull** avec coupe-capsule Autocut ;
   - **couteau de sommelier Coutale Prestige** ;
+  - **tire-bouchon tonneau** à poignée en bois ;
   - **kit tire-bouchon décapsuleur** bois et métal noir.`, { source: PAGES.serviceDuVin.url, liens: [PAGES.tireBouchonLevier, PAGES.coutale, PAGES.tireBouchonBilame] });
 
 r.fait("tire-bouchon", "choix", `

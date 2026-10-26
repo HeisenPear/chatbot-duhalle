@@ -408,12 +408,14 @@ for (const aspect of ["procedure", "condition", "erreur"] as const) {
 
 r.concept("retour", "Retour et rétractation", ["retour", "retourner", "renvoyer", "rembourser", "remboursement", "retractation", "droit de retractation", "formulaire de retractation", "echanger", "echange", "satisfait ou rembourse", "changer d avis", "ne me convient pas"], {
   famille: "boutique-en-ligne",
+  // « Qui paie les frais de retour ? » : « paie » ne doit pas faire croire à une question sur le paiement.
+  formules: ["frais de retour", "frais du retour", "frais de renvoi", "frais pour renvoyer", "frais pour retourner", "payer le retour", "paie le retour", "paye le retour", "payer les frais de retour", "paie les frais de retour", "paye les frais de retour", "retour a ma charge", "retour a la charge", "retour gratuit", "retour payant", "renvoi gratuit", "renvoi payant"],
 });
 
 r.fait("retour", "procedure", `
   Vous disposez du **droit de rétractation** prévu par la loi : **14 jours** à compter de la réception de votre commande pour nous faire part de votre décision, grâce au formulaire de rétractation disponible en bas de page du site, ou en contactant le service client au **${TELEPHONE}** ou à **${EMAIL}**.
 
-  Les modalités de retour (frais, état des produits) sont précisées dans les Conditions générales de vente.`);
+  En cas de rétractation, les **frais de retour sont à la charge du client** (précision de l'équipe Duhallé, 26/10/2026). Les autres modalités (état des produits, remboursement) sont précisées dans les Conditions générales de vente. Si le produit est arrivé abîmé, incomplet ou non conforme, il ne s'agit pas d'une rétractation : contactez rapidement le service client.`);
 
 r.concept("produit-abime", "Produit abîmé ou non conforme", ["abime", "arrive casse", "recu casse", "endommage", "defectueux", "defaut de fabrication", "en panne", "manquant", "piece manquante", "pas conforme", "non conforme", "mauvais produit", "erreur de produit", "garantie", "colis endommage", "colis arrive casse", "colis casse", "colis abime", "incomplet", "incomplete", "incompletes", "bouteille arrivee cassee", "bouteille cassee dans le colis"], {
   famille: "retour",

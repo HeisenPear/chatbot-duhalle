@@ -16,7 +16,7 @@ const dit = (question: string, ...motifs: RegExp[]) => {
 
 describe("les questions du 26 octobre au 12 novembre", () => {
   it("ne prend pas la soude pour le soudage du carbure", () => {
-    dit("Information sur la soude", /Je n'ai pas trouvé de \*\*soude\*\*/);
+    dit("Information sur la soude", /vend de la \*\*soude caustique\*\*/, /corrosif/);
     dit("à quoi sert le carbure pour le soudage", /carbure de calcium/);
   });
 

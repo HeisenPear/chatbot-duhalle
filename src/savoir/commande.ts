@@ -433,7 +433,7 @@ r.fait(["produit-abime", "commande"], "procedure", SIGNALER_UN_PRODUIT_ABIME, { 
 
 // ─── Compte, facture, disponibilité ────────────────────────────────────────
 
-r.concept("compte-client", "Mon compte client", ["compte client", "espace client", "mot de passe", "identifiant", "connexion", "se connecter", "inscription", "creer un compte", "s inscrire", "desinscription", "newsletter", "donnees personnelles", "rgpd", "supprimer mon compte"], {
+r.concept("compte-client", "Mon compte client", ["compte client", "espace client", "mot de passe", "identifiant", "connexion", "se connecter", "inscription", "creer un compte", "s inscrire", "desinscription", "donnees personnelles", "rgpd", "supprimer mon compte"], {
   famille: "boutique-en-ligne",
   formules: ["mon compte", "votre compte", "un compte"],
 });
@@ -452,7 +452,7 @@ r.concept("disponibilite", "Disponibilité des produits", ["disponible", "dispon
   // Les mèches, l'hygromètre, un bouchon : le produit dit DE QUOI on parle, la disponibilité dit CE QU'ON DEMANDE.
   exclusif: true,
   // « stock » est une formule et non un alias : « stocker », « stockage » ont la même racine et parlaient de cave.
-  formules: ["stock", "stocks", "de nouveau disponible", "a nouveau disponible", "de retour en stock", "sera t il disponible", "sera t elle disponible", "seront ils disponibles", "seront elles disponibles",
+  formules: ["stock", "stocks", "date de reapprovisionnement", "date de retour en stock", "date de reassort", "date de reappro", "de nouveau disponible", "a nouveau disponible", "de retour en stock", "sera t il disponible", "sera t elle disponible", "seront ils disponibles", "seront elles disponibles",
     "de nouveau commercialise", "de nouveau commercialisee", "de nouveau commercialises", "de nouveau commercialisees", "de nouveau en vente", "de nouveau en stock", "de nouveau propose", "de nouveau proposee", "remis en vente", "remise en vente", "remis en stock", "remise en stock", "reviendra en stock", "reviendront en stock", "revient en stock", "reviendra t il", "reviendra t elle",
     "quand aurez vous", "quand avez vous de nouveau", "quand allez vous avoir", "quand allez vous recevoir", "quand recevrez vous", "quand serez vous reapprovisionne", "quand serez vous approvisionne", "n est plus disponible", "n est plus en stock", "plus en stock", "plus disponible", "en rupture"],
 });

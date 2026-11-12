@@ -324,7 +324,7 @@ r.concept("hachoir", "Hachoirs", ["hachoir", "hachoirs", "hachoir a viande", "ha
   lien: PAGES.hachoirFonte,
 });
 
-r.concept("grille-hachoir", "Grilles de hachoir", ["grille de hachoir", "grilles de hachoir", "grille pour hachoir", "grilles pour hachoir", "grille hachoir", "grille de rechange"], {
+r.concept("grille-hachoir", "Grilles de hachoir", ["grille de hachoir", "grilles de hachoir", "grilles pour vebber", "grilles pour weber", "grille pour hachoir", "grilles pour hachoir", "grille hachoir", "grille de rechange"], {
   exclusif: true,
   famille: "hachoir",
   lien: PAGES.hachoirFonte,

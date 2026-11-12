@@ -10,9 +10,10 @@ import { conserves } from "./conserves";
 import { droguerie } from "./droguerie";
 import { entreprise } from "./entreprise";
 import { miseEnBouteille } from "./mise-en-bouteille";
+import { questionsNovembre } from "./questions-novembre";
 import { vinaigre } from "./vinaigre";
 
-const RUBRIQUES = [entreprise, commande, miseEnBouteille, bouchage, cire, caveService, cidre, vinaigre, conserves, droguerie];
+const RUBRIQUES = [entreprise, commande, miseEnBouteille, bouchage, cire, caveService, cidre, vinaigre, conserves, droguerie, questionsNovembre];
 
 /**
  * Les défauts de la base : ids en double, familles ou concepts inconnus,

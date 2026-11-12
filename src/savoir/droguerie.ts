@@ -16,7 +16,7 @@ r.concept("huile-cade", "Huile de cade", ["huile de cade", "cade", "proteger le 
 r.fait("huile-cade", "usage", `
   L'**huile de cade** (bidon de 1 L) protège les **bois en contact avec le sol**.`, { liens: [PAGES.huileCade] });
 
-r.concept("huile-paraffine", "Huile de paraffine", ["huile de paraffine", "paraffine", "lubrifier", "lubrification", "huile minerale", "parafine", "parafinne", "parrafine", "parrafinne"], { famille: "droguerie", lien: PAGES.huileParaffine });
+r.concept("huile-paraffine", "Huile de paraffine", ["huile de paraffine", "paraffine", "lubrifier", "lubrification", "huile minerale", "parafine", "parafinne", "parrafine", "parrafinne", "parafin"], { famille: "droguerie", lien: PAGES.huileParaffine });
 
 /**
  * Fiche relevée le 12/10/2026 : « qualité pharma », « Codex alimentaire », lubrification de machines et de pièces en
@@ -46,7 +46,7 @@ for (const aspect of ["usage", "condition", "choix", "raison", "procedure", "ent
   r.fait(["huile-paraffine", "planche-bois"], aspect, HUILE_ET_PLANCHES, { source: SAVOIR_FAIRE, liens: [PAGES.huileParaffine, PAGES.contact] });
 }
 
-r.concept("carbure", "Carbure de calcium", ["carbure", "carbure de calcium", "acetylene", "lampe a carbure", "soudage"], { famille: "droguerie", lien: PAGES.carbure });
+r.concept("carbure", "Carbure de calcium", ["carbure", "carbure de calcium", "acetylene", "lampe a carbure"], { famille: "droguerie", lien: PAGES.carbure, formules: ["soudage", "souder", "soudure", "pour souder", "chalumeau"] });
 
 r.fait("carbure", "usage", `
   Le **carbure de calcium** (5 kg) produit de l'**acétylène** au contact de l'eau, utilisé notamment pour le soudage.`, { liens: [PAGES.carbure] });

@@ -23,10 +23,29 @@ L'algorithme s'inspire de l'« assistant déterministe » d'APISAAS (`lib/assist
 
 Pour chaque question, le moteur procède ainsi :
 
-1. Il reconnaît les **concepts cités**, malgré les pluriels, les accents et les fautes de frappe.
+1. Il reconnaît les **concepts cités**, malgré les pluriels, les accents, les **verbes conjugués** (« bouchais », « mettront », « conserverai » retombent sur « boucher », « mettre », « conserver ») et les fautes de frappe.
 2. Il lit le **type** de la question.
 3. Il prend les **faits** de ces concepts et de leurs familles. Un fait propre au produit l'emporte sur le fait général de sa famille. Un fait qui croise deux concepts cités (« bouchon » + « vin de garde ») passe devant.
 4. Il assemble 1 à 3 faits selon le plan du type, avec des liens vers les pages du site et des questions suggérées.
+
+### Le lexique des formes (étape 1)
+
+`raciner()` (`src/moteur/texte.ts`) cherche d'abord le mot dans le **lexique des formes** (`src/moteur/lexique.ts`), puis, s'il n'y est pas, applique la racinisation par suffixes d'origine (retrait du pluriel puis d'un suffixe). Le lexique donne pour chaque forme la racine du mot de base et sa **nature** (nom, verbe, adjectif, adverbe), que `natureDuMot()` et `lireLesMots()` exposent pour la lecture de la phrase.
+
+- **Les suffixes d'agent ne sont toujours pas retirés** : une boucheuse n'est pas le bouchage, un vinaigrier n'est pas le vinaigre (testé dans `test/lexique.test.ts`).
+- **Les verbes de toute phrase** (venir, aller, devoir, pouvoir, vouloir, falloir, savoir, voir, faire, avoir, être) gardent la racine du repli : rapprocher « viens » de « venir » faisait citer le point de vente (alias « venir chercher ») à qui dit « je viens de passer une commande ». Le lexique ne leur donne que leur nature.
+- **Une forme à plusieurs lectures** (« bouchons » : nom ou verbe) prend d'abord la lecture dont le mot de base est la forme elle-même, puis le nom, l'adjectif, le verbe, l'adverbe.
+
+**Préparer le lexique** (hors ligne ; le Worker ne charge que le fichier réduit, 14 000 formes, 260 Kio, 44 Kio compressés) :
+
+```bash
+pip download spacy-lefff --no-deps -d /tmp/lefff && unzip -o /tmp/lefff/spacy_lefff-*.whl -d /tmp/lefff/x
+npm run lexique -- /tmp/lefff/x/spacy_lefff/data/lefff-3.4.mlex
+```
+
+Le script (`scripts/preparer-lexique.mjs`) ne garde que les formes des mots de la base de savoir et des questions des tests, et se rejoue à l'identique. À refaire quand la base de savoir s'enrichit beaucoup de nouveaux mots.
+
+**Licence de la ressource.** Les données viennent du **Lefff** (Lexique des Formes Fléchies du Français), de Benoît Sagot (Inria, équipe Alpage puis Almanach), distribué sous la licence **LGPL-LR** (Lesser General Public License For Linguistic Resources ; texte dans `scripts/lexique/LICENCE-LGPL-LR.txt`). Le fichier `lefff-3.4.mlex` est celui du paquet PyPI `spacy-lefff` (dont le code est sous licence MIT, les données sous LGPL-LR). `src/moteur/lexique.ts` en est une version réduite et modifiée : il porte l'avis de la licence en en-tête et reste une ressource linguistique sous la même licence, sans garantie. La licence ne restreint pas l'usage d'un programme qui s'en sert. Morphalou (licence LGPL-LR également) n'est pas utilisé. Cette note n'est pas un avis juridique : à faire relire si le dépôt est un jour redistribué.
 
 Cas particuliers :
 - **Relances** : « et combien de temps ? » ou « et pour le cidre ? » reprennent le sujet précédent, comme une question courte qui renvoie à la réponse précédente par un pronom (« faut-il le tremper ? »).
@@ -76,6 +95,7 @@ src/
   index.ts              le Worker : /api/chat, /api/accueil, /api/sante, CORS
   moteur/               l'algorithme (aucun mot de métier)
     texte.ts            normalisation, mots vides, racinisation, fautes de frappe
+    lexique.ts          lexique des formes du français (généré : npm run lexique)
     types-de-question.ts
     concepts.ts         détection des concepts, lignée
     reponse.ts          choix des faits selon le plan

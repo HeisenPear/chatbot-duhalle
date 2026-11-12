@@ -2,10 +2,18 @@
 // LE FRANÇAIS, CÔTÉ MOTS : normaliser, retirer les mots vides, raciner,
 // comparer malgré les fautes de frappe.
 //
+// La racine d'un mot vient d'abord d'un LEXIQUE des formes du français (lexique.ts,
+// préparé hors ligne par scripts/preparer-lexique.mjs à partir du Lefff), puis, pour
+// un mot inconnu, de la racinisation par suffixes.
+//
 // Les questions des clients ET les alias des concepts passent par les mêmes
 // fonctions : c'est ce qui garantit que « Bouchons », « bouchon » et
 // « bouchôn » se comparent.
 // ═══════════════════════════════════════════════════════════════════════════
+
+import { chercherDansLeLexique, type NatureDeMot } from "./lexique";
+
+export type { NatureDeMot } from "./lexique";
 
 /** Minuscules, sans accents ni ponctuation, espaces simples. */
 export function normaliser(texte: string): string {
@@ -65,11 +73,14 @@ const SUFFIXES = [
 const RACINE_MIN = 3;
 
 /**
- * Racinisation volontairement simple, en deux temps : on retire la marque du
- * pluriel, puis UN suffixe courant. « Bouchages », « bouchage » et « boucher »
- * tombent ainsi sur la même racine, « boucheuses » et « boucheuse » sur une autre.
+ * Racinisation par suffixes, en deux temps : on retire la marque du pluriel,
+ * puis UN suffixe courant. « Bouchages », « bouchage » et « boucher » tombent
+ * ainsi sur la même racine, « boucheuses » et « boucheuse » sur une autre.
+ *
+ * C'est le repli de `raciner` : un mot que le lexique ne connaît pas passe par ici.
+ * Elle sert aussi, hors ligne, à calculer la racine du mot de base de chaque forme du lexique.
  */
-export function raciner(mot: string): string {
+export function racinerParSuffixes(mot: string): string {
   if (/\d/.test(mot) || mot.length <= RACINE_MIN) return mot;
   let m = mot;
   if (/[^s][sx]$/.test(m) && m.length - 1 >= RACINE_MIN) m = m.slice(0, -1);
@@ -79,6 +90,38 @@ export function raciner(mot: string): string {
     }
   }
   return m;
+}
+
+/**
+ * La racine d'un mot normalisé. Le LEXIQUE des formes (src/moteur/lexique.ts) passe d'abord :
+ * « bouchais », « bouchions » et « boucher » tombent sur la même racine, « mettront » sur celle de
+ * « mettre ». Un mot absent du lexique retombe sur la racinisation par suffixes.
+ */
+export function raciner(mot: string): string {
+  if (/\d/.test(mot)) return mot;
+  return chercherDansLeLexique(mot)?.racine ?? racinerParSuffixes(mot);
+}
+
+/** La nature d'un mot normalisé (nom, verbe, adjectif, adverbe), ou `undefined` si le lexique ne le connaît pas. */
+export function natureDuMot(mot: string): NatureDeMot | undefined {
+  return chercherDansLeLexique(mot)?.nature;
+}
+
+/** Un mot de la question, avec sa racine et sa nature (que l'étape suivante lira pour découper la phrase). */
+export interface MotLu {
+  readonly mot: string;
+  readonly racine: string;
+  readonly nature: NatureDeMot | undefined;
+}
+
+/** Les mots porteurs de sens d'un texte, dans l'ordre, avec leur racine et leur nature. */
+export function lireLesMots(texte: string): MotLu[] {
+  const out: MotLu[] = [];
+  for (const mot of normaliser(texte).split(" ")) {
+    if (!mot || estMotVide(mot)) continue;
+    out.push({ mot, racine: raciner(mot), nature: natureDuMot(mot) });
+  }
+  return out;
 }
 
 /**

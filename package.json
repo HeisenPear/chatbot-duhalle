@@ -10,6 +10,7 @@
     "deploy": "npm run build && wrangler deploy",
     "typecheck": "tsc --noEmit && tsc --noEmit -p src/widget",
     "mesure": "node scripts/mesure.mjs",
+    "lexique": "node scripts/preparer-lexique.mjs",
     "test": "vitest run",
     "cf-typegen": "wrangler types"
   },

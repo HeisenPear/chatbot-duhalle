@@ -65,7 +65,7 @@ Mesurés avec `npm run mesure` sur le jeu de mesure (113 questions avec réponse
 
 Les temps varient d'une exécution à l'autre (machine partagée) : seules les tailles sont stables. Le maximum à froid est le coût des corrections de fautes de frappe (premier passage d'un mot inconnu).
 
-**Limites de Cloudflare Workers à tenir** (à vérifier sur le plan réellement utilisé) : offre gratuite, 3 Mio de Worker compressé et **10 ms de calcul par requête** ; offre payante, 10 Mio compressés et 30 s de calcul par défaut. Le dépôt vise la limite la plus serrée : la construction de l'assistant (120 à 160 ms) tombe hors de ce budget uniquement si Cloudflare la compte au démarrage de l'isolat, ce qui est à confirmer sur le plan utilisé (voir le compte rendu de l'étape 0).
+**Limites de Cloudflare Workers à tenir** (à vérifier sur le plan réellement utilisé) : offre gratuite, 3 Mio de Worker compressé et **10 ms de calcul par requête** ; offre payante, 10 Mio compressés et 30 s de calcul par défaut. Dans les deux cas, le démarrage d'un isolat (ici la construction de l'assistant, 120 à 160 ms mesurés sous Node) est limité à 1 s. Le dépôt vise la limite la plus serrée : 10 ms par question, y compris à froid et pour un message piégé (`test/robustesse.test.ts`, seuil de 40 ms sur machine de test lente).
 
 ---
 

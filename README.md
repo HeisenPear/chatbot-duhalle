@@ -45,7 +45,27 @@ Aujourd'hui : **252 concepts** et **704 faits**, répartis en 10 fichiers de rub
 
 - **Banc** (`test/banc.test.ts`) : 186 questions formulées comme les clients les posent, avec la réponse attendue. Tout doit passer.
 - **Questions réelles** (`test/clients-reels.test.ts`) : les questions posées par les vrais clients (lues dans la base D1), puis des questions **voisines** (autres formulations, cas proches) pour que la réponse vise plus large que la phrase vue. Chaque lot relu y est ajouté.
+- **Jeu de mesure** (`test/mesure/jeu-de-mesure.ts`, script `npm run mesure`) : 119 questions réelles lues dans la base D1, qui ne figurent dans aucun autre test, avec la notion ou le fait attendu (et 6 questions hors base, dont la bonne réponse est de rediriger). **On ne règle jamais le moteur question par question sur ce jeu** : il sert à juger un changement du moteur, avant et après. `npm run mesure` donne la bonne réponse en premier et parmi les 3 premiers faits, le taux de réponses « inconnu » et le temps de calcul ; `-- --ecarts` liste les réponses fausses, `-- --json` sort les chiffres pour les comparer. Les annotations ont été écrites en regardant ce que répondait le moteur : le jeu est à remplacer par l'export complet de la base D1 quand il sera disponible, et les chiffres ne se comparent qu'au sein d'un même jeu.
 - **Jeu inédit** (`test/inedit.test.ts`) : 25 questions écrites **après** le réglage, qu'on ne règle jamais une par une. Il est mesuré à **68 %** de premières réponses idéales, et les écarts restent en général dans le bon sujet. Quand un jeu inédit a servi à corriger, il rejoint le banc et on en écrit un nouveau. Les trois premiers jeux, mesurés à 57 %, 57 % puis 77 %, ont fait progresser les règles.
+
+#### Chiffres de référence du moteur (étape 0, 12/11/2026)
+
+Mesurés avec `npm run mesure` sur le jeu de mesure (113 questions avec réponse attendue, 6 hors base) :
+
+| Mesure | Valeur |
+|---|---|
+| Bonne réponse en premier | **85,8 %** (97/113) |
+| Bonne réponse parmi les 3 premiers faits | **90,3 %** (102/113) |
+| Réponses « inconnu » | 5 % de toutes les questions ; 0,9 % de celles qui ont une réponse attendue |
+| Refus à bon escient des questions hors base | 83,3 % (5/6) |
+| Temps de calcul d'une question, à chaud | moyen 0,3 à 0,4 ms, 95e centile 0,7 à 0,8 ms, maximum 3 à 6 ms |
+| Temps de calcul d'une question, à froid (première de l'isolat) | moyen 0,9 à 1,1 ms, maximum 8 à 10 ms |
+| Construction de l'assistant (une fois par isolat) | 120 à 160 ms |
+| Taille du Worker (`wrangler deploy --dry-run`) | 401,6 Kio, **109,8 Kio** compressés |
+
+Les temps varient d'une exécution à l'autre (machine partagée) : seules les tailles sont stables. Le maximum à froid est le coût des corrections de fautes de frappe (premier passage d'un mot inconnu).
+
+**Limites de Cloudflare Workers à tenir** (à vérifier sur le plan réellement utilisé) : offre gratuite, 3 Mio de Worker compressé et **10 ms de calcul par requête** ; offre payante, 10 Mio compressés et 30 s de calcul par défaut. Le dépôt vise la limite la plus serrée : la construction de l'assistant (120 à 160 ms) tombe hors de ce budget uniquement si Cloudflare la compte au démarrage de l'isolat, ce qui est à confirmer sur le plan utilisé (voir le compte rendu de l'étape 0).
 
 ---
 

@@ -9,6 +9,7 @@
     "dev": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
     "typecheck": "tsc --noEmit && tsc --noEmit -p src/widget",
+    "mesure": "node scripts/mesure.mjs",
     "test": "vitest run",
     "cf-typegen": "wrangler types"
   },

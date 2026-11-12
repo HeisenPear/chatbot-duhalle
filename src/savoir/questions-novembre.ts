@@ -12,7 +12,7 @@ const TOUS_LES_ASPECTS = ["definition", "usage", "gamme", "choix", "dimension", 
 const CONTACT = `au **${TELEPHONE}** ou à **${EMAIL}**`;
 
 // « Information sur la soude » : « soude » était pris pour le soudage du carbure de calcium.
-r.concept("soude", "Soude", ["hydroxyde de sodium"], {
+r.concept("soude", "Soude caustique en droguerie", ["hydroxyde de sodium"], {
   famille: "catalogue",
   exclusif: true,
   // « soude » et « soudage » ont la même racine : la soude n'est reconnue que mot pour mot.
@@ -20,7 +20,9 @@ r.concept("soude", "Soude", ["hydroxyde de sodium"], {
 });
 for (const aspect of TOUS_LES_ASPECTS) {
   r.fait("soude", aspect, `
-    Je n'ai pas trouvé de **soude** dans la base du catalogue. La rubrique **Droguerie** propose de l'huile de cade, de l'huile de paraffine et du carbure de calcium. Pour un renseignement sur une soude précise, regardez la fiche du produit ou contactez le service client ${CONTACT}.`, { liens: [PAGES.droguerie, PAGES.contact] });
+    Oui, Duhallé vend de la **soude caustique**, dans la rubrique **Droguerie**. Je n'ai pas sa fiche détaillée dans ma base (conditionnement, pureté, usages précis, prix) : regardez la fiche du produit sur la boutique, ou demandez au service client ${CONTACT}.
+
+    C'est un produit **corrosif** : portez des **gants et des lunettes**, versez toujours la soude **dans l'eau** (jamais l'inverse), évitez l'**aluminium**, et gardez-la fermée, au sec, **hors de portée des enfants**. Pour la fiche de sécurité du produit, demandez-la au service client.`, { liens: [PAGES.droguerie, PAGES.contact], ...(aspect === "condition" || aspect === "usage" ? { avertissement: true } : {}) });
 }
 
 // « Besoin de la fiche de sécurité sur l'huile de paraffine » : ce n'est pas une question de paiement.

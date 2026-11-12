@@ -9,7 +9,7 @@ export const droguerie = r;
 r.concept("droguerie", "Droguerie", ["droguerie", "produits de droguerie"], { famille: "catalogue", lien: PAGES.droguerie });
 
 r.fait("droguerie", "gamme", `
-  La rubrique **Droguerie** propose : de l'**huile de cade** (1 L) pour protéger les bois en contact avec le sol, de l'**huile de paraffine** (1 L) pour la cosmétique, la pharmacie ou la lubrification des machines, et du **carbure de calcium** (5 kg), qui produit de l'acétylène.`, { liens: [PAGES.huileCade, PAGES.huileParaffine, PAGES.carbure] });
+  La rubrique **Droguerie** propose : de l'**huile de cade** (1 L) pour protéger les bois en contact avec le sol, de l'**huile de paraffine** (1 L) pour la cosmétique, la pharmacie ou la lubrification des machines, du **carbure de calcium** (5 kg), qui produit de l'acétylène, et de la **soude caustique**.`, { liens: [PAGES.huileCade, PAGES.huileParaffine, PAGES.carbure] });
 
 r.concept("huile-cade", "Huile de cade", ["huile de cade", "cade", "proteger le bois", "bois au sol"], { famille: "droguerie", lien: PAGES.huileCade });
 

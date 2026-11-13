@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p src/widget",
     "mesure": "node scripts/mesure.mjs",
     "lexique": "node scripts/preparer-lexique.mjs",
+    "vecteurs": "node scripts/preparer-vecteurs.mjs",
     "test": "vitest run",
     "cf-typegen": "wrangler types"
   },

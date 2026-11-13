@@ -3,6 +3,8 @@
 //   npm run mesure                  les chiffres, et les écarts
 //   npm run mesure -- --json        les chiffres en JSON (pour comparer deux étapes)
 //   npm run mesure -- --ecarts      la liste complète des réponses fausses
+//   npm run mesure -- --seuil 0.7 --seuil-avec-concept 0.9 --marge 0.05      règle la reconnaissance par le sens (voir src/moteur/sens.ts)
+//   npm run mesure -- --sans-sens   la mesure sans reconnaissance par le sens
 //
 // Donne : la bonne réponse en premier (%), la bonne réponse parmi les 3 premiers faits (%), le taux de
 // réponses « inconnu », le refus à bon escient des questions hors base, et le temps de calcul d'une
@@ -26,6 +28,7 @@ try {
         export { REGLAGES } from "./src/savoir/coordonnees";
         export { BASE } from "./src/savoir/index";
         export { JEU_DE_MESURE } from "./test/mesure/jeu-de-mesure";
+        export { REGLAGES_DU_SENS } from "./src/moteur/sens";
       `,
       resolveDir: racine,
       loader: "ts",
@@ -36,8 +39,17 @@ try {
     outfile: sortie,
     logLevel: "error",
   });
-  const { Assistant, REGLAGES, BASE, JEU_DE_MESURE } = await import(pathToFileURL(sortie).href);
+  const { Assistant, REGLAGES, BASE, JEU_DE_MESURE, REGLAGES_DU_SENS } = await import(pathToFileURL(sortie).href);
+const valeur = (nom) => {
+  const i = process.argv.indexOf(`--${nom}`);
+  return i >= 0 ? Number(process.argv[i + 1]) : undefined;
+};
+if (valeur("seuil") !== undefined) REGLAGES_DU_SENS.seuil = valeur("seuil");
+if (valeur("seuil-avec-concept") !== undefined) REGLAGES_DU_SENS.seuilAvecConcept = valeur("seuil-avec-concept");
+if (valeur("marge") !== undefined) REGLAGES_DU_SENS.marge = valeur("marge");
+if (process.argv.includes("--sans-sens")) REGLAGES_DU_SENS.seuil = REGLAGES_DU_SENS.seuilAvecConcept = 2;
 
+  // La construction comprend le préchauffage du moteur : c'est ce que fait le Worker au démarrage de l'isolat.
   const debutDeLaConstruction = performance.now();
   const assistant = new Assistant(BASE, REGLAGES);
   const construction = performance.now() - debutDeLaConstruction;
@@ -99,6 +111,8 @@ try {
     temps_a_chaud: stats(chaud),
     temps_a_froid: stats(froid),
     construction_de_l_assistant_ms: Math.round(100 * construction) / 100,
+    mots_reconnus_par_le_sens: resultats.reduce((total, r) => total + r.reponse.trace.substitutions.length, 0),
+    questions_touchees_par_le_sens: resultats.filter((r) => r.reponse.trace.substitutions.length > 0).length,
   };
 
   if (process.argv.includes("--json")) {
@@ -112,6 +126,7 @@ try {
     console.log(`  temps de calcul à chaud         moyen ${chiffres.temps_a_chaud.moyenne_ms} ms, p95 ${chiffres.temps_a_chaud.p95_ms} ms, maximum ${chiffres.temps_a_chaud.maximum_ms} ms`);
     console.log(`  temps de calcul à froid         moyen ${chiffres.temps_a_froid.moyenne_ms} ms, p95 ${chiffres.temps_a_froid.p95_ms} ms, maximum ${chiffres.temps_a_froid.maximum_ms} ms`);
     console.log(`  construction de l'assistant     ${chiffres.construction_de_l_assistant_ms} ms (une fois par isolat)`);
+    console.log(`  reconnaissance par le sens      ${chiffres.mots_reconnus_par_le_sens} mots reconnus dans ${chiffres.questions_touchees_par_le_sens} questions (seuil ${REGLAGES_DU_SENS.seuil}, avec concept ${REGLAGES_DU_SENS.seuilAvecConcept}, marge ${REGLAGES_DU_SENS.marge})`);
   }
   if (process.argv.includes("--ecarts")) {
     console.log("\nÉcarts (le premier fait n'est pas celui attendu) :");
@@ -120,6 +135,9 @@ try {
       if (f !== undefined && convient(f, r.attendus)) continue;
       const rang = r.reponse.trace.faits.findIndex((x) => convient(x, r.attendus));
       console.log(`  ${rang >= 0 ? `[rang ${rang + 1}]` : "[absent]"} ${r.question.slice(0, 90)}\n      attendu ${r.attendus.join(" | ")} ; obtenu ${r.reponse.nature} ${r.reponse.trace.faits.join(", ") || "-"}`);
+    }
+    for (const r of resultats.filter((x) => x.reponse.trace.substitutions.length > 0)) {
+      console.log(`  [sens] ${r.question.slice(0, 80)} : ${r.reponse.trace.substitutions.join(", ")}`);
     }
     for (const r of horsBase.filter((x) => x.reponse.nature !== "inconnu")) {
       console.log(`  [hors base répondu] ${r.question.slice(0, 90)}\n      obtenu ${r.reponse.nature} ${r.reponse.trace.faits.join(", ")}`);

@@ -23,7 +23,7 @@ L'algorithme s'inspire de l'« assistant déterministe » d'APISAAS (`lib/assist
 
 Pour chaque question, le moteur procède ainsi :
 
-1. Il reconnaît les **concepts cités**, malgré les pluriels, les accents, les **verbes conjugués** (« bouchais », « mettront », « conserverai » retombent sur « boucher », « mettre », « conserver ») et les fautes de frappe.
+1. Il reconnaît les **concepts cités**, malgré les pluriels, les accents, les **verbes conjugués** (« bouchais », « mettront », « conserverai » retombent sur « boucher », « mettre », « conserver »), les fautes de frappe et, pour un mot rare que la base ne connaît pas, le **sens** (« fiole » → « bouteille »).
 2. Il lit le **type** de la question.
 3. Il prend les **faits** de ces concepts et de leurs familles. Un fait propre au produit l'emporte sur le fait général de sa famille. Un fait qui croise deux concepts cités (« bouchon » + « vin de garde ») passe devant.
 4. Il assemble 1 à 3 faits selon le plan du type, avec des liens vers les pages du site et des questions suggérées.
@@ -46,6 +46,33 @@ npm run lexique -- /tmp/lefff/x/spacy_lefff/data/lefff-3.4.mlex
 Le script (`scripts/preparer-lexique.mjs`) ne garde que les formes des mots de la base de savoir et des questions des tests, et se rejoue à l'identique. À refaire quand la base de savoir s'enrichit beaucoup de nouveaux mots.
 
 **Licence de la ressource.** Les données viennent du **Lefff** (Lexique des Formes Fléchies du Français), de Benoît Sagot (Inria, équipe Alpage puis Almanach), distribué sous la licence **LGPL-LR** (Lesser General Public License For Linguistic Resources ; texte dans `scripts/lexique/LICENCE-LGPL-LR.txt`). Le fichier `lefff-3.4.mlex` est celui du paquet PyPI `spacy-lefff` (dont le code est sous licence MIT, les données sous LGPL-LR). `src/moteur/lexique.ts` en est une version réduite et modifiée : il porte l'avis de la licence en en-tête et reste une ressource linguistique sous la même licence, sans garantie. La licence ne restreint pas l'usage d'un programme qui s'en sert. Morphalou (licence LGPL-LR également) n'est pas utilisé. Cette note n'est pas un avis juridique : à faire relire si le dépôt est un jour redistribué.
+
+### La reconnaissance par le sens (étape 2)
+
+Un client écrit « fiole » : aucun alias ne contient ce mot. Quand un mot reste inconnu après la correction des fautes de frappe, `src/moteur/sens.ts` cherche le mot des alias dont le **sens** est le plus proche, avec des **vecteurs de mots** (`src/moteur/vecteurs.ts`) : « fiole → bouteille (sens, 0,76) ». Aucun modèle n'est appelé : un produit scalaire sur 64 entiers par mot cible.
+
+Un sens proche n'est pas un synonyme (« dernière » ~ « première », « belge » ~ « suisse », « jambon » ~ « saucisse »). La substitution n'est donc acceptée que si **toutes** ces conditions sont réunies (réglages dans `REGLAGES_DU_SENS`) :
+
+- **le mot est rare** : les 12 000 mots les plus fréquents du français ne sont jamais substitués (ce sont des mots que la base ne connaît pas exprès, et leurs voisins sont des faux amis) ;
+- **la similarité** dépasse **0,75** (cosinus) quand la question ne cite aucun concept, **0,92** quand elle en cite déjà un par ses propres mots : une substitution ne peut alors que lui nuire (« demain matin » devenait « le lendemain ») ;
+- **elle dépasse de 0,04** la deuxième candidate d'une autre racine : un mot qui hésite entre deux cibles ne choisit pas ;
+- **la cible n'est pas un mot trop courant** pour dire de quoi on parle (`MOTS_TROP_COURANTS` : « maison », « couleur », « fruit », « produit », « vin », « temps »…, voir la règle « un mot courant n'est pas un alias » plus bas) ;
+- **le mot a au moins 4 lettres**, et une question ne cherche le sens que de **4 mots inconnus** au plus (le temps de calcul d'un message piégé reste borné).
+
+Un concept reconnu par le sens **pèse moins** qu'un alias exact : sa confiance (0,6) multiplie son poids dans `poids()` (`reponse.ts`), comme le poids des familles. La **trace** indique chaque substitution (`trace.substitutions`).
+
+**Préparer les vecteurs** (hors ligne ; le Worker ne charge que le fichier réduit : 14 000 mots, 64 dimensions, entiers 8 bits, 875 Kio de données, 905 Kio compressés avec le code) :
+
+```bash
+curl -s https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.fr.300.vec.gz | gunzip -c | head -n 150001 > cc.fr.300.head.vec
+npm run vecteurs -- cc.fr.300.head.vec --mots 14000
+```
+
+(`curl` termine par une erreur 23 : `head` a fermé le tube, c'est normal.) Le script (`scripts/preparer-vecteurs.mjs`) garde les mots de la base de savoir et les mots rares dont le vecteur est proche d'un mot de la base, réduit les 300 dimensions à 64 par analyse en composantes principales, et se rejoue à l'identique. À refaire quand la base de savoir s'enrichit beaucoup de nouveaux mots. Les 150 000 premières lignes du fichier suffisent : il est trié du mot le plus fréquent au moins fréquent.
+
+**Régler le seuil** sur le jeu de mesure : `npm run mesure -- --seuil 0.7 --seuil-avec-concept 0.9 --marge 0.04` (et `-- --sans-sens` pour la référence).
+
+**Licence de la ressource.** Les vecteurs viennent de **fastText « cc.fr.300 »** (Grave, Bojanowski, Gupta, Joulin, Mikolov, *Learning Word Vectors for 157 Languages*, LREC 2018), publiés par Facebook Research sous la licence **Creative Commons Attribution-ShareAlike 3.0**. `src/moteur/vecteurs.ts` en est une version réduite et modifiée : il porte l'avis de la licence en en-tête et reste sous la même licence, sans garantie ; la clause de partage dans les mêmes conditions vaut pour ce fichier, pas pour le code du Worker. Les vecteurs du modèle spaCy `fr_core_news_md` ont été essayés et écartés : leurs 500 000 mots ne partagent que 20 000 vecteurs, donc « bouchon », « entonnoir » et « tonneau » y ont le même. Cette note n'est pas un avis juridique : à faire relire si le dépôt est un jour redistribué.
 
 Cas particuliers :
 - **Relances** : « et combien de temps ? » ou « et pour le cidre ? » reprennent le sujet précédent, comme une question courte qui renvoie à la réponse précédente par un pronom (« faut-il le tremper ? »).
@@ -82,6 +109,8 @@ Mesurés avec `npm run mesure` sur le jeu de mesure (113 questions avec réponse
 | Construction de l'assistant (une fois par isolat) | 120 à 160 ms |
 | Taille du Worker (`wrangler deploy --dry-run`) | 401,6 Kio, **109,8 Kio** compressés |
 
+**Étape 1 (lexique des formes)** : mêmes chiffres de réponse (85,8 % et 90,3 %) ; Worker 661,6 Kio, 152,5 Kio compressés. **Étape 2 (vecteurs de mots)** : mêmes chiffres de réponse (le jeu de mesure ne contient aucun mot rare que la base ne connaisse pas : même avec un seuil à 0,3, aucune substitution n'y a lieu) ; Worker 1 969 Kio, 1 020 Kio compressés ; calcul à froid 3 ms au plus (le moteur est préchauffé au démarrage de l'isolat) ; construction de l'assistant 165 à 220 ms, import des vecteurs compris (au démarrage, hors du temps de calcul d'une requête).
+
 Les temps varient d'une exécution à l'autre (machine partagée) : seules les tailles sont stables. Le maximum à froid est le coût des corrections de fautes de frappe (premier passage d'un mot inconnu).
 
 **Limites de Cloudflare Workers à tenir.** Le projet est sur l'**offre gratuite** : 3 Mio de Worker compressé, **10 ms de calcul par requête** et 1 s pour le démarrage d'un isolat (ici la construction de l'assistant, 110 à 160 ms mesurés sous Node). Toute étape du chantier de lecture de la question doit donc tenir : un Worker compressé nettement sous 3 Mio (109,8 Kio aujourd'hui) et un calcul de question sous 10 ms, y compris à froid et pour un message piégé (`test/robustesse.test.ts`, seuil de 40 ms sur machine de test lente). Le pire cas à froid mesuré (6 à 10 ms sous Node) touche déjà cette limite : une étape qui ajoute du calcul à froid doit le réduire ailleurs.
@@ -96,6 +125,8 @@ src/
   moteur/               l'algorithme (aucun mot de métier)
     texte.ts            normalisation, mots vides, racinisation, fautes de frappe
     lexique.ts          lexique des formes du français (généré : npm run lexique)
+    sens.ts             reconnaissance d'un mot inconnu par le sens (vecteurs de mots)
+    vecteurs.ts         vecteurs de mots réduits (généré : npm run vecteurs)
     types-de-question.ts
     concepts.ts         détection des concepts, lignée
     reponse.ts          choix des faits selon le plan

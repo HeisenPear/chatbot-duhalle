@@ -12,7 +12,8 @@
 // s'il apporte un mot nouveau.
 // ═══════════════════════════════════════════════════════════════════════════
 import type { BaseDeSavoir, Concept } from "../savoir/types";
-import { corriger, normaliser, racines, racinesDeLaQuestion } from "./texte";
+import { REGLAGES_DU_SENS, type Substitution, VoisinageParLeSens } from "./sens";
+import { corriger, estMotVide, motsDeLaQuestion, normaliser, raciner, racines } from "./texte";
 
 interface AliasIndexe {
   readonly concept: Concept;
@@ -23,10 +24,24 @@ interface AliasIndexe {
 /** Tolérance : un alias de n mots peut s'étaler sur n + ECART positions. */
 const ECART = 2;
 
+/**
+ * Un concept reconnu par le sens (« flacon » → « bouteille ») pèse moins qu'un alias exact : il passe après
+ * les concepts cités par leurs propres mots (même logique que le poids des familles, voir reponse.ts).
+ */
+export const POIDS_DU_SENS = 0.6;
+
 export interface ConceptCite {
   readonly concept: Concept;
   /** Position du premier mot reconnu : les concepts sortent dans l'ordre de la phrase. */
   readonly position: number;
+  /** 1 pour un alias exact, POIDS_DU_SENS quand un mot de l'alias a été reconnu par le sens. */
+  readonly confiance: number;
+}
+
+/** Les concepts cités et, pour la trace, chaque mot reconnu par le sens. */
+export interface Detection {
+  readonly cites: ConceptCite[];
+  readonly substitutions: Substitution[];
 }
 
 export class DetecteurDeConcepts {
@@ -36,8 +51,11 @@ export class DetecteurDeConcepts {
   private readonly formules: Array<{ concept: Concept; formule: string; racines: readonly string[]; indice: number }> = [];
   /** Les formules rangées par premier mot : une phrase ne consulte que celles dont le premier mot s'y trouve. */
   private readonly formulesParPremierMot = new Map<string, Array<{ concept: Concept; formule: string; indice: number }>>();
+  /** Les mots des alias, rangés par racine : les cibles de la reconnaissance par le sens. */
+  private readonly sens: VoisinageParLeSens;
 
   constructor(base: BaseDeSavoir) {
+    const surfaces = new Map<string, Set<string>>();
     for (const concept of base.concepts) {
       this.parId.set(concept.id, concept);
       for (const f of concept.formules ?? []) {
@@ -63,7 +81,17 @@ export class DetecteurDeConcepts {
         if (!deja || texte.length > deja.longueur) parCle.set(cle, { concept, racines: r, longueur: texte.length });
       }
       this.alias.push(...parCle.values());
+      for (const texte of [concept.libelle, ...concept.alias]) {
+        for (const mot of normaliser(texte).split(" ")) {
+          if (!/^[a-z]{3,}$/.test(mot) || estMotVide(mot)) continue;
+          const racine = raciner(mot);
+          const mots = surfaces.get(racine) ?? new Set<string>();
+          mots.add(mot);
+          surfaces.set(racine, mots);
+        }
+      }
     }
+    this.sens = new VoisinageParLeSens(surfaces);
   }
 
   get vocabulaireDesAlias(): ReadonlySet<string> {
@@ -76,7 +104,7 @@ export class DetecteurDeConcepts {
 
   /** Les racines de la question (mots niés exclus), corrigées quand un mot est inconnu. */
   racinesCorrigees(texte: string): string[] {
-    return racinesDeLaQuestion(texte).map((r) => corriger(r, this.vocabulaire) ?? r);
+    return motsDeLaQuestion(texte).map(({ racine }) => corriger(racine, this.vocabulaire) ?? racine);
   }
 
   /**
@@ -92,7 +120,39 @@ export class DetecteurDeConcepts {
    * vin », le « bouchon » du tire-bouchon ne resservira pas à « bouchon vin ».
    */
   detecter(texte: string): ConceptCite[] {
-    const mots = this.racinesCorrigees(texte);
+    return this.detecterEnDetail(texte).cites;
+  }
+
+  /**
+   * Comme `detecter`, avec les mots reconnus par le sens. Un mot que la base ne connaît pas, même après la correction
+   * des fautes de frappe, est remplacé par le mot des alias dont le sens est le plus proche (sens.ts) ; le concept ainsi
+   * reconnu porte une confiance moindre.
+   */
+  detecterEnDetail(texte: string): Detection {
+    const lus = motsDeLaQuestion(texte);
+    const mots = lus.map(({ racine }) => corriger(racine, this.vocabulaire) ?? racine);
+    const parLeSens = new Array<boolean>(mots.length).fill(false);
+    // D'abord les mots exacts : si la question cite déjà un concept, le sens ne doit pas lui nuire (seuil plus haut).
+    const exacts = this.lireLesConcepts(texte, mots, parLeSens);
+    const seuil = exacts.length > 0 ? REGLAGES_DU_SENS.seuilAvecConcept : REGLAGES_DU_SENS.seuil;
+    const substitutions: Substitution[] = [];
+    const avecSens = [...mots];
+    let essais = 0;
+    lus.forEach(({ mot }, i) => {
+      if (this.vocabulaire.has(mots[i]!) || /\d/.test(mots[i]!) || essais >= REGLAGES_DU_SENS.essaisMax) return;
+      essais++;
+      const substitution = this.sens.chercher(mot, seuil);
+      if (!substitution) return;
+      avecSens[i] = substitution.racine;
+      parLeSens[i] = true;
+      substitutions.push(substitution);
+    });
+    if (substitutions.length === 0) return { cites: exacts, substitutions };
+    return { cites: this.lireLesConcepts(texte, avecSens, parLeSens), substitutions };
+  }
+
+  /** Les concepts cités par les mots (racines corrigées) d'une question ; `parLeSens` marque ceux qui viennent d'une substitution. */
+  private lireLesConcepts(texte: string, mots: readonly string[], parLeSens: readonly boolean[]): ConceptCite[] {
     /** Le concept à qui chaque mot a été attribué. */
     const pris = new Array<Concept | undefined>(mots.length).fill(undefined);
     const trouves = new Map<string, ConceptCite>();
@@ -109,7 +169,7 @@ export class DetecteurDeConcepts {
     }
     candidates.sort((a, b) => a.indice - b.indice);
     for (const { concept } of candidates) {
-      if (!trouves.has(concept.id)) trouves.set(concept.id, { concept, position: -1 });
+      if (!trouves.has(concept.id)) trouves.set(concept.id, { concept, position: -1, confiance: 1 });
     }
 
     // Une formule reste reconnaissable avec une incise polie ou une faute de
@@ -129,7 +189,7 @@ export class DetecteurDeConcepts {
         restantes.splice(index, 1);
         return true;
       });
-      if (toutesPresentes) trouves.set(concept.id, { concept, position: -1 });
+      if (toutesPresentes) trouves.set(concept.id, { concept, position: -1, confiance: 1 });
     }
 
     // Seuls les alias dont tous les mots sont dans la question peuvent correspondre.
@@ -156,7 +216,8 @@ export class DetecteurDeConcepts {
       if (!meilleur) break;
       utilises.add(meilleur.alias);
       for (const p of meilleur.positions) pris[p] ??= meilleur.alias.concept;
-      trouves.set(meilleur.alias.concept.id, { concept: meilleur.alias.concept, position: Math.min(...meilleur.positions) });
+      const confiance = meilleur.positions.some((p) => parLeSens[p]) ? POIDS_DU_SENS : 1;
+      trouves.set(meilleur.alias.concept.id, { concept: meilleur.alias.concept, position: Math.min(...meilleur.positions), confiance });
     }
     return [...trouves.values()].sort((a, b) => a.position - b.position);
   }

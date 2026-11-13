@@ -74,6 +74,23 @@ npm run vecteurs -- cc.fr.300.head.vec --mots 14000
 
 **Licence de la ressource.** Les vecteurs viennent de **fastText « cc.fr.300 »** (Grave, Bojanowski, Gupta, Joulin, Mikolov, *Learning Word Vectors for 157 Languages*, LREC 2018), publiés par Facebook Research sous la licence **Creative Commons Attribution-ShareAlike 3.0**. `src/moteur/vecteurs.ts` en est une version réduite et modifiée : il porte l'avis de la licence en en-tête et reste sous la même licence, sans garantie ; la clause de partage dans les mêmes conditions vaut pour ce fichier, pas pour le code du Worker. Les vecteurs du modèle spaCy `fr_core_news_md` ont été essayés et écartés : leurs 500 000 mots ne partagent que 20 000 vecteurs, donc « bouchon », « entonnoir » et « tonneau » y ont le même. Cette note n'est pas un avis juridique : à faire relire si le dépôt est un jour redistribué.
 
+### La structure de la phrase (étape 3)
+
+Une question n'est plus une liste de mots. `src/moteur/phrase.ts` la découpe en **groupes** et donne un **rôle** à chaque mot, d'après la ponctuation, les mots-outils (« pour », « sans », « quel ») et la nature des mots (lexique) : aucun mot de métier.
+
+| Rôle | Exemple | Effet |
+|---|---|---|
+| **Objet demandé** | « quel **bouchon** pour un vin de garde ? » | tête de la phrase : poids 1 dans `poids()` (`reponse.ts`), à la place du premier concept cité |
+| **Destination** | « … pour un **vin de garde** », « avec du **cidre** » | poids 0,9 : les faits qui croisent l'objet et la destination passent devant |
+| **Contrainte** | « un bouchon **en liège** », « **24 mm** », « moins de **50 euros** » | poids 0,8 pour une matière ou une couleur ; les nombres favorisent les faits qui les contiennent |
+| **Négation** | « **pas de bouchon en liège** », « un vin **sans sulfites** » | la négation porte sur tout son groupe (jusqu'à « pour », « et », « ou », « mais » ou la ponctuation) ; le concept nié est **gardé** comme exclusion (poids 0,7), jamais comme objet, et les faits qui ne parlent que de lui passent après les autres |
+
+- **Phrase qui commence par sa destination** : « pour 50 bouteilles, quelle boucheuse ? » parle de la boucheuse, pas des bouteilles (l'objet se lit après le mot interrogatif).
+- **Tout est nié** : « pas de livraison en Belgique », « je n'ai pas de boucheuse » disent une absence, pas une exclusion : les concepts reprennent leur rôle.
+- **Un alias n'enjambe pas une négation** : « bouchon sans liège » ne cite pas « bouchon liège ».
+- **Plusieurs demandes** : un message dont plusieurs phrases finissent par « ? » (ou que « et comment… » relie) reçoit **deux réponses courtes au plus** (le premier fait de chacune, précédé de la demande en gras). Les phrases d'affirmation donnent le contexte : si elles citent un concept (« je veux faire du schnaps. Puis-je utiliser une dame-jeanne ? »), le message se lit d'un seul tenant. Une demande qui ne dit rien de nouveau (« et le zorglub ? ») n'en fait pas une seconde.
+- **Trace** : `trace.structure` donne l'objet, la destination, les contraintes et les exclusions ; `trace.demandes` donne chaque demande d'un message composé.
+
 Cas particuliers :
 - **Relances** : « et combien de temps ? » ou « et pour le cidre ? » reprennent le sujet précédent, comme une question courte qui renvoie à la réponse précédente par un pronom (« faut-il le tremper ? »).
 - **Lettres isolées** : un « e » ou un « u » seul ne compte pas comme un mot. Un message qui n'en contient pas d'autre invite à poser la question en quelques mots ; « Bonjour, U » reste une salutation.
@@ -111,6 +128,8 @@ Mesurés avec `npm run mesure` sur le jeu de mesure (113 questions avec réponse
 
 **Étape 1 (lexique des formes)** : mêmes chiffres de réponse (85,8 % et 90,3 %) ; Worker 661,6 Kio, 152,5 Kio compressés. **Étape 2 (vecteurs de mots)** : mêmes chiffres de réponse (le jeu de mesure ne contient aucun mot rare que la base ne connaisse pas : même avec un seuil à 0,3, aucune substitution n'y a lieu) ; Worker 1 969 Kio, 1 020 Kio compressés ; calcul à froid 3 ms au plus (le moteur est préchauffé au démarrage de l'isolat) ; construction de l'assistant 165 à 220 ms, import des vecteurs compris (au démarrage, hors du temps de calcul d'une requête).
 
+**Étape 3 (structure de la phrase)** : mêmes chiffres de réponse sur le jeu de mesure (85,8 % et 90,3 %) ; sur 14 questions qui commencent par leur destination (« pour 50 bouteilles, quelle boucheuse ? »), la tête de la phrase est juste dans 11 cas au lieu de 6 ; Worker 1 980 Kio, 1 023 Kio compressés ; calcul à chaud moyen 0,4 à 0,5 ms, à froid au plus 4 à 5 ms.
+
 Les temps varient d'une exécution à l'autre (machine partagée) : seules les tailles sont stables. Le maximum à froid est le coût des corrections de fautes de frappe (premier passage d'un mot inconnu).
 
 **Limites de Cloudflare Workers à tenir.** Le projet est sur l'**offre gratuite** : 3 Mio de Worker compressé, **10 ms de calcul par requête** et 1 s pour le démarrage d'un isolat (ici la construction de l'assistant, 110 à 160 ms mesurés sous Node). Toute étape du chantier de lecture de la question doit donc tenir : un Worker compressé nettement sous 3 Mio (109,8 Kio aujourd'hui) et un calcul de question sous 10 ms, y compris à froid et pour un message piégé (`test/robustesse.test.ts`, seuil de 40 ms sur machine de test lente). Le pire cas à froid mesuré (6 à 10 ms sous Node) touche déjà cette limite : une étape qui ajoute du calcul à froid doit le réduire ailleurs.
@@ -125,6 +144,7 @@ src/
   moteur/               l'algorithme (aucun mot de métier)
     texte.ts            normalisation, mots vides, racinisation, fautes de frappe
     lexique.ts          lexique des formes du français (généré : npm run lexique)
+    phrase.ts           structure de la phrase : rôles des mots, négation, nombres, demandes multiples
     sens.ts             reconnaissance d'un mot inconnu par le sens (vecteurs de mots)
     vecteurs.ts         vecteurs de mots réduits (généré : npm run vecteurs)
     types-de-question.ts

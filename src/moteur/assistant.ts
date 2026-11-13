@@ -12,8 +12,9 @@
 import type { BaseDeSavoir, Concept, Lien, TypeDeQuestion } from "../savoir/types";
 import { TYPES_DE_QUESTION } from "../savoir/types";
 import { DetecteurDeConcepts } from "./concepts";
+import { decouperLesDemandes } from "./phrase";
 import { RechercheDansLesFaits } from "./recherche";
-import { ConstructeurDeReponse, type FaitRetenu } from "./reponse";
+import { ConstructeurDeReponse, type FaitRetenu, type RoleDeConcept } from "./reponse";
 import { normaliser, racines } from "./texte";
 import { lireTypeDeQuestion } from "./types-de-question";
 
@@ -47,7 +48,24 @@ export interface Trace {
   readonly plan: readonly string[];
   /** Les mots reconnus par le sens : « flacon → bouteille (sens, 0,71) ». */
   readonly substitutions: readonly string[];
+  /** La structure lue dans la phrase : l'objet demandé, la destination, les contraintes et les exclusions (voir phrase.ts). */
+  readonly structure: StructureLue;
+  /** Quand le message contient plusieurs demandes : chacune, dans l'ordre. Vide sinon. */
+  readonly demandes: readonly string[];
 }
+
+/** Ce que la lecture de la phrase a trouvé, en ids de concepts et en clair. */
+export interface StructureLue {
+  /** Les concepts de l'objet demandé : la tête de la phrase. */
+  readonly objet: readonly string[];
+  readonly destination: readonly string[];
+  /** Les contraintes en clair : « 24 mm », « en liège », « prix au plus 50 euros », et les concepts de rôle contrainte. */
+  readonly contraintes: readonly string[];
+  /** Les concepts niés (« sans sulfites »), gardés comme exclusions et jamais comme objet. */
+  readonly exclusions: readonly string[];
+}
+
+const STRUCTURE_VIDE: StructureLue = { objet: [], destination: [], contraintes: [], exclusions: [] };
 
 /**
  * Une question proposée en bouton, avec le concept dont sa réponse parle : le
@@ -161,11 +179,14 @@ const SEUIL_PISTES = 0.3;
 /** Boutons proposés après une réponse : ceux du sujet d'abord, puis les compléments et la vitrine. */
 const MAX_SUGGESTIONS = 4;
 const MAX_SUJET = 2;
+/** Un message à plusieurs demandes reçoit au plus ce nombre de réponses courtes. */
+const MAX_REPONSES_COURTES = 2;
 
 export class Assistant {
   private readonly detecteur: DetecteurDeConcepts;
   private readonly constructeur: ConstructeurDeReponse;
   private readonly recherche: RechercheDansLesFaits;
+  private readonly faitsParId: ReadonlyMap<string, BaseDeSavoir["faits"][number]>;
 
   constructor(
     private readonly base: BaseDeSavoir,
@@ -174,6 +195,7 @@ export class Assistant {
     this.detecteur = new DetecteurDeConcepts(base);
     this.constructeur = new ConstructeurDeReponse(base.faits, this.detecteur);
     this.recherche = new RechercheDansLesFaits(base);
+    this.faitsParId = new Map(base.faits.map((f) => [f.id, f]));
     this.prechauffer();
   }
 
@@ -206,7 +228,64 @@ export class Assistant {
     return ids.length > 0 ? { concepts: ids, type: typeValide } : null;
   }
 
+  /**
+   * La réponse à un message. Un message qui contient plusieurs demandes (« combien coûte la livraison ? et comment suivre mon
+   * colis ? ») reçoit deux réponses courtes au plus, une par demande ; sinon, la réponse à la demande unique.
+   */
   repondre(brut: string, precedent: Contexte | null = null): Reponse {
+    const demandes = decouperLesDemandes(brut);
+    // Les phrases qui ne sont pas des demandes donnent le contexte des demandes (« je veux faire du schnaps… Puis-je utiliser
+    // une dame-jeanne pour cela ? ») : si elles citent un concept, le message se lit d'un seul tenant.
+    if (demandes.length >= 2 && this.detecteur.detecter(demandes.reduce((texte, d) => texte.replace(d, " "), brut)).length === 0) {
+      const composee = this.repondreAPlusieurs(demandes, precedent);
+      if (composee) return composee;
+    }
+    return this.repondreAUneDemande(brut, precedent);
+  }
+
+  /**
+   * Une réponse courte par demande : le premier fait de chacune, deux demandes au plus. Chaque demande est traitée seule ;
+   * la deuxième peut être une relance de la première (« et pour le cidre ? »). Rien à composer si moins de deux demandes
+   * reçoivent une vraie réponse, ou si la seconde redit la première : le message est alors traité d'un seul tenant.
+   */
+  private repondreAPlusieurs(demandes: readonly string[], precedent: Contexte | null): Reponse | null {
+    const retenues: Array<{ demande: string; reponse: Reponse }> = [];
+    let contexte = precedent;
+    for (const demande of demandes) {
+      if (retenues.length === MAX_REPONSES_COURTES) break;
+      const reponse = this.repondreAUneDemande(demande, contexte);
+      if (reponse.nature !== "reponse" || reponse.trace.faits.length === 0) continue;
+      // Une demande qui ne dit rien de nouveau (« et le zorglub ? » reprend le sujet d'avant) n'est pas une deuxième demande.
+      if (reponse.trace.relance && contexte && reponse.trace.concepts.every((c) => contexte!.concepts.includes(c))) continue;
+      if (retenues.some((r) => r.reponse.trace.faits[0] === reponse.trace.faits[0])) continue;
+      retenues.push({ demande, reponse });
+      contexte = reponse.contexte;
+    }
+    if (retenues.length < 2) return null;
+    const textes = retenues.map(({ demande, reponse }) => {
+      const premier = this.faitsParId.get(reponse.trace.faits[0]!);
+      const question = demande.length > 100 ? `${demande.slice(0, 97).trimEnd()}…` : demande;
+      return `**${question} ?**\n\n${(premier?.enonce ?? reponse.texte).trim()}`;
+    });
+    const derniere = retenues[retenues.length - 1]!.reponse;
+    const liens = retenues.flatMap(({ reponse }) => reponse.liens).filter((l, i, tous) => tous.findIndex((t) => t.url === l.url) === i);
+    return {
+      nature: "reponse",
+      texte: textes.join("\n\n"),
+      liens: liens.slice(0, 3),
+      suggestions: [...derniere.suggestions],
+      contexte: derniere.contexte,
+      trace: {
+        ...derniere.trace,
+        type: retenues[0]!.reponse.trace.type,
+        concepts: [...new Set(retenues.flatMap(({ reponse }) => reponse.trace.concepts))],
+        faits: retenues.map(({ reponse }) => reponse.trace.faits[0]!),
+        demandes: retenues.map((r) => r.demande),
+      },
+    };
+  }
+
+  private repondreAUneDemande(brut: string, precedent: Contexte | null = null): Reponse {
     // « commande 1234567 » et « commande [référence] » (la forme enregistrée) se lisent pareil.
     const { message: sansLiens, lienIllisible } = lireLesLiens(brut);
     const message = sansLiens.replace(REFERENCE_BRUTE, " reference ");
@@ -222,6 +301,20 @@ export class Assistant {
     let type = marque?.type ?? null;
     const detection = this.detecteur.detecterEnDetail(message);
     let cites = this.plusPrecis(detection.cites.map((c) => c.concept.id));
+    // Le rôle de chaque concept dans la phrase. Un concept nié reste lu, comme exclusion (« un vin sans sulfites »). Si TOUS
+    // les concepts cités sont niés (« pas de livraison en Belgique », « je n'ai pas de boucheuse »), la négation dit une
+    // absence, pas une exclusion : ce sont les sujets de la question, et ils reprennent leur rôle.
+    const roles = new Map<string, RoleDeConcept>(detection.cites.map((c) => [c.concept.id, c.nie ? "exclusion" : c.role]));
+    if (cites.length > 0 && cites.every((id) => roles.get(id) === "exclusion")) {
+      for (const c of detection.cites) roles.set(c.concept.id, c.role);
+    }
+    const exclusions = cites.filter((id) => roles.get(id) === "exclusion");
+    const structure: StructureLue = {
+      objet: cites.filter((id) => roles.get(id) === "objet"),
+      destination: cites.filter((id) => roles.get(id) === "destination"),
+      contraintes: [...detection.structure.contraintes, ...cites.filter((id) => roles.get(id) === "contrainte")],
+      exclusions: cites.length > 0 ? exclusions : [],
+    };
     const confiances = new Map(detection.cites.filter((c) => c.confiance < 1).map((c) => [c.concept.id, c.confiance]));
     const substitutions = detection.substitutions.map((s) => `${s.mot} → ${s.cible} (sens, ${String(s.similarite).replace(".", ",")})`);
     // Un message nettement anglais reçoit la réponse bilingue, sauf s'il parle d'un sujet que la base traite en anglais.
@@ -252,13 +345,20 @@ export class Assistant {
 
     if (cites.length > 0) {
       const mots = this.detecteur.racinesCorrigees(message);
-      const construction = this.constructeur.construire(cites, type, { mots, confiances, ...(doitToucher ? { doitToucher } : {}) });
+      const construction = this.constructeur.construire(cites, type, {
+        mots,
+        confiances,
+        roles,
+        nombres: detection.structure.nombres,
+        ...(doitToucher ? { doitToucher } : {}),
+      });
       if (construction.faits.length > 0) {
         return this.mettreEnForme("reponse", construction.faits, construction.liens, cites, type, {
           signal: marque?.signal ?? null,
           relance,
           plan: construction.plan,
           substitutions,
+          structure,
         });
       }
     }
@@ -300,7 +400,7 @@ export class Assistant {
     liens: readonly Lien[],
     cites: readonly string[],
     type: TypeDeQuestion | null,
-    trace: { signal: string | null; relance: boolean; plan: readonly string[]; substitutions: readonly string[] },
+    trace: { signal: string | null; relance: boolean; plan: readonly string[]; substitutions: readonly string[]; structure?: StructureLue },
   ): Reponse {
     const concepts = [...new Set(faits.flatMap((f) => f.fait.concepts))];
     return {
@@ -309,7 +409,7 @@ export class Assistant {
       liens: [...liens],
       suggestions: this.suggestions(cites, faits),
       contexte: { concepts: [...new Set([...cites, ...concepts])].slice(0, 5), type },
-      trace: { type, concepts: [...cites], faits: faits.map((f) => f.fait.id), ...trace },
+      trace: { type, concepts: [...cites], faits: faits.map((f) => f.fait.id), structure: STRUCTURE_VIDE, demandes: [], ...trace },
     };
   }
 
@@ -394,7 +494,7 @@ export class Assistant {
       liens: [contact],
       suggestions: [...questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [] },
     };
   }
 
@@ -406,7 +506,7 @@ export class Assistant {
       liens: [contact],
       suggestions: [...this.reglages.questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [] },
     };
   }
 
@@ -418,7 +518,7 @@ export class Assistant {
       liens,
       suggestions: [...suggestions],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [] },
     });
 
     // « Bonjour, U » : une salutation suivie d'une lettre égarée reste une salutation.
@@ -479,7 +579,7 @@ export class Assistant {
       liens: libelles.length > 0 ? [] : [contact],
       suggestions: libelles.length > 0 ? libelles : [...questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type, signal, concepts: [], relance: false, faits: [], plan: [], substitutions: [] },
+      trace: { type, signal, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [] },
     };
   }
 

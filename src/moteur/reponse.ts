@@ -78,6 +78,19 @@ export interface Construction {
   readonly liens: readonly Lien[];
 }
 
+/**
+ * Le rôle d'un concept cité dans la phrase (phrase.ts) : l'objet demandé, sa destination, une contrainte, ou une
+ * exclusion (le concept est nié : « sans sulfites »).
+ */
+export type RoleDeConcept = "objet" | "destination" | "contrainte" | "exclusion";
+/** Le poids d'un concept selon son rôle ; chaque concept suivant du même rôle perd un dixième, jusqu'à 0,7. */
+const POIDS_DU_ROLE: Readonly<Record<RoleDeConcept, number>> = { objet: 1, destination: 0.9, contrainte: 0.8, exclusion: 0.7 };
+/** Une valeur demandée (« 24 mm ») que le texte d'un fait contient le favorise : le bonus est celui des mots, en plus fort. */
+const BONUS_PAR_NOMBRE = 0.03;
+const BONUS_NOMBRES_MAX = 0.06;
+/** Un fait qui ne parle que d'un concept nié (« sans boucheuse ») passe après les autres. */
+const FACTEUR_DES_NIEES = 0.5;
+
 export interface OptionsDeConstruction {
   /**
    * Si fourni, chaque fait retenu doit toucher au moins un de ces concepts
@@ -92,6 +105,14 @@ export interface OptionsDeConstruction {
    * (« flacon » → « bouteille ») pèse moins qu'un concept cité par ses propres mots.
    */
   readonly confiances?: ReadonlyMap<string, number>;
+  /**
+   * Le rôle de chaque concept cité. L'OBJET demandé est la tête de la phrase (poids 1), puis la destination (0,9), les
+   * contraintes (0,8) et les concepts niés (0,7) : « quelle boucheuse pour mes bouteilles ? » parle de la boucheuse, pas des
+   * bouteilles, et « pour boucher mes bouteilles, quelle boucheuse ? » aussi. Sans rôles, le premier concept cité est la tête.
+   */
+  readonly roles?: ReadonlyMap<string, RoleDeConcept>;
+  /** Les nombres de la question : les faits qui les contiennent passent devant, à niveau égal. */
+  readonly nombres?: readonly string[];
 }
 
 export class ConstructeurDeReponse {
@@ -130,10 +151,19 @@ export class ConstructeurDeReponse {
    *   concept cité après le premier perd un dixième.
    * - On remonte la lignée (la famille pèse 1/2, la famille de la famille 1/3…).
    */
-  poids(cites: readonly string[], confiances?: ReadonlyMap<string, number>): Map<string, number> {
+  poids(cites: readonly string[], confiances?: ReadonlyMap<string, number>, roles?: ReadonlyMap<string, RoleDeConcept>): Map<string, number> {
     const poids = new Map<string, number>();
+    const dejaVus = new Map<RoleDeConcept, number>();
     cites.forEach((id, rang) => {
-      const tete = Math.max(0.7, 1 - 0.1 * rang) * (confiances?.get(id) ?? 1);
+      const role = roles?.get(id);
+      let tete: number;
+      if (role === undefined) tete = Math.max(0.7, 1 - 0.1 * rang);
+      else {
+        const avant = dejaVus.get(role) ?? 0;
+        dejaVus.set(role, avant + 1);
+        tete = Math.max(0.7, POIDS_DU_ROLE[role] - 0.1 * avant);
+      }
+      tete *= confiances?.get(id) ?? 1;
       this.detecteur.lignee(id).forEach((c, distance) => poids.set(c.id, Math.max(poids.get(c.id) ?? 0, tete / (1 + distance))));
     });
     return poids;
@@ -145,9 +175,11 @@ export class ConstructeurDeReponse {
    * tel fait ne doit parler QUE des membres : « bouchon + vin de garde » ne
    * répond pas à « quel bouchon pour mon vin ? », où la garde n'est pas dite.
    */
-  private membres(cites: readonly string[], dejaAtteints: ReadonlyMap<string, number>): Map<string, number> {
+  private membres(cites: readonly string[], dejaAtteints: ReadonlyMap<string, number>, roles?: ReadonlyMap<string, RoleDeConcept>): Map<string, number> {
     const membres = new Map<string, number>();
     cites.forEach((id, rang) => {
+      // Un concept nié (« sans boucheuse ») ne donne pas ses membres : ce n'est pas ce que le client cherche.
+      if (roles?.get(id) === "exclusion") return;
       // Un concept cité qui n'est que la famille d'un autre concept cité donne le contexte
       // (« commande en attente… ou… » parle de la commande en attente, pas de ses cousines) :
       // on ne descend pas vers ses autres membres.
@@ -169,10 +201,19 @@ export class ConstructeurDeReponse {
    * garde, « où en est ma commande ? » ressortait la gamme du catalogue.
    */
   candidats(cites: readonly string[], type: TypeDeQuestion | null, options: OptionsDeConstruction = {}): FaitRetenu[] {
-    const poids = this.poids(cites, options.confiances);
-    const membres = type === "choix" ? this.membres(cites, poids) : new Map<string, number>();
+    const poids = this.poids(cites, options.confiances, options.roles);
+    const membres = type === "choix" ? this.membres(cites, poids, options.roles) : new Map<string, number>();
     const racineAdmise = (id: string) =>
       this.detecteur.concept(id)?.famille !== undefined || cites.includes(id) || (type !== null && TYPES_DE_LA_RACINE.has(type));
+    // Un concept NIÉ (« sans boucheuse ») reste lu, mais la réponse ne parle pas de lui : un fait dont un concept n'est atteint que par
+    // un concept nié passe après les faits de ce que le client veut vraiment (« comment boucher sans boucheuse ? » ne répond pas par
+    // le mode d'emploi de la boucheuse). Les concepts qu'un concept cité et un concept nié ont en commun (leur famille) restent permis.
+    const niees = cites.filter((id) => options.roles?.get(id) === "exclusion");
+    const reservesAuxNiees = new Set<string>();
+    if (niees.length > 0 && niees.length < cites.length) {
+      const voulus = new Set(cites.filter((id) => !niees.includes(id)).flatMap((id) => this.detecteur.lignee(id).map((c) => c.id)));
+      for (const id of niees) for (const c of this.detecteur.lignee(id)) if (!voulus.has(c.id)) reservesAuxNiees.add(c.id);
+    }
     const vus = new Set<string>();
     const out: FaitRetenu[] = [];
     for (const id of [...poids.keys(), ...membres.keys()]) {
@@ -185,13 +226,15 @@ export class ConstructeurDeReponse {
         if (options.doitToucher && !fait.concepts.some((c) => options.doitToucher!.has(c))) continue;
         const mots = this.motsDesFaits.get(fait.id)!;
         const repris = new Set((options.mots ?? []).filter((m) => mots.has(m))).size;
-        const bonus = Math.min(BONUS_MAX, repris * BONUS_PAR_MOT);
+        const nombresRepris = (options.nombres ?? []).filter((n) => mots.has(n)).length;
+        const bonus = Math.min(BONUS_MAX, repris * BONUS_PAR_MOT) + Math.min(BONUS_NOMBRES_MAX, nombresRepris * BONUS_PAR_NOMBRE);
         // Un fait à plusieurs concepts vaut autant de fois son maillon le plus
         // faible : « bouchon + vin de garde », tous deux cités, pèse près de 2 ;
         // « bouteille + cidre », quand seule une bouteille champenoise est
         // citée, ne pèse pas plus que le fait propre à la bouteille champenoise.
+        const facteur = fait.concepts.some((c) => reservesAuxNiees.has(c)) ? FACTEUR_DES_NIEES : 1;
         const specificite =
-          Math.min(...fait.concepts.map((c) => poids.get(c) ?? membres.get(c) ?? 0)) * fait.concepts.length;
+          Math.min(...fait.concepts.map((c) => poids.get(c) ?? membres.get(c) ?? 0)) * fait.concepts.length * facteur;
         out.push({ fait, specificite, score: specificite + bonus });
       }
     }

@@ -144,13 +144,13 @@ export function racines(texte: string): string[] {
 export const MOTS_MAX = 40;
 
 /**
- * Les racines d'une QUESTION : comme `racines`, mais un mot nié ne compte pas.
+ * Les mots d'une QUESTION, avec leur racine : comme `lireLesMots`, mais un mot nié ne compte pas.
  * « On peut boucher sans boucheuse ? », « je n'ai pas de boucheuse » : la
  * boucheuse n'est pas le sujet. (Les alias, eux, gardent tous leurs mots.)
  */
-export function racinesDeLaQuestion(texte: string): string[] {
+export function motsDeLaQuestion(texte: string): Array<{ mot: string; racine: string }> {
   const mots = normaliser(texte).split(" ");
-  const out: string[] = [];
+  const out: Array<{ mot: string; racine: string }> = [];
   let nie = false;
   for (let i = 0; i < mots.length && out.length < MOTS_MAX; i++) {
     const mot = mots[i]!;
@@ -163,9 +163,14 @@ export function racinesDeLaQuestion(texte: string): string[] {
       nie = false;
       continue;
     }
-    out.push(raciner(mot));
+    out.push({ mot, racine: raciner(mot) });
   }
   return out;
+}
+
+/** Les racines d'une QUESTION (mots niés exclus). */
+export function racinesDeLaQuestion(texte: string): string[] {
+  return motsDeLaQuestion(texte).map((m) => m.racine);
 }
 
 /** Distance d'édition (Damerau-Levenshtein restreinte), arrêtée au-delà de `max`. */

@@ -45,6 +45,8 @@ export interface Trace {
   readonly relance: boolean;
   readonly faits: readonly string[];
   readonly plan: readonly string[];
+  /** Les mots reconnus par le sens : « flacon → bouteille (sens, 0,71) ». */
+  readonly substitutions: readonly string[];
 }
 
 /**
@@ -172,6 +174,25 @@ export class Assistant {
     this.detecteur = new DetecteurDeConcepts(base);
     this.constructeur = new ConstructeurDeReponse(base.faits, this.detecteur);
     this.recherche = new RechercheDansLesFaits(base);
+    this.prechauffer();
+  }
+
+  /**
+   * Quelques questions au démarrage de l'isolat : le moteur est compilé par V8 pendant ces appels, qui tombent
+   * hors du temps de calcul d'une requête (offre gratuite : 10 ms par requête, 1 s pour le démarrage). Sans cela, la
+   * première question d'un isolat paie la compilation du calcul des similarités, de la correction des fautes et de la
+   * recherche dans le texte des faits.
+   */
+  private prechauffer(): void {
+    for (const question of [
+      "Quel bouchon pour un vin de garde ?",
+      "Comment faire du vinaigre maison, combien de temps ?",
+      "Mon fiole hermetique capuchon obturateur est cassé, comment le renvoyer ?",
+      "Quels sont les frais de livraison pour une commande de 50 euros ?",
+      "xylophone zorglub bouchonnage capsuleuze",
+    ]) {
+      this.repondre(question);
+    }
   }
 
   /** Nettoie un contexte reçu du navigateur : on ne garde que des ids connus. */
@@ -199,7 +220,10 @@ export class Assistant {
 
     const marque = lireTypeDeQuestion(forme);
     let type = marque?.type ?? null;
-    let cites = this.plusPrecis(this.detecteur.detecter(message).map((c) => c.concept.id));
+    const detection = this.detecteur.detecterEnDetail(message);
+    let cites = this.plusPrecis(detection.cites.map((c) => c.concept.id));
+    const confiances = new Map(detection.cites.filter((c) => c.confiance < 1).map((c) => [c.concept.id, c.confiance]));
+    const substitutions = detection.substitutions.map((s) => `${s.mot} → ${s.cible} (sens, ${String(s.similarite).replace(".", ",")})`);
     // Un message nettement anglais reçoit la réponse bilingue, sauf s'il parle d'un sujet que la base traite en anglais.
     if (this.estNettementAnglais(forme) && !cites.some((id) => id.endsWith("-en"))) return this.anglais();
     let relance = false;
@@ -228,12 +252,13 @@ export class Assistant {
 
     if (cites.length > 0) {
       const mots = this.detecteur.racinesCorrigees(message);
-      const construction = this.constructeur.construire(cites, type, doitToucher ? { doitToucher, mots } : { mots });
+      const construction = this.constructeur.construire(cites, type, { mots, confiances, ...(doitToucher ? { doitToucher } : {}) });
       if (construction.faits.length > 0) {
         return this.mettreEnForme("reponse", construction.faits, construction.liens, cites, type, {
           signal: marque?.signal ?? null,
           relance,
           plan: construction.plan,
+          substitutions,
         });
       }
     }
@@ -255,6 +280,7 @@ export class Assistant {
         signal: marque?.signal ?? null,
         relance: false,
         plan: [],
+        substitutions: [],
       });
     }
 
@@ -274,7 +300,7 @@ export class Assistant {
     liens: readonly Lien[],
     cites: readonly string[],
     type: TypeDeQuestion | null,
-    trace: { signal: string | null; relance: boolean; plan: readonly string[] },
+    trace: { signal: string | null; relance: boolean; plan: readonly string[]; substitutions: readonly string[] },
   ): Reponse {
     const concepts = [...new Set(faits.flatMap((f) => f.fait.concepts))];
     return {
@@ -368,7 +394,7 @@ export class Assistant {
       liens: [contact],
       suggestions: [...questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [] },
     };
   }
 
@@ -380,7 +406,7 @@ export class Assistant {
       liens: [contact],
       suggestions: [...this.reglages.questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [] },
     };
   }
 
@@ -392,7 +418,7 @@ export class Assistant {
       liens,
       suggestions: [...suggestions],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [] },
     });
 
     // « Bonjour, U » : une salutation suivie d'une lettre égarée reste une salutation.
@@ -453,7 +479,7 @@ export class Assistant {
       liens: libelles.length > 0 ? [] : [contact],
       suggestions: libelles.length > 0 ? libelles : [...questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type, signal, concepts: [], relance: false, faits: [], plan: [] },
+      trace: { type, signal, concepts: [], relance: false, faits: [], plan: [], substitutions: [] },
     };
   }
 

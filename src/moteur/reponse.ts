@@ -3,7 +3,9 @@
 //
 // 1. Chaque concept cité apporte sa LIGNÉE (lui, sa famille, …). Un concept
 //    cité pèse 1, sa famille 1/2, la famille de sa famille 1/3… Le premier
-//    concept de la phrase (sa tête) pèse un peu plus que les suivants.
+//    concept de la phrase (sa tête) pèse un peu plus que les suivants. Un
+//    concept reconnu par le sens (« flacon » → « bouteille ») pèse moins qu'un
+//    alias exact (sa confiance multiplie son poids).
 // 2. Un fait est candidat si TOUS ses concepts sont dans ces lignées. Sa
 //    SPÉCIFICITÉ vaut son maillon le plus faible, multiplié par son nombre de
 //    concepts : un fait sur « bouchon + vin de garde » (2) passe devant un
@@ -85,6 +87,11 @@ export interface OptionsDeConstruction {
   readonly doitToucher?: ReadonlySet<string>;
   /** Les racines des mots de la question : départagent deux faits de même niveau. */
   readonly mots?: readonly string[];
+  /**
+   * La confiance de chaque concept cité, quand elle est inférieure à 1 : un concept reconnu par le sens
+   * (« flacon » → « bouteille ») pèse moins qu'un concept cité par ses propres mots.
+   */
+  readonly confiances?: ReadonlyMap<string, number>;
 }
 
 export class ConstructeurDeReponse {
@@ -123,10 +130,10 @@ export class ConstructeurDeReponse {
    *   concept cité après le premier perd un dixième.
    * - On remonte la lignée (la famille pèse 1/2, la famille de la famille 1/3…).
    */
-  poids(cites: readonly string[]): Map<string, number> {
+  poids(cites: readonly string[], confiances?: ReadonlyMap<string, number>): Map<string, number> {
     const poids = new Map<string, number>();
     cites.forEach((id, rang) => {
-      const tete = Math.max(0.7, 1 - 0.1 * rang);
+      const tete = Math.max(0.7, 1 - 0.1 * rang) * (confiances?.get(id) ?? 1);
       this.detecteur.lignee(id).forEach((c, distance) => poids.set(c.id, Math.max(poids.get(c.id) ?? 0, tete / (1 + distance))));
     });
     return poids;
@@ -162,7 +169,7 @@ export class ConstructeurDeReponse {
    * garde, « où en est ma commande ? » ressortait la gamme du catalogue.
    */
   candidats(cites: readonly string[], type: TypeDeQuestion | null, options: OptionsDeConstruction = {}): FaitRetenu[] {
-    const poids = this.poids(cites);
+    const poids = this.poids(cites, options.confiances);
     const membres = type === "choix" ? this.membres(cites, poids) : new Map<string, number>();
     const racineAdmise = (id: string) =>
       this.detecteur.concept(id)?.famille !== undefined || cites.includes(id) || (type !== null && TYPES_DE_LA_RACINE.has(type));

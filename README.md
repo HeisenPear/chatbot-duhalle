@@ -91,6 +91,27 @@ Une question n'est plus une liste de mots. `src/moteur/phrase.ts` la découpe en
 - **Plusieurs demandes** : un message dont plusieurs phrases finissent par « ? » (ou que « et comment… » relie) reçoit **deux réponses courtes au plus** (le premier fait de chacune, précédé de la demande en gras). Les phrases d'affirmation donnent le contexte : si elles citent un concept (« je veux faire du schnaps. Puis-je utiliser une dame-jeanne ? »), le message se lit d'un seul tenant. Une demande qui ne dit rien de nouveau (« et le zorglub ? ») n'en fait pas une seconde.
 - **Trace** : `trace.structure` donne l'objet, la destination, les contraintes et les exclusions ; `trace.demandes` donne chaque demande d'un message composé.
 
+### Le type appris et les questions de clarification (étape 4)
+
+Les **motifs** de `src/moteur/types-de-question.ts` restent **prioritaires** : ce sont des exceptions voulues (« combien coûte » est un prix avant d'être une valeur). Quand **aucun motif** ne s'applique, `src/moteur/types-appris.ts` donne un score à chacun des 14 types, d'après les morceaux de mots de 2 à 5 lettres de la question (régression logistique, 4 096 colonnes). Le type n'est retenu que si sa probabilité atteint **0,9** ; en dessous, la question reste sans type et le moteur la lit avec son plan par défaut, comme avant. Un mot ou deux ne sont jamais classés (« Livraison », « bouchon conique » : un type se lit dans une phrase). Le type appris ne sert qu'à choisir le plan de la réponse : une question courte sans sujet, ou le catalogue entier, ne se lisent que par un motif. La trace dit `trace.classifieur` (`{ type, probabilite }`) et le `signal` « un type appris : … ».
+
+**Entraîner** (hors ligne ; le Worker ne charge que les poids, du JSON : 303 Kio, 80 Kio compressés) :
+
+```bash
+npm run classifieur                                   # entraîne sur les tests du dépôt, écrit src/moteur/classifieur.ts
+npm run classifieur -- --validation                   # validation croisée seulement, n'écrit rien
+npm run classifieur -- --variantes variantes.json     # ajoute des variantes à l'entraînement
+```
+
+- **Les données** : les 639 questions annotées des tests du dépôt (une question et le fait attendu en tête de réponse). Le type vient de l'aspect du fait attendu et des motifs actuels ; les règles exactes sont dans l'en-tête de `scripts/entrainer-classifieur.mjs`. Ni le jeu de mesure ni le jeu inédit n'entrent dans l'entraînement.
+- **Les variantes** : un fichier JSON `[{ "question": "...", "type": "procedure" }, ...]` (le type est l'un des 14 types ou `aucun`) ajoute des façons de parler que le dépôt ne contient pas. Elles servent à l'entraînement, jamais à la validation croisée.
+- **Régler le seuil** : `npm run mesure -- --seuil-type 0.8` (et `-- --sans-type` pour la référence).
+
+**Questions de clarification** : quand le moteur hésite, il pose une question au lieu de répondre (`nature` « clarification », boutons dans `suggestions`, `trace.clarification`). Chaque bouton est une question que le moteur sait lire (`questionDuType`), qui redonne le type voulu avec le sujet.
+
+- **Deux types proches** : sans motif, quand les deux types les plus probables atteignent chacun 0,3 et sont à moins de 0,05 l'un de l'autre, et que la question cite un concept (« Que souhaitez-vous savoir sur **la boucheuse** ? » : « Combien coûte… », « Comment utiliser… »). Pas pour un groupe nominal sans verbe ni point d'interrogation (un libellé de bouton), ni quand la question précédente donne le contexte.
+- **Deux familles de faits à égalité** : le fait de tête n'est atteint que par les membres d'un concept cité, et deux faits distincts de même score répondent chacun (« Cela dépend de **boîte** : lequel vous intéresse ? » avec un bouton par membre, quatre au plus). Pas quand un seul fait compare lui-même les membres (« quelle cire ? » : « dure ou souple ? »), ni quand un mot de la question départage les faits.
+
 Cas particuliers :
 - **Relances** : « et combien de temps ? » ou « et pour le cidre ? » reprennent le sujet précédent, comme une question courte qui renvoie à la réponse précédente par un pronom (« faut-il le tremper ? »).
 - **Lettres isolées** : un « e » ou un « u » seul ne compte pas comme un mot. Un message qui n'en contient pas d'autre invite à poser la question en quelques mots ; « Bonjour, U » reste une salutation.
@@ -130,6 +151,8 @@ Mesurés avec `npm run mesure` sur le jeu de mesure (113 questions avec réponse
 
 **Étape 3 (structure de la phrase)** : mêmes chiffres de réponse sur le jeu de mesure (85,8 % et 90,3 %) ; sur 14 questions qui commencent par leur destination (« pour 50 bouteilles, quelle boucheuse ? »), la tête de la phrase est juste dans 11 cas au lieu de 6 ; Worker 1 980 Kio, 1 023 Kio compressés ; calcul à chaud moyen 0,4 à 0,5 ms, à froid au plus 4 à 5 ms.
 
+**Étape 4 (type appris, clarification)** : mêmes chiffres de réponse sur le jeu de mesure (85,8 % et 90,3 %) et aucune réponse changée sur 1 411 chaînes extraites des tests : au seuil de 0,9 le classifieur ne retient aucun type nouveau sur ces données. Validation croisée (5 plis, 639 questions) : exactitude 75,6 % ; sur les questions sans motif de 3 mots ou plus, au seuil de 0,9, 7 % sont classées, toutes justes ; Worker 2 282 Kio, 1 102 Kio compressés.
+
 Les temps varient d'une exécution à l'autre (machine partagée) : seules les tailles sont stables. Le maximum à froid est le coût des corrections de fautes de frappe (premier passage d'un mot inconnu).
 
 **Limites de Cloudflare Workers à tenir.** Le projet est sur l'**offre gratuite** : 3 Mio de Worker compressé, **10 ms de calcul par requête** et 1 s pour le démarrage d'un isolat (ici la construction de l'assistant, 110 à 160 ms mesurés sous Node). Toute étape du chantier de lecture de la question doit donc tenir : un Worker compressé nettement sous 3 Mio (109,8 Kio aujourd'hui) et un calcul de question sous 10 ms, y compris à froid et pour un message piégé (`test/robustesse.test.ts`, seuil de 40 ms sur machine de test lente). Le pire cas à froid mesuré (6 à 10 ms sous Node) touche déjà cette limite : une étape qui ajoute du calcul à froid doit le réduire ailleurs.
@@ -145,6 +168,8 @@ src/
     texte.ts            normalisation, mots vides, racinisation, fautes de frappe
     lexique.ts          lexique des formes du français (généré : npm run lexique)
     phrase.ts           structure de la phrase : rôles des mots, négation, nombres, demandes multiples
+    types-appris.ts     type de question appris (classifieur), types proches, boutons de clarification
+    classifieur.ts      poids du classifieur (généré : npm run classifieur)
     sens.ts             reconnaissance d'un mot inconnu par le sens (vecteurs de mots)
     vecteurs.ts         vecteurs de mots réduits (généré : npm run vecteurs)
     types-de-question.ts

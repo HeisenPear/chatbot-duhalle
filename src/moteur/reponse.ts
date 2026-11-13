@@ -70,9 +70,16 @@ export interface FaitRetenu {
   readonly specificite: number;
   /** La spécificité, plus un petit bonus pour les mots de la question repris : sert au classement. */
   readonly score: number;
+  /** Le fait n'est atteint que par les MEMBRES d'un concept cité (« quelle cire ? » → la cire dure, la cire souple), pas par la lignée. */
+  readonly parLesMembres?: boolean;
 }
 
 export interface Construction {
+  /**
+   * Les concepts MEMBRES dont les faits se partagent la réponse à égalité, quand aucun fait ne parle de la famille citée elle-même
+   * (« quelle cire ? » : la cire dure et la cire souple répondent chacune). Deux au moins : le moteur peut demander lequel.
+   */
+  readonly egalite: readonly string[];
   readonly faits: readonly FaitRetenu[];
   readonly plan: readonly Aspect[];
   readonly liens: readonly Lien[];
@@ -235,7 +242,7 @@ export class ConstructeurDeReponse {
         const facteur = fait.concepts.some((c) => reservesAuxNiees.has(c)) ? FACTEUR_DES_NIEES : 1;
         const specificite =
           Math.min(...fait.concepts.map((c) => poids.get(c) ?? membres.get(c) ?? 0)) * fait.concepts.length * facteur;
-        out.push({ fait, specificite, score: specificite + bonus });
+        out.push({ fait, specificite, score: specificite + bonus, parLesMembres: !parLaLignee && parLesMembres });
       }
     }
     return out;
@@ -279,7 +286,23 @@ export class ConstructeurDeReponse {
         .sort((a, b) => b.score - a.score)[0];
       if (garde) faits = [...faits, garde];
     }
-    return { faits, plan, liens: this.liens(faits, cites) };
+    return { faits, plan, liens: this.liens(faits, cites), egalite: this.egalite(candidats, faits) };
+  }
+
+  /**
+   * Deux familles de faits à égalité : le fait de tête n'est atteint que par les membres d'un concept cité, et d'autres membres,
+   * de même aspect et de même score (niveau de lignée ET mots de la question repris : un mot de la question suffit à départager) répondent aussi. Ni l'un ni l'autre n'est « le bon » : la question doit être précisée.
+   */
+  private egalite(candidats: readonly FaitRetenu[], faits: readonly FaitRetenu[]): string[] {
+    const premier = faits[0];
+    if (!premier?.parLesMembres) return [];
+    const ex = candidats.filter(
+      (c) => c.parLesMembres && c.fait.aspect === premier.fait.aspect && Math.abs(c.score - premier.score) < 1e-9,
+    );
+    // Un seul fait qui compare lui-même les membres (« dure ou souple ? ») répond déjà : il n'y a pas d'égalité à trancher.
+    const distincts = new Set(ex.map((c) => c.fait.enonce));
+    if (distincts.size < 2) return [];
+    return [...new Set(ex.flatMap((c) => c.fait.concepts))];
   }
 
   private selectionner(

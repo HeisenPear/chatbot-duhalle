@@ -17,6 +17,7 @@ import { RechercheDansLesFaits } from "./recherche";
 import { ConstructeurDeReponse, type FaitRetenu, type RoleDeConcept } from "./reponse";
 import { normaliser, racines } from "./texte";
 import { lireTypeDeQuestion } from "./types-de-question";
+import { classerLaQuestion, questionDuType, REGLAGES_DU_TYPE, typesProches } from "./types-appris";
 
 /** Ce que le widget renvoie avec la question suivante, pour les relances. */
 export interface Contexte {
@@ -24,7 +25,7 @@ export interface Contexte {
   readonly type: TypeDeQuestion | null;
 }
 
-export type Nature = "reponse" | "recherche" | "accueil" | "politesse" | "inconnu";
+export type Nature = "reponse" | "recherche" | "accueil" | "politesse" | "inconnu" | "clarification";
 
 export interface Reponse {
   readonly nature: Nature;
@@ -52,6 +53,10 @@ export interface Trace {
   readonly structure: StructureLue;
   /** Quand le message contient plusieurs demandes : chacune, dans l'ordre. Vide sinon. */
   readonly demandes: readonly string[];
+  /** Le type appris, quand aucun motif ne s'appliquait et que le classifieur en était sûr. */
+  readonly classifieur: { readonly type: TypeDeQuestion; readonly probabilite: number } | null;
+  /** Pourquoi le moteur a posé une question au lieu de répondre : deux types qui hésitent, ou deux familles de faits à égalité. */
+  readonly clarification: "types-proches" | "familles-a-egalite" | null;
 }
 
 /** Ce que la lecture de la phrase a trouvé, en ids de concepts et en clair. */
@@ -181,6 +186,8 @@ const MAX_SUGGESTIONS = 4;
 const MAX_SUJET = 2;
 /** Un message à plusieurs demandes reçoit au plus ce nombre de réponses courtes. */
 const MAX_REPONSES_COURTES = 2;
+/** Une question de clarification propose au plus ce nombre de boutons. */
+const MAX_BOUTONS_DE_CLARIFICATION = 4;
 
 export class Assistant {
   private readonly detecteur: DetecteurDeConcepts;
@@ -298,7 +305,19 @@ export class Assistant {
     if (!/[a-z0-9]{2,}/.test(forme)) return this.inconnu([], null, null, true);
 
     const marque = lireTypeDeQuestion(forme);
-    let type = marque?.type ?? null;
+    // Les motifs gardent la priorité. Sans motif, le classifieur appris (types-appris.ts) propose un type s'il en est sûr ; il ne
+    // sert qu'à choisir le plan de la réponse : une question courte sans sujet, ou le catalogue entier, ne se lisent que par un motif.
+    const typeDeLaRegle: TypeDeQuestion | null = marque?.type ?? null;
+    let type = typeDeLaRegle;
+    let appris: { type: TypeDeQuestion; probabilite: number } | null = null;
+    const classement = marque ? null : classerLaQuestion(forme);
+    if (classement) {
+      if (classement.type !== null && classement.probabilite >= REGLAGES_DU_TYPE.seuil) {
+        appris = { type: classement.type, probabilite: classement.probabilite };
+        type = classement.type;
+      }
+    }
+    const signal = marque?.signal ?? (appris ? `un type appris : « ${appris.type} » (probabilité ${String(appris.probabilite).replace(".", ",")})` : null);
     const detection = this.detecteur.detecterEnDetail(message);
     let cites = this.plusPrecis(detection.cites.map((c) => c.concept.id));
     // Le rôle de chaque concept dans la phrase. Un concept nié reste lu, comme exclusion (« un vin sans sulfites »). Si TOUS
@@ -323,7 +342,7 @@ export class Assistant {
     let doitToucher: Set<string> | undefined;
 
     if (precedent) {
-      if (cites.length === 0 && (type !== null || this.estUneSuite(message, forme))) {
+      if (cites.length === 0 && (typeDeLaRegle !== null || this.estUneSuite(message, forme))) {
         // « et combien de temps ? », « comment faire ? », « faut-il le tremper ? » : on parle encore de la même chose.
         cites = [...precedent.concepts];
         relance = true;
@@ -339,8 +358,20 @@ export class Assistant {
     // « C'est cher ? », « vous vendez quoi ? » : un type clair sans sujet vise le catalogue entier.
     const racine = this.reglages.conceptRacine;
     // Une valeur demandée sans sujet (« quelle dimension fait-il ? ») renvoie aussi à la fiche produit.
-    if (cites.length === 0 && racine && (type === "prix" || type === "gamme" || type === "lieu" || (type === "valeur" && racines(message).length <= 2))) {
+    if (cites.length === 0 && racine && (typeDeLaRegle === "prix" || typeDeLaRegle === "gamme" || typeDeLaRegle === "lieu" || (typeDeLaRegle === "valeur" && racines(message).length <= 2))) {
       cites = [racine];
+    }
+
+    // Deux types qui hésitent, sans motif ni sujet précédent : on demande ce que le client veut savoir, plutôt que de présenter le sujet.
+    // Un groupe nominal sans verbe ni point d'interrogation (« Remise selon le montant de la commande », un bouton) ne pose pas de
+    // question : il n'y a pas de type à deviner.
+    const poseUneQuestion = /\?/.test(brut) || detection.structure.mots.some((m) => m.nature === "verbe");
+    if (cites.length > 0 && classement && !appris && !relance && !precedent && poseUneQuestion) {
+      const proches = typesProches(classement);
+      if (proches) {
+        const sujet = this.sujetEnClair(structure.objet[0] ?? cites[0]!);
+        return this.clarifier("types-proches", cites, null, proches.map((t) => questionDuType(t, sujet)), "Je ne suis pas certain de ce que vous voulez savoir sur **" + sujet + "**. Que souhaitez-vous ?", signal, substitutions, structure);
+      }
     }
 
     if (cites.length > 0) {
@@ -352,13 +383,21 @@ export class Assistant {
         nombres: detection.structure.nombres,
         ...(doitToucher ? { doitToucher } : {}),
       });
+      // Deux familles de faits à égalité (« quelle cire ? » : la cire dure et la cire souple répondent chacune) : on demande laquelle.
+      if (construction.egalite.length >= 2 && type !== null && !relance && !precedent) {
+        const membres = construction.egalite.slice(0, MAX_BOUTONS_DE_CLARIFICATION);
+        const famille = this.detecteur.concept(construction.egalite[0]!)?.famille;
+        const sujet = this.sujetEnClair(famille && cites.includes(famille) ? famille : (structure.objet[0] ?? cites[0]!));
+        return this.clarifier("familles-a-egalite", cites, type, membres.map((id) => questionDuType(type, this.sujetEnClair(id))), `Cela dépend de **${sujet}** : lequel vous intéresse ?`, signal, substitutions, structure);
+      }
       if (construction.faits.length > 0) {
         return this.mettreEnForme("reponse", construction.faits, construction.liens, cites, type, {
-          signal: marque?.signal ?? null,
+          signal,
           relance,
           plan: construction.plan,
           substitutions,
           structure,
+          classifieur: appris,
         });
       }
     }
@@ -377,7 +416,7 @@ export class Assistant {
       const retenus: FaitRetenu[] = [{ fait: meilleur.fait, specificite: meilleur.confiance, score: meilleur.confiance }];
       const liens = meilleur.fait.concepts.map((id) => this.detecteur.concept(id)?.lien).filter((l): l is Lien => !!l);
       return this.mettreEnForme("recherche", retenus, [...(meilleur.fait.liens ?? []), ...liens].slice(0, 3), [...meilleur.fait.concepts], type, {
-        signal: marque?.signal ?? null,
+        signal,
         relance: false,
         plan: [],
         substitutions: [],
@@ -389,7 +428,39 @@ export class Assistant {
       .flatMap((t) => t.fait.concepts)
       .map((id) => this.detecteur.concept(id))
       .filter((c): c is Concept => !!c);
-    return this.inconnu(pistes, marque?.type ?? null, marque?.signal ?? null);
+    return this.inconnu(pistes, typeDeLaRegle, marque?.signal ?? null);
+  }
+
+  // ─── Clarification ────────────────────────────────────────────────────────
+
+  /** Le nom d'un concept, en minuscules : le sujet d'un bouton de clarification. */
+  private sujetEnClair(id: string): string {
+    const libelle = this.detecteur.concept(id)?.libelle ?? id;
+    return libelle.charAt(0).toLowerCase() + libelle.slice(1);
+  }
+
+  /**
+   * Une question à la place d'une réponse : le client choisit parmi des boutons. Chaque bouton est une question que le moteur sait
+   * lire (questionDuType), qui redonne le type voulu avec le sujet.
+   */
+  private clarifier(
+    raison: "types-proches" | "familles-a-egalite",
+    cites: readonly string[],
+    type: TypeDeQuestion | null,
+    boutons: readonly string[],
+    texte: string,
+    signal: string | null,
+    substitutions: readonly string[],
+    structure: StructureLue,
+  ): Reponse {
+    return {
+      nature: "clarification",
+      texte,
+      liens: [],
+      suggestions: [...new Set(boutons)],
+      contexte: { concepts: [...cites].slice(0, 5), type },
+      trace: { type, signal, concepts: [...cites], relance: false, faits: [], plan: [], substitutions: [...substitutions], structure, demandes: [], classifieur: null, clarification: raison },
+    };
   }
 
   // ─── Mise en forme ────────────────────────────────────────────────────────
@@ -400,7 +471,7 @@ export class Assistant {
     liens: readonly Lien[],
     cites: readonly string[],
     type: TypeDeQuestion | null,
-    trace: { signal: string | null; relance: boolean; plan: readonly string[]; substitutions: readonly string[]; structure?: StructureLue },
+    trace: { signal: string | null; relance: boolean; plan: readonly string[]; substitutions: readonly string[]; structure?: StructureLue; classifieur?: { type: TypeDeQuestion; probabilite: number } | null },
   ): Reponse {
     const concepts = [...new Set(faits.flatMap((f) => f.fait.concepts))];
     return {
@@ -409,7 +480,7 @@ export class Assistant {
       liens: [...liens],
       suggestions: this.suggestions(cites, faits),
       contexte: { concepts: [...new Set([...cites, ...concepts])].slice(0, 5), type },
-      trace: { type, concepts: [...cites], faits: faits.map((f) => f.fait.id), structure: STRUCTURE_VIDE, demandes: [], ...trace },
+      trace: { type, concepts: [...cites], faits: faits.map((f) => f.fait.id), structure: STRUCTURE_VIDE, demandes: [], classifieur: null, clarification: null, ...trace },
     };
   }
 
@@ -494,7 +565,7 @@ export class Assistant {
       liens: [contact],
       suggestions: [...questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [], classifieur: null, clarification: null },
     };
   }
 
@@ -506,7 +577,7 @@ export class Assistant {
       liens: [contact],
       suggestions: [...this.reglages.questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [], classifieur: null, clarification: null },
     };
   }
 
@@ -518,7 +589,7 @@ export class Assistant {
       liens,
       suggestions: [...suggestions],
       contexte: { concepts: [], type: null },
-      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [] },
+      trace: { type: null, signal: null, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [], classifieur: null, clarification: null },
     });
 
     // « Bonjour, U » : une salutation suivie d'une lettre égarée reste une salutation.
@@ -579,7 +650,7 @@ export class Assistant {
       liens: libelles.length > 0 ? [] : [contact],
       suggestions: libelles.length > 0 ? libelles : [...questionsDeDepart],
       contexte: { concepts: [], type: null },
-      trace: { type, signal, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [] },
+      trace: { type, signal, concepts: [], relance: false, faits: [], plan: [], substitutions: [], structure: STRUCTURE_VIDE, demandes: [], classifieur: null, clarification: null },
     };
   }
 

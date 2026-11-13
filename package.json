@@ -12,6 +12,7 @@
     "mesure": "node scripts/mesure.mjs",
     "lexique": "node scripts/preparer-lexique.mjs",
     "vecteurs": "node scripts/preparer-vecteurs.mjs",
+    "classifieur": "node scripts/entrainer-classifieur.mjs",
     "test": "vitest run",
     "cf-typegen": "wrangler types"
   },

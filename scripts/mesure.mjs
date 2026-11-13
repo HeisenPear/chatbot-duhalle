@@ -5,6 +5,7 @@
 //   npm run mesure -- --ecarts      la liste complète des réponses fausses
 //   npm run mesure -- --seuil 0.7 --seuil-avec-concept 0.9 --marge 0.05      règle la reconnaissance par le sens (voir src/moteur/sens.ts)
 //   npm run mesure -- --sans-sens   la mesure sans reconnaissance par le sens
+//   npm run mesure -- --seuil-type 0.8   règle le type appris (voir src/moteur/types-appris.ts) ; --sans-type le coupe
 //
 // Donne : la bonne réponse en premier (%), la bonne réponse parmi les 3 premiers faits (%), le taux de
 // réponses « inconnu », le refus à bon escient des questions hors base, et le temps de calcul d'une
@@ -29,6 +30,7 @@ try {
         export { BASE } from "./src/savoir/index";
         export { JEU_DE_MESURE } from "./test/mesure/jeu-de-mesure";
         export { REGLAGES_DU_SENS } from "./src/moteur/sens";
+        export { REGLAGES_DU_TYPE } from "./src/moteur/types-appris";
       `,
       resolveDir: racine,
       loader: "ts",
@@ -39,7 +41,7 @@ try {
     outfile: sortie,
     logLevel: "error",
   });
-  const { Assistant, REGLAGES, BASE, JEU_DE_MESURE, REGLAGES_DU_SENS } = await import(pathToFileURL(sortie).href);
+  const { Assistant, REGLAGES, BASE, JEU_DE_MESURE, REGLAGES_DU_SENS, REGLAGES_DU_TYPE } = await import(pathToFileURL(sortie).href);
 const valeur = (nom) => {
   const i = process.argv.indexOf(`--${nom}`);
   return i >= 0 ? Number(process.argv[i + 1]) : undefined;
@@ -47,6 +49,8 @@ const valeur = (nom) => {
 if (valeur("seuil") !== undefined) REGLAGES_DU_SENS.seuil = valeur("seuil");
 if (valeur("seuil-avec-concept") !== undefined) REGLAGES_DU_SENS.seuilAvecConcept = valeur("seuil-avec-concept");
 if (valeur("marge") !== undefined) REGLAGES_DU_SENS.marge = valeur("marge");
+if (valeur("seuil-type") !== undefined) REGLAGES_DU_TYPE.seuil = valeur("seuil-type");
+if (process.argv.includes("--sans-type")) REGLAGES_DU_TYPE.seuil = 2;
 if (process.argv.includes("--sans-sens")) REGLAGES_DU_SENS.seuil = REGLAGES_DU_SENS.seuilAvecConcept = 2;
 
   // La construction comprend le préchauffage du moteur : c'est ce que fait le Worker au démarrage de l'isolat.

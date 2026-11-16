@@ -162,7 +162,7 @@ for (const aspect of TOUS_LES_ASPECTS) {
 r.fait("bouteille-champenoise", "gamme", `
   Dans la gamme que je connais, les bouteilles vides sont des **bouteilles de vin de 75 cl** (bordelaise verte, bordelaise transparente, bourgogne transparente), au goulot de 19 mm. Je n'ai pas de **bouteille champenoise** vide dans ma base : pour du cidre ou un vin pétillant, demandez au service client ${CONTACT} si un modèle convient.`, { source: PAGES.futs.url, liens: [PAGES.contact] });
 
-// « Je cherche une dame-jeanne en verre opaque » : les dames-jeannes connues sont en verre transparent.
+// « Je cherche une dame-jeanne en verre opaque » : les dames-jeannes sont en verre transparent légèrement bleuté (précisé par l'équipe Duhallé le 16/11/2026).
 r.concept("verre-opaque", "Verre opaque ou teinté", [], {
   famille: "contenant",
   exclusif: true,
@@ -170,7 +170,7 @@ r.concept("verre-opaque", "Verre opaque ou teinté", [], {
 });
 for (const aspect of TOUS_LES_ASPECTS) {
   r.fait("verre-opaque", aspect, `
-    Les **dames-jeannes** que je connais sont en **verre transparent**, avec un entourage plastique. Je n'ai pas de modèle en verre opaque ou teinté dans ma base : pour protéger un contenu de la lumière, rangez-le à l'abri, ou demandez au service client ${CONTACT} si un autre modèle existe.`, { liens: [PAGES.futs, PAGES.contact] });
+    Les **dames-jeannes** Duhallé sont en **verre transparent légèrement bleuté**, avec un entourage plastique : elles ne sont pas opaques. Je n'ai pas de modèle en verre opaque ou plus foncé dans ma base. Pour protéger un contenu de la lumière, rangez-le à l'abri, ou demandez au service client ${CONTACT} si un autre modèle existe.`, { liens: [PAGES.futs, PAGES.contact] });
 }
 
 // « Quel bouchon pour une carafe de 3,5 de diamètre ? » : une carafe se ferme avec une bonde choisie sur le diamètre du col.

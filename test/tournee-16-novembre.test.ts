@@ -21,9 +21,17 @@ describe("les questions du 12 au 16 novembre", () => {
 
   it("donne l'adresse de la boutique de la Bouchonnerie Jocondienne, dont Duhallé fait partie", () => {
     for (const question of ["Ou se situe votre boutique?", "Quelle est votre adresse ?", "Y a t'il des magasins sur paris?", "Où est la boutique de la Jocondienne ?"]) {
-      dit(question, /^magasin\./, /Bouchonnerie Jocondienne/, /7B rue des Artisans, 37300 Joué-lès-Tours/);
+      dit(question, /^magasin\./, /Bouchonnerie Jocondienne/, /7 rue des Artisans, 37300 Joué-lès-Tours/, /02 47 87 53 44/, /lundi au vendredi de 9h à 12h et de 14h à 18h, fermée le samedi et le dimanche/);
     }
     expect(assistant.repondre("Où est la boutique de la Jocondienne ?").texte).toMatch(/définira avec vous les possibilités/);
+  });
+
+  it("donne les horaires de la boutique, et ceux du service client quand on demande si vous êtes ouverts", () => {
+    dit("Quels sont les horaires de la boutique ?", /^magasin\./, /lundi au vendredi de 9h à 12h et de 14h à 18h/, /fermée le samedi et le dimanche/);
+    const reponse = assistant.repondre("Êtes-vous ouvert le samedi ?");
+    expect(reponse.trace.faits[0]).toBe("service-client.definition");
+    expect(reponse.texte).toMatch(/lundi au jeudi/);
+    expect(reponse.texte).toMatch(/fermée le samedi et le dimanche/);
   });
 
   it("traite une commande arrivée cassée comme un produit abîmé", () => {

@@ -143,3 +143,43 @@ for (const aspect of TOUS_LES_ASPECTS) {
   r.fait("twist-off", aspect, `
     Je n'ai pas trouvé de **capsules twist-off de 48 mm** dans la base. Duhallé propose des **capsules à vis de rechange de 70 mm** (lot de 2) pour ses bocaux, et des **capsules couronne** de **26 mm** et **29 mm** pour bouteilles. Pour un autre diamètre, demandez au service client ${CONTACT}.`, { liens: [PAGES.bocaux, PAGES.contact] });
 }
+
+
+// ─── La tournée du 16 novembre : questions du 12 au 16 novembre (base D1) ─────────────────────────────────────
+
+// « Robinet 4 pouces » : les robinets du catalogue font 2 ou 3 pouces.
+r.concept("robinet-4-pouces", "Robinet de 4 pouces et plus", [], {
+  famille: "robinet-vinaigrier",
+  exclusif: true,
+  formules: ["4 pouces", "quatre pouces", "5 pouces", "cinq pouces", "6 pouces", "six pouces", "robinet 4 pouces", "robinet de 4 pouces"],
+});
+for (const aspect of TOUS_LES_ASPECTS) {
+  r.fait("robinet-4-pouces", aspect, `
+    Pour les vinaigriers, le catalogue propose des **robinets en bois de 2 pouces** (embout Ø 8 mm) et de **3 pouces** (8 cm, en frêne du Jura). Je n'ai pas de robinet de **4 pouces** dans ma base : demandez au service client ${CONTACT} si un modèle plus long existe.`, { liens: [PAGES.vinaigriers, PAGES.contact] });
+}
+
+// « Vendez-vous des bouteilles champenoises ? » : la gamme connue ne cite que des bouteilles de vin de 75 cl.
+r.fait("bouteille-champenoise", "gamme", `
+  Dans la gamme que je connais, les bouteilles vides sont des **bouteilles de vin de 75 cl** (bordelaise verte, bordelaise transparente, bourgogne transparente), au goulot de 19 mm. Je n'ai pas de **bouteille champenoise** vide dans ma base : pour du cidre ou un vin pétillant, demandez au service client ${CONTACT} si un modèle convient.`, { source: PAGES.futs.url, liens: [PAGES.contact] });
+
+// « Je cherche une dame-jeanne en verre opaque » : les dames-jeannes connues sont en verre transparent.
+r.concept("verre-opaque", "Verre opaque ou teinté", [], {
+  famille: "contenant",
+  exclusif: true,
+  formules: ["verre opaque", "verre teinte", "verre fume", "verre colore", "verre noir", "verre fonce", "verre brun", "dame jeanne opaque", "dame jeanne teintee", "bonbonne opaque", "bonbonne teintee", "dame jeanne noire", "dame jeanne foncee"],
+});
+for (const aspect of TOUS_LES_ASPECTS) {
+  r.fait("verre-opaque", aspect, `
+    Les **dames-jeannes** que je connais sont en **verre transparent**, avec un entourage plastique. Je n'ai pas de modèle en verre opaque ou teinté dans ma base : pour protéger un contenu de la lumière, rangez-le à l'abri, ou demandez au service client ${CONTACT} si un autre modèle existe.`, { liens: [PAGES.futs, PAGES.contact] });
+}
+
+// « Quel bouchon pour une carafe de 3,5 de diamètre ? » : une carafe se ferme avec une bonde choisie sur le diamètre du col.
+r.concept("bouchon-carafe", "Bouchon pour une carafe", [], {
+  famille: "trou-bouchon",
+  exclusif: true,
+  formules: ["bouchon pour carafe", "bouchon pour une carafe", "bouchon pour la carafe", "bouchon de carafe", "bouchon de la carafe", "bouchon carafe", "bonde pour carafe", "bonde pour une carafe", "bonde de carafe", "bonde carafe", "col de la carafe", "col de carafe", "goulot de la carafe", "goulot de carafe", "fermer une carafe", "boucher une carafe"],
+});
+for (const aspect of ["definition", "usage", "choix", "dimension", "procedure", "condition", "gamme"] as const) {
+  r.fait("bouchon-carafe", aspect, `
+    Pour fermer une **carafe**, mesurez le **diamètre intérieur du col** au pied à coulisse : une **bonde conique en liège** convient si son petit diamètre est inférieur à celui du col et son grand diamètre supérieur. Par exemple, pour un col de **3,4 à 3,5 cm** (34 à 35 mm), la bonde **35/31 mm** convient aux cols de 31 à 35 mm et la **38/34 mm** à ceux de 34 à 38 mm ; entre deux tailles, ou en cas de doute, demandez conseil au service client ${CONTACT}.`, { source: PAGES.bondes.url, liens: [PAGES.bondes, PAGES.contact] });
+}

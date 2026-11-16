@@ -328,7 +328,7 @@ r.concept("grille-hachoir", "Grilles de hachoir", ["grille de hachoir", "grilles
   exclusif: true,
   famille: "hachoir",
   lien: PAGES.hachoirFonte,
-  formules: ["diametre de la grille", "diametre ext de la grille", "diametre exterieur de la grille", "trou central de la grille", "porkert", "compatible avec hachoir", "compatible avec mon hachoir", "compatible avec le hachoir", "compatible hachoir", "convient a mon hachoir", "convient pour mon hachoir", "va sur mon hachoir"],
+  formules: ["diametre de la grille", "diametre des grilles", "largeur de la grille", "largeur des grilles", "taille de la grille", "taille des grilles", "dimension de la grille", "dimensions de la grille", "dimensions des grilles", "diametre ext de la grille", "diametre exterieur de la grille", "trou central de la grille", "porkert", "compatible avec hachoir", "compatible avec mon hachoir", "compatible avec le hachoir", "compatible hachoir", "convient a mon hachoir", "convient pour mon hachoir", "va sur mon hachoir"],
 });
 
 /** Fiches relevées le 12/10/2026 : grilles de rechange n°10 et Reber n°12 en fonte étamée, trous de 6, 8 ou 10 mm. */

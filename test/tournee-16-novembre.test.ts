@@ -1,0 +1,53 @@
+// LA TOURNÉE DU 16 NOVEMBRE : les questions réelles des clients du 12 au 16 novembre (base D1) dont la réponse était à côté.
+import { describe, expect, it } from "vitest";
+import { Assistant } from "../src/moteur/assistant";
+import { REGLAGES } from "../src/savoir/coordonnees";
+import { BASE } from "../src/savoir/index";
+
+const assistant = new Assistant(BASE, REGLAGES);
+
+const dit = (question: string, premierFait: string | RegExp, ...motifs: RegExp[]) => {
+  const reponse = assistant.repondre(question);
+  expect(reponse.nature, question).toBe("reponse");
+  if (typeof premierFait === "string") expect(reponse.trace.faits[0], question).toBe(premierFait);
+  else expect(reponse.trace.faits[0], question).toMatch(premierFait);
+  for (const motif of motifs) expect(reponse.texte, question).toMatch(motif);
+};
+
+describe("les questions du 12 au 16 novembre", () => {
+  it("dit que la boutique est en ligne à qui demande où elle se situe", () => {
+    for (const question of ["Ou se situe votre boutique?", "Quelle est votre localisation en France?", "Où êtes-vous ?"]) dit(question, /^magasin\./, /boutique en ligne/);
+  });
+
+  it("traite une commande arrivée cassée comme un produit abîmé", () => {
+    for (const question of ["Commande arrivée cassée", "ma commande est arrivée abîmée"]) dit(question, "produit-abime.procedure", /photos/);
+  });
+
+  it("dit que les robinets de vinaigrier font 2 ou 3 pouces, pas 4", () => {
+    dit("Robinet 4 pouces", "robinet-4-pouces.definition", /2 pouces/, /3 pouces/, /4 pouces/);
+  });
+
+  it("ne cite pas de bouteille champenoise dans la gamme connue", () => {
+    for (const question of ["vendez vous de sbouteilles champenoises", "avez-vous des bouteilles champenoises vides ?"]) dit(question, "bouteille-champenoise.gamme", /bouteilles de vin de 75 cl/, /pas de \*\*bouteille champenoise\*\*/);
+  });
+
+  it("ferme une bouteille de bière avec une capsule couronne", () => {
+    dit("quel bouchon pour une bouteille de biere", "canette.choix", /capsules couronne de 26 mm/);
+    // Le banc garde « capsules pour bouteilles de bière » sur les capsules couronne.
+    expect(assistant.repondre("capsules pour bouteilles de bière").trace.faits[0]).toBe("capsule-couronne.dimension");
+  });
+
+  it("dit que les dames-jeannes connues sont en verre transparent", () => {
+    dit("Je cherche une dame Jeanne verre opaque", "verre-opaque.definition", /verre transparent/);
+  });
+
+  it("choisit la bonde d'une carafe d'après le diamètre du col", () => {
+    for (const question of ["Quel bouchon pour une carafe de 3,5 de diamètre", "bouchon pour carafe"]) dit(question, /^bouchon-carafe\./, /35\/31 mm/, /38\/34 mm/);
+  });
+
+  it("lit « quelleest » comme « quelle est », et la largeur d'une grille comme une dimension", () => {
+    dit("QUELLEEST LA LARGEUR DE LA GRILLE", "grille-hachoir.dimension");
+    dit("quelle est la largeur de la grille", "grille-hachoir.dimension");
+    expect(assistant.repondre("quelle est la profondeur du casier").trace.type).toBe("valeur");
+  });
+});

@@ -161,6 +161,8 @@ r.concept("magasin", "Points de vente", ["magasin", "magasins", "boutique physiq
   exclusif: true,
   formules: ["retirer un", "retirer une", "retirer ma commande", "retirer mon colis", "retirer directement", "retirer sur place", "retirer a votre site", "retirer sur votre site", "directement a votre site", "directement sur votre site", "directement chez vous", "passer chercher", "passer prendre", "venir recuperer", "recuperer sur place", "enlever sur place", "retrait en magasin", "retrait au depot", "click and collect", "votre depot", "votre entrepot", "votre site de",
     // « Dans quelle boutique vous trouve-t-on à Mulhouse ? » : la boutique est en ligne.
+    // « Où se situe votre boutique ? », « Quelle est votre localisation ? » : la boutique est en ligne.
+    "ou se situe", "ou se situent", "ou se trouve votre", "ou se trouvent vos", "ou etes vous", "ou est votre boutique", "ou est votre magasin", "votre localisation", "votre adresse", "ou vous situez vous", "ou habitez vous", "votre emplacement",
     "dans quelle boutique", "dans quel magasin", "dans quelles boutiques", "dans quels magasins", "quelle boutique", "quel magasin", "boutique a proximite", "magasin a proximite", "boutique pres de chez", "magasin pres de chez", "boutique pres de", "magasin pres de", "ou vous trouver en magasin", "trouver vos produits en magasin", "vos produits en magasin", "vos produits en boutique", "acheter vos produits en magasin", "ou acheter vos produits", "ou trouver vos produits", "vous trouve t on", "vous trouvez vous"],
 });
 

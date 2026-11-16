@@ -19,6 +19,13 @@ describe("les questions du 12 au 16 novembre", () => {
     for (const question of ["Ou se situe votre boutique?", "Quelle est votre localisation en France?", "Où êtes-vous ?"]) dit(question, /^magasin\./, /boutique en ligne/);
   });
 
+  it("donne l'adresse de la boutique de la Bouchonnerie Jocondienne, dont Duhallé fait partie", () => {
+    for (const question of ["Ou se situe votre boutique?", "Quelle est votre adresse ?", "Y a t'il des magasins sur paris?", "Où est la boutique de la Jocondienne ?"]) {
+      dit(question, /^magasin\./, /Bouchonnerie Jocondienne/, /7B rue des Artisans, 37300 Joué-lès-Tours/);
+    }
+    expect(assistant.repondre("Où est la boutique de la Jocondienne ?").texte).toMatch(/définira avec vous les possibilités/);
+  });
+
   it("traite une commande arrivée cassée comme un produit abîmé", () => {
     for (const question of ["Commande arrivée cassée", "ma commande est arrivée abîmée"]) dit(question, "produit-abime.procedure", /photos/);
   });

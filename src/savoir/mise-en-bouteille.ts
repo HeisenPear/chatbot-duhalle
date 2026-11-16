@@ -426,7 +426,7 @@ r.concept("contenant", "Fûts et dames-jeannes", ["fut", "futs", "tonneau", "ton
 
 r.fait("contenant", "gamme", `
   Pour stocker et faire fermenter :
-  - des **dames-jeannes** (bonbonnes) en verre transparent à entourage plastique, de 2 à 25 L : 5, 10, 15, 20 et 25 L à col fin, 5, 10, 15 et 20 L à col large, et une dame-jeanne de 2 L à col à vis ;
+  - des **dames-jeannes** (bonbonnes) en verre transparent légèrement bleuté, à entourage plastique, de 2 à 25 L : 5, 10, 15, 20 et 25 L à col fin, 5, 10, 15 et 20 L à col large, et une dame-jeanne de 2 L à col à vis ;
   - des **fûts alimentaires blancs translucides** de 5 à 100 L, fabriqués en Italie, livrés avec leur robinet et leur couvercle ;
   - des **fûts de macération bleus** à large ouverture (30, 60, 120 et 220 L).
 
@@ -496,7 +496,7 @@ r.concept("col-dame-jeanne", "Col des dames-jeannes", ["col de la dame jeanne", 
 const BONDE_DE_DAME_JEANNE = `
   Une bonde doit s'enfoncer sans forcer : son petit diamètre doit être inférieur au diamètre intérieur du col, son grand diamètre supérieur. Mesurez donc le diamètre intérieur réel au pied à coulisse (les bondes vont de 28/24 à 120/115 mm).
 
-  Pour les dames-jeannes Duhallé (verre transparent, entourage plastique), l'ouverture mesure environ **3,9 cm** pour les modèles de 15, 20 et 25 L à col fin, **3,5 cm** pour la 10 L, **2,8 cm** pour la 5 L et **11,7 cm** pour les modèles à col large (bonde **120/115 mm**). La dame-jeanne de **2 L** a un col à vis de 22 mm : elle se ferme avec son bouchon à vis, car la plus petite bonde (28/24 mm) est trop large. Pour un col annoncé à 3,9 cm, la bonde **38/34 mm** convient aux cols de 34 à 38 mm, la **45/40 mm** à ceux de 40 à 45 mm ; entre les deux, ou en cas de doute, demandez conseil au service client au **${TELEPHONE}**.`;
+  Pour les dames-jeannes Duhallé (verre transparent légèrement bleuté, entourage plastique), l'ouverture mesure environ **3,9 cm** pour les modèles de 15, 20 et 25 L à col fin, **3,5 cm** pour la 10 L, **2,8 cm** pour la 5 L et **11,7 cm** pour les modèles à col large (bonde **120/115 mm**). La dame-jeanne de **2 L** a un col à vis de 22 mm : elle se ferme avec son bouchon à vis, car la plus petite bonde (28/24 mm) est trop large. Pour un col annoncé à 3,9 cm, la bonde **38/34 mm** convient aux cols de 34 à 38 mm, la **45/40 mm** à ceux de 40 à 45 mm ; entre les deux, ou en cas de doute, demandez conseil au service client au **${TELEPHONE}**.`;
 
 for (const aspect of ["definition", "dimension", "choix"] as const) {
   r.fait("col-dame-jeanne", aspect, BONDE_DE_DAME_JEANNE, { source: PAGES.futs.url, liens: [PAGES.futs, PAGES.bondes, PAGES.contact] });

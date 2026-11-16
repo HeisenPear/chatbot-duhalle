@@ -37,8 +37,9 @@ describe("les questions du 12 au 16 novembre", () => {
     expect(assistant.repondre("capsules pour bouteilles de bière").trace.faits[0]).toBe("capsule-couronne.dimension");
   });
 
-  it("dit que les dames-jeannes connues sont en verre transparent", () => {
-    dit("Je cherche une dame Jeanne verre opaque", "verre-opaque.definition", /verre transparent/);
+  it("dit que les dames-jeannes sont en verre transparent légèrement bleuté, pas opaque", () => {
+    dit("Je cherche une dame Jeanne verre opaque", "verre-opaque.definition", /verre transparent légèrement bleuté/, /pas opaques/);
+    expect(assistant.repondre("quelles dames-jeannes vendez-vous ?").texte).toMatch(/légèrement bleuté/);
   });
 
   it("choisit la bonde d'une carafe d'après le diamètre du col", () => {

@@ -55,7 +55,7 @@ r.fait("duhalle", "raison", `
   - des **avis clients garantis**.`);
 
 r.fait("duhalle", "lieu", `
-  Duhallé vend en ligne sur **duhalle-boutique.fr**. Certains produits de la marque se trouvent aussi chez des revendeurs, mais le catalogue complet et les conseils de l'équipe sont sur la boutique en ligne.`);
+  Duhallé vend en ligne sur **duhalle-boutique.fr** et fait partie de la **Bouchonnerie Jocondienne**, dont la boutique est au **7B rue des Artisans, 37300 Joué-lès-Tours**. Certains produits de la marque se trouvent aussi chez des revendeurs, mais le catalogue complet et les conseils de l'équipe sont sur la boutique en ligne.`);
 
 // ─── Le service client ─────────────────────────────────────────────────────
 
@@ -162,13 +162,16 @@ r.concept("magasin", "Points de vente", ["magasin", "magasins", "boutique physiq
   formules: ["retirer un", "retirer une", "retirer ma commande", "retirer mon colis", "retirer directement", "retirer sur place", "retirer a votre site", "retirer sur votre site", "directement a votre site", "directement sur votre site", "directement chez vous", "passer chercher", "passer prendre", "venir recuperer", "recuperer sur place", "enlever sur place", "retrait en magasin", "retrait au depot", "click and collect", "votre depot", "votre entrepot", "votre site de",
     // « Dans quelle boutique vous trouve-t-on à Mulhouse ? » : la boutique est en ligne.
     // « Où se situe votre boutique ? », « Quelle est votre localisation ? » : la boutique est en ligne.
-    "ou se situe", "ou se situent", "ou se trouve votre", "ou se trouvent vos", "ou etes vous", "ou est votre boutique", "ou est votre magasin", "votre localisation", "votre adresse", "ou vous situez vous", "ou habitez vous", "votre emplacement",
+    "jocondienne", "la jocondienne", "bouchonnerie jocondienne", "la bouchonnerie jocondienne", "ou se situe", "ou se situent", "ou se trouve votre", "ou se trouvent vos", "ou etes vous", "ou est votre boutique", "ou est votre magasin", "votre localisation", "votre adresse", "ou vous situez vous", "ou habitez vous", "votre emplacement",
     "dans quelle boutique", "dans quel magasin", "dans quelles boutiques", "dans quels magasins", "quelle boutique", "quel magasin", "boutique a proximite", "magasin a proximite", "boutique pres de chez", "magasin pres de chez", "boutique pres de", "magasin pres de", "ou vous trouver en magasin", "trouver vos produits en magasin", "vos produits en magasin", "vos produits en boutique", "acheter vos produits en magasin", "ou acheter vos produits", "ou trouver vos produits", "vous trouve t on", "vous trouvez vous"],
 });
 
 // Retrait sur place : à définir avec le service client (équipe Duhallé, 20/10/2026).
+// La boutique est celle de la Bouchonnerie Jocondienne, dont Duhallé fait partie (équipe Duhallé, 16/11/2026). L'adresse est celle du
+// siège inscrit au registre du commerce (SIREN 310 755 764), relevée le 16/11/2026 : à faire valider, ainsi que les horaires et le retrait.
+const ADRESSE_DE_LA_BOUTIQUE = "7B rue des Artisans, 37300 Joué-lès-Tours";
 const BOUTIQUE_EN_LIGNE = `
-  Duhallé est avant tout une **boutique en ligne** : l'ensemble du catalogue est sur duhalle-boutique.fr, avec livraison en France. Certains produits de la marque sont aussi distribués par des enseignes de bricolage et de jardinage. Pour un **retrait sur place**, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** : l'équipe définira avec vous les possibilités.`;
+  Duhallé est avant tout une **boutique en ligne** : l'ensemble du catalogue est sur duhalle-boutique.fr, avec livraison en France. Duhallé fait partie de la **Bouchonnerie Jocondienne**, dont la boutique se trouve au **${ADRESSE_DE_LA_BOUTIQUE}**. Certains produits de la marque sont aussi distribués par des enseignes de bricolage et de jardinage. Pour un **retrait sur place** ou pour venir à la boutique, contactez le service client au **${TELEPHONE}** ou à **${EMAIL}** : l'équipe définira avec vous les possibilités.`;
 
 for (const aspect of ["lieu", "condition", "procedure", "definition", "gamme"] as const) {
   r.fait("magasin", aspect, BOUTIQUE_EN_LIGNE);

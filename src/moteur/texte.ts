@@ -19,6 +19,8 @@ export type { NatureDeMot } from "./lexique";
 export function normaliser(texte: string): string {
   return texte
     .toLowerCase()
+    // « QUELLEEST LA LARGEUR » : « quel » collé à « est » (une touche d'espace oubliée) se lit « quelle est ».
+    .replace(/\b(quel(?:le)?s?)est\b/g, "$1 est")
     .replace(/œ/g, "oe")
     .replace(/æ/g, "ae")
     .normalize("NFD")

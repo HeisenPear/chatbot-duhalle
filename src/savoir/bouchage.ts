@@ -536,6 +536,8 @@ r.fait("capsule-couronne", "condition", `
 r.concept("canette", "Canettes et petites bouteilles de bière", ["canette", "canettes", "canette de biere", "canettes de biere"], {
   famille: "capsule-couronne",
   exclusif: true,
+  // « Quel bouchon pour une bouteille de bière ? » : une bouteille de bière se ferme avec une capsule couronne.
+  formules: ["bouchon pour biere", "bouchon biere", "bouchons pour biere", "bouchon pour de la biere", "bouchon pour une bouteille de biere", "bouchon pour bouteille de biere", "bouchon pour bouteilles de biere", "bouchons pour bouteilles de biere", "fermer une biere", "fermer ma biere", "boucher une biere", "boucher ma biere"],
   lien: PAGES.capsules26Or,
 });
 

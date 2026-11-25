@@ -223,7 +223,7 @@ r.concept("commande-en-attente", "Commande en attente de préparation ou d'expé
     // « quand ma commande sera envoyée ? » : la date de départ d'une commande précise.
     // « Pourquoi ma commande ne bouge pas ? » : le statut reste le même.
     "commande ne bouge pas", "commande ne bouge plus", "commande n avance pas", "commande n avance plus", "commande stagne", "commande est toujours au meme statut", "toujours le meme statut", "statut ne change pas", "statut ne bouge pas", "statut n evolue pas", "commande ne change pas de statut", "commande reste bloquee", "commande est restee bloquee",
-    "quand ma commande sera envoyee", "quand ma commande sera expediee", "quand ma commande sera t elle expediee", "quand ma commande est elle expediee", "quand ma commande va t elle partir", "quand sera envoyee ma commande", "quand sera expediee ma commande", "quand ma commande part", "quand ma commande partira", "quand mon colis part", "quand mon colis partira", "quand sera envoye mon colis", "quand va partir ma commande", "quand sera t elle envoyee", "quand ma commande sera t elle envoyee"],
+    "quand ma commande sera envoyee", "quand ma commande sera expediee", "va t elle etre envoyee", "va t elle etre expediee", "va t il etre envoye", "va t il etre expedie", "date de livraison prevue", "date de livraison de ma commande", "quand ma commande sera t elle expediee", "quand ma commande est elle expediee", "quand ma commande va t elle partir", "quand sera envoyee ma commande", "quand sera expediee ma commande", "quand ma commande part", "quand ma commande partira", "quand mon colis part", "quand mon colis partira", "quand sera envoye mon colis", "quand va partir ma commande", "quand sera t elle envoyee", "quand ma commande sera t elle envoyee"],
 });
 
 const COMMANDE_EN_ATTENTE = `
@@ -235,7 +235,7 @@ r.fait("commande-en-attente", "duree", COMMANDE_EN_ATTENTE, { liens: [PAGES.cont
 
 // ─── Livraison ─────────────────────────────────────────────────────────────
 
-r.concept("livraison", "Livraison", ["livraison", "delivraison", "livrer", "livre", "expedition", "expedier", "envoi", "envoyer", "frais de port", "frais de livraison", "frais d envoi", "transporteur", "transporteurs", "colis", "dpd", "colissimo", "geodis", "livraison gratuite", "livraison offerte", "franco de port", "port offert", "port gratuit"], {
+r.concept("livraison", "Livraison", ["livraison", "delivraison", "livrer", "livre", "expedition", "expedier", "envoi", "envoyer", "frais de port", "frais de livraison", "frais d envoi", "cout du port", "prix du port", "transporteur", "transporteurs", "colis", "dpd", "colissimo", "geodis", "livraison gratuite", "livraison offerte", "franco de port", "port offert", "port gratuit"], {
   famille: "boutique-en-ligne",
   voirAussi: ["suivi-commande", "paiement"],
   // « De combien sont les frais ? » : dans une boutique en ligne, ce sont les frais de port.

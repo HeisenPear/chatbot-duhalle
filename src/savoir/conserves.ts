@@ -9,7 +9,7 @@ export const conserves = r;
 const MINISTERE_BOTULISME = "https://agriculture.gouv.fr/le-botulisme";
 const NCHFP = "https://nchfp.uga.edu/resources/category/usda-guide";
 
-r.concept("conserve", "Les conserves maison", ["conserve", "conserves", "conserverie", "conserves maison", "faire ses conserves", "faire des conserves", "comptoir de la conserve", "le comptoir de la conserve", "sterilisation", "steriliser", "appertisation", "mettre en bocaux", "mise en bocaux"], {
+r.concept("conserve", "Les conserves maison", ["conserve", "conserves", "conserverie", "conserves maison", "faire ses conserves", "faire des conserves", "sterilisation", "steriliser", "appertisation", "mettre en bocaux", "mise en bocaux"], {
   famille: "catalogue",
   lien: PAGES.conserve,
   voirAussi: ["sterilisateur", "bocal", "confiture"],

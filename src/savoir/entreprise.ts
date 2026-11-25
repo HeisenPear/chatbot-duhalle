@@ -181,7 +181,7 @@ for (const aspect of ["lieu", "condition", "procedure", "definition", "gamme"] a
 r.concept("origine-fabrication", "Origine de fabrication des produits", ["origine", "provenance", "pays de fabrication", "lieu de fabrication", "fabriquee en france", "fabrique en france", "made in france", "made in", "origine des produits"], {
   famille: "catalogue",
   exclusif: true,
-  formules: ["ou sont fabriques", "ou est fabrique", "ou sont fabriquees", "ou est fabriquee", "ou est ce fabrique", "ou est ce que c est fabrique", "d ou vient", "d ou viennent", "d ou provient", "d ou provient", "fabrique ou", "fabriques ou", "fabrique dans quel pays", "fabrique en quel pays", "de quel pays", "ou sont produits", "ou est produit", "ou sont fabrique", "fabrication francaise", "fabrication artisanale"],
+  formules: ["dans quel pays", "quel pays", "pays d origine", "est il fabrique", "est elle fabriquee", "sont ils fabriques", "ou sont fabriques", "ou est fabrique", "ou sont fabriquees", "ou est fabriquee", "ou est ce fabrique", "ou est ce que c est fabrique", "d ou vient", "d ou viennent", "d ou provient", "d ou provient", "fabrique ou", "fabriques ou", "fabrique dans quel pays", "fabrique en quel pays", "de quel pays", "ou sont produits", "ou est produit", "ou sont fabrique", "fabrication francaise", "fabrication artisanale"],
 });
 
 const ORIGINE_DE_FABRICATION = `

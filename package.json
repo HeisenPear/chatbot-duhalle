@@ -14,7 +14,8 @@
     "vecteurs": "node scripts/preparer-vecteurs.mjs",
     "classifieur": "node scripts/entrainer-classifieur.mjs",
     "test": "vitest run",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "fiches": "node scripts/preparer-fiches.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260924.1",

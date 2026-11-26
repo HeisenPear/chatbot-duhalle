@@ -113,7 +113,9 @@ for (const aspect of ["definition", "gamme", "dimension", "choix", "usage", "con
 r.concept("etancheite-vinaigrier", "Étanchéité du vinaigrier", ["etancheite", "etanche", "vinaigrier etanche"], {
   famille: "vinaigrier",
   // Pas « vinaigrier fuit » seul : « le robinet de mon vinaigrier fuit » parle du robinet.
-  formules: ["mon vinaigrier fuit", "mon vinaigrier coule", "mon vinaigrier suinte", "le vinaigrier fuit", "le vinaigrier coule", "le vinaigrier suinte", "ce vinaigrier fuit", "vinaigrier qui suinte", "fuite du vinaigrier", "fuite de mon vinaigrier", "fuite sur le vinaigrier"],
+  formules: ["mon vinaigrier fuit", "mon vinaigrier coule", "mon vinaigrier suinte", "le vinaigrier fuit", "le vinaigrier coule", "le vinaigrier suinte", "ce vinaigrier fuit", "vinaigrier qui suinte", "fuite du vinaigrier", "fuite de mon vinaigrier", "fuite sur le vinaigrier",
+    // « J'ai respecté le protocole pour la mise en place du bouchon et celui-ci goutte sans arrêt » (tournée du 25 novembre).
+    "goutte sans arret", "celui ci goutte", "il goutte sans arret", "bouchon goutte", "mon vinaigrier goutte", "goutte quelle que soit la position", "goutte quelque soit la position"],
 });
 
 const ETANCHEITE_DU_VINAIGRIER = `

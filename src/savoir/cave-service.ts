@@ -53,6 +53,8 @@ r.fait("hygrometrie", "condition", `
 r.concept("casier", "Casiers range-bouteilles", ["casier", "casiers", "range bouteille", "range bouteilles", "casier a bouteilles", "casier a vin", "rangement bouteilles", "etagere a bouteilles", "porte bouteilles", "rack", "support bouteilles", "casier bois", "casier metal", "casier polystyrene", "weinbox", "brindo"], {
   famille: "cave",
   lien: PAGES.casiers,
+  // « Peut-on stocker tous les formats différents de 75 cl ? » parlait de réutiliser des bouteilles (tournée du 25 novembre).
+  formules: ["stocker tous les formats", "stocker d autres formats", "formats differents de 75", "autres formats que 75", "autre format que 75", "tous les formats de bouteilles", "tout type de bouteille", "tous types de bouteilles"],
 });
 
 r.fait("casier", "gamme", `

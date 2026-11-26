@@ -836,7 +836,9 @@ r.concept("surbouchage", "Capsules de surbouchage", ["surbouchage", "capsule de 
   famille: "mise-en-bouteille",
   lien: PAGES.surbouchage,
   voirAussi: ["cire", "etiquettes"],
-  formules: ["capsule ou cire", "cire ou capsule", "capsule ou de la cire", "capsules ou cire"],
+  formules: ["capsule ou cire", "cire ou capsule", "capsule ou de la cire", "capsules ou cire",
+    // « Comment mettre vos capsules sur les bouteilles de vin ? » : sur le vin, la capsule est celle du surbouchage (tournée du 25 novembre).
+    "capsules sur les bouteilles de vin", "capsules sur mes bouteilles de vin", "capsules sur des bouteilles de vin", "capsules sur bouteilles de vin", "capsule sur une bouteille de vin"],
 });
 
 r.fait("surbouchage", "gamme", `

@@ -121,6 +121,8 @@ export interface Fait {
 export interface BaseDeSavoir {
   readonly concepts: readonly Concept[];
   readonly faits: readonly Fait[];
+  /** Les articles du catalogue et les mesures de leur fiche (facultatif : une base de test s'en passe). */
+  readonly fiches?: readonly FicheProduit[];
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -184,3 +186,14 @@ export const PLAN_PAR_DEFAUT: readonly Aspect[] = [
   "prix",
   "lieu",
 ];
+
+/**
+ * Un article du catalogue, tiré du flux produits d'Oxatis (scripts/preparer-fiches.mjs) : son nom, sa page et les lignes de
+ * sa fiche qui donnent une mesure. Sert à répondre « quelle hauteur fait ce vinaigrier ? » avec les mesures de la fiche.
+ */
+export interface FicheProduit {
+  readonly id: string;
+  readonly nom: string;
+  readonly url: string;
+  readonly mesures: readonly string[];
+}

@@ -38,8 +38,9 @@ describe("les questions du 12 au 16 novembre", () => {
     for (const question of ["Commande arrivée cassée", "ma commande est arrivée abîmée"]) dit(question, "produit-abime.procedure", /photos/);
   });
 
-  it("dit que les robinets de vinaigrier font 2 ou 3 pouces, pas 4", () => {
-    dit("Robinet 4 pouces", "robinet-4-pouces.definition", /2 pouces/, /3 pouces/, /4 pouces/);
+  // Corrigé le 25/11/2026 : le flux produits de la boutique contient un robinet de 4 pouces (11 cm) pour fût ou vinaigrier.
+  it("propose le robinet de 4 pouces (11 cm) pour fût ou vinaigrier", () => {
+    dit("Robinet 4 pouces", "robinet-4-pouces.definition", /4 pouces \(11 cm\)/, /3 pouces/);
   });
 
   it("ne cite pas de bouteille champenoise dans la gamme connue", () => {

@@ -34,8 +34,9 @@ describe("les questions du 26 octobre au 12 novembre", () => {
     dit("CONTENANCE DU Pot à Olives en Grès Émaillé - avec sa Cuillère et son Couvercle en Bois", /contenance/, /service client/);
   });
 
-  it("dit ce qu'il ne sait pas : dame-jeanne, fumoir, pince à bocaux, brosse, robinet", () => {
-    dit("Dimension de la dame Jeanne 25 l", /3,9 cm/, /diamètre du corps/);
+  it("dit ce qu'il sait et ce qu'il ne sait pas : dame-jeanne, fumoir, pince à bocaux, brosse, robinet", () => {
+    // Depuis le 26/11/2026, les fiches produits donnent la hauteur des deux dames-jeannes de 25 L (col fin et col large).
+    dit("Dimension de la dame Jeanne 25 l", /3,9 cm/, /43,4 ?cm/, /Col Large/);
     dit("est ce qu'il y a un thermostat au fumoir pour bien réguler la température?", /thermostat/);
     dit("longueur de la pince à bocaux", /n'est pas indiquée/);
     dit("pouvez vous me donner le diamètre de fixation de la brosse de rechange et le pas de vis", /pas de vis/, /47 cm/);

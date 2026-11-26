@@ -12,6 +12,7 @@
 import type { BaseDeSavoir, Concept, Lien, TypeDeQuestion } from "../savoir/types";
 import { TYPES_DE_QUESTION } from "../savoir/types";
 import { DetecteurDeConcepts } from "./concepts";
+import { type ArticlesReconnus, type ArticleTrouve, ficheDonneLaMesure, FichesProduits } from "./fiches";
 import { decouperLesDemandes } from "./phrase";
 import { RechercheDansLesFaits } from "./recherche";
 import { ConstructeurDeReponse, type FaitRetenu, type RoleDeConcept } from "./reponse";
@@ -188,12 +189,23 @@ const MAX_SUJET = 2;
 const MAX_REPONSES_COURTES = 2;
 /** Une question de clarification propose au plus ce nombre de boutons. */
 const MAX_BOUTONS_DE_CLARIFICATION = 4;
+/**
+ * Une question qui demande une MESURE (pas un prix, pas un délai) : seule celle-là va chercher les mesures des fiches produits.
+ * « Vendez-vous des fûts de 150 L ? » cite une contenance mais n'en demande pas.
+ */
+const DEMANDE_DE_MESURE =
+  / (?:dimensions?|tailles?|diametres?|hauteurs?|largeurs?|longueurs?|profondeurs?|epaisseurs?|contenances?|capacites?|poids|mesures?|mesure t il|mesure t elle|combien mesure|fait combien|quel volume|encombrement) /;
+/** Un fait de mesure qui avoue ne pas connaître la mesure et renvoie à la fiche du produit. */
+const RENVOIE_A_LA_FICHE = /ne sont pas indiqu|n'est pas indiqu|pas dans ma base|je ne connais que|regardez la fiche/i;
+/** Lignes de mesure citées par article quand plusieurs articles répondent. */
+const MESURES_PAR_ARTICLE = 3;
 
 export class Assistant {
   private readonly detecteur: DetecteurDeConcepts;
   private readonly constructeur: ConstructeurDeReponse;
   private readonly recherche: RechercheDansLesFaits;
   private readonly faitsParId: ReadonlyMap<string, BaseDeSavoir["faits"][number]>;
+  private readonly fiches: FichesProduits;
 
   constructor(
     private readonly base: BaseDeSavoir,
@@ -203,6 +215,7 @@ export class Assistant {
     this.constructeur = new ConstructeurDeReponse(base.faits, this.detecteur);
     this.recherche = new RechercheDansLesFaits(base);
     this.faitsParId = new Map(base.faits.map((f) => [f.id, f]));
+    this.fiches = new FichesProduits(base.fiches ?? []);
     this.prechauffer();
   }
 
@@ -374,6 +387,12 @@ export class Assistant {
       }
     }
 
+    // « Quelle est la hauteur de l'éprouvette graduée 250 ml ? » : un article du catalogue cité par son nom, et une mesure demandée.
+    // Quand la base n'a pas de fait de mesure pour lui, la fiche de l'article répond mieux que le savoir général sur sa famille.
+    const demandeUneMesure = !relance && (type === "valeur" || type === null) && DEMANDE_DE_MESURE.test(` ${forme} `);
+    const articles: ArticlesReconnus = demandeUneMesure ? this.fiches.reconnaitre(message) : { articles: [], certain: false };
+    const parLesFiches = articles.certain || (articles.articles.length >= 2 && articles.articles.filter((a) => a.fiche.mesures.length > 0).length >= 2);
+
     if (cites.length > 0) {
       const mots = this.detecteur.racinesCorrigees(message);
       const construction = this.constructeur.construire(cites, type, {
@@ -390,6 +409,8 @@ export class Assistant {
         const sujet = this.sujetEnClair(famille && cites.includes(famille) ? famille : (structure.objet[0] ?? cites[0]!));
         return this.clarifier("familles-a-egalite", cites, type, membres.map((id) => questionDuType(type, this.sujetEnClair(id))), `Cela dépend de **${sujet}** : lequel vous intéresse ?`, signal, substitutions, structure);
       }
+      // La base sait déjà donner cette mesure (l'équipe l'a relevée) : son fait l'emporte. Sinon, la fiche de l'article.
+      if (parLesFiches && this.lesFichesRepondentMieux(construction.faits[0]?.fait, articles, forme)) return this.mesuresDesFiches(articles.articles, cites, type, signal);
       if (construction.faits.length > 0) {
         return this.mettreEnForme("reponse", construction.faits, construction.liens, cites, type, {
           signal,
@@ -401,6 +422,8 @@ export class Assistant {
         });
       }
     }
+
+    if (parLesFiches) return this.mesuresDesFiches(articles.articles, cites, type, signal);
 
     // Un lien vers un autre site, sans rien d'autre que je comprenne : je ne peux pas l'ouvrir.
     if (cites.length === 0 && lienIllisible) return this.lienIllisible();
@@ -429,6 +452,80 @@ export class Assistant {
       .map((id) => this.detecteur.concept(id))
       .filter((c): c is Concept => !!c);
     return this.inconnu(pistes, typeDeLaRegle, marque?.signal ?? null);
+  }
+
+  // ─── Les mesures des fiches produits ──────────────────────────────────────
+
+  /**
+   * Les fiches répondent-elles mieux que le fait retenu par la base ?
+   * - Un fait qui ne parle pas de l'article cité : oui, si une fiche donne la mesure demandée. « Cire à cacheter pour bouteilles »
+   *   cite la bouteille, mais la mesure des bouteilles ne dit rien de la cire.
+   * - Plusieurs articles à égalité et un fait sur leur sorte : non, sauf si ce fait renvoie lui-même aux fiches.
+   * - Un fait de mesure sur l'article (« l'éprouvette fait 29 cm », relevé par l'équipe) : non, sauf s'il avoue ne pas connaître
+   *   la mesure et renvoie lui-même à la fiche (« la hauteur n'est pas indiquée dans ma base »).
+   * - Un autre fait sur l'article (comment le choisir) : oui, si une fiche donne la mesure demandée.
+   */
+  private lesFichesRepondentMieux(fait: BaseDeSavoir["faits"][number] | undefined, articles: ArticlesReconnus, forme: string): boolean {
+    if (!fait) return true;
+    const fichesDonnentLaMesure = articles.articles.some((a) => ficheDonneLaMesure(a.fiche, forme));
+    if (!this.faitParleDe(fait, articles.tete)) return fichesDonnentLaMesure;
+    // Plusieurs articles possibles et un fait sur leur sorte (« quelle taille pour un vinaigrier de 4 L ? ») : le conseil de la base
+    // répond à la question, la liste des fiches non.
+    if (!articles.certain) return fait.aspect === "dimension" && RENVOIE_A_LA_FICHE.test(fait.enonce) && fichesDonnentLaMesure;
+    if (fait.aspect === "dimension" && !RENVOIE_A_LA_FICHE.test(fait.enonce)) return false;
+    return fichesDonnentLaMesure;
+  }
+
+  /** Un concept du fait porte-t-il le mot de tête de l'article (« vinaigri » pour un vinaigrier) ? */
+  private faitParleDe(fait: BaseDeSavoir["faits"][number], tete: string | undefined): boolean {
+    if (!tete) return true;
+    return fait.concepts.some((id) => {
+      const c = this.detecteur.concept(id);
+      return !!c && [c.libelle, ...c.alias].some((a) => racines(a).includes(tete));
+    });
+  }
+
+  /**
+   * La réponse tirée des fiches : un article (ses mesures, ou le fait que sa fiche n'en donne pas) ou plusieurs (chacun avec ses
+   * premières mesures). Toujours le lien vers la fiche, et le service client pour une mesure que la fiche ne donne pas.
+   */
+  private mesuresDesFiches(articles: readonly ArticleTrouve[], cites: readonly string[], type: TypeDeQuestion | null, signal: string | null): Reponse {
+    const { telephone, email, contact } = this.reglages;
+    const service = `le service client au **${telephone}** ou à **${email}**`;
+    let texte: string;
+    if (articles.length === 1) {
+      const { nom, mesures } = articles[0]!.fiche;
+      texte =
+        mesures.length > 0
+          ? `D'après la fiche **${nom}** :\n\n${mesures.map((m) => `- ${m}`).join("\n")}\n\nSi la mesure qui vous intéresse n'y figure pas, ${service} vous la donnera.`
+          : `La fiche **${nom}** ne précise pas encore ses dimensions. ${service.charAt(0).toUpperCase()}${service.slice(1)} vous les communiquera.`;
+    } else {
+      const lignes = articles.map(({ fiche }) =>
+        fiche.mesures.length > 0 ? `- **${fiche.nom}** : ${fiche.mesures.slice(0, MESURES_PAR_ARTICLE).join(" ; ")}` : `- **${fiche.nom}** : mesures non précisées sur la fiche`,
+      );
+      texte = `Plusieurs articles correspondent. Voici ce qu'indiquent leurs fiches :\n\n${lignes.join("\n")}\n\nPour une autre mesure, ${service} vous renseignera.`;
+    }
+    const liens: Lien[] = [...articles.map(({ fiche }) => ({ libelle: articles.length === 1 ? "Voir la fiche du produit" : fiche.nom.length > 60 ? `${fiche.nom.slice(0, 57).trimEnd()}…` : fiche.nom, url: fiche.url })), contact].slice(0, 3);
+    return {
+      nature: "reponse",
+      texte,
+      liens,
+      suggestions: this.suggestions(cites, []),
+      contexte: { concepts: [...cites].slice(0, 5), type },
+      trace: {
+        type,
+        signal,
+        concepts: [...cites],
+        relance: false,
+        faits: articles.map(({ fiche }) => `fiche:${fiche.id}`),
+        plan: [],
+        substitutions: [],
+        structure: STRUCTURE_VIDE,
+        demandes: [],
+        classifieur: null,
+        clarification: null,
+      },
+    };
   }
 
   // ─── Clarification ────────────────────────────────────────────────────────

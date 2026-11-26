@@ -1,4 +1,5 @@
 // La base de connaissances complète, assemblée et vérifiée au démarrage.
+import { FICHES_PRODUITS } from "./fiches-produits";
 import type { BaseDeSavoir, Concept, Fait } from "./types";
 import { ASPECTS } from "./types";
 import { bouchage } from "./bouchage";
@@ -58,4 +59,4 @@ export function defautsDeLaBase(base: BaseDeSavoir): string[] {
 const concepts: Concept[] = RUBRIQUES.flatMap((r) => r.concepts);
 const faits: Fait[] = RUBRIQUES.flatMap((r) => r.faits);
 
-export const BASE: BaseDeSavoir = { concepts, faits };
+export const BASE: BaseDeSavoir = { concepts, faits, fiches: FICHES_PRODUITS };
